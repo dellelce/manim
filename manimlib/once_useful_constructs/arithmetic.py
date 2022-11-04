@@ -19,9 +19,7 @@ class RearrangeEquation(Scene):
         transform_kwargs={},
     ):
         transform_kwargs["path_func"] = path
-        start_mobs, end_mobs = self.get_mobs_from_terms(
-            start_terms, end_terms
-        )
+        start_mobs, end_mobs = self.get_mobs_from_terms(start_terms, end_terms)
         if start_transform:
             start_mobs = start_transform(Mobject(*start_mobs)).split()
         if end_transform:
@@ -34,10 +32,7 @@ class RearrangeEquation(Scene):
         unmatched_end_indices.difference_update(
             [n % len(end_mobs) for n in list(index_map.values())]
         )
-        mobject_pairs = [
-            (start_mobs[a], end_mobs[b])
-            for a, b in index_map.items()
-        ] + [
+        mobject_pairs = [(start_mobs[a], end_mobs[b]) for a, b in index_map.items()] + [
             (Point(end_mobs[b].get_center()), end_mobs[b])
             for b in unmatched_end_indices
         ]
@@ -51,10 +46,7 @@ class RearrangeEquation(Scene):
         if leave_start_terms:
             self.add(Mobject(*start_mobs))
         self.wait()
-        self.play(*[
-            Transform(*pair, **transform_kwargs)
-            for pair in mobject_pairs
-        ])
+        self.play(*[Transform(*pair, **transform_kwargs) for pair in mobject_pairs])
         self.wait()
 
     def get_mobs_from_terms(self, start_terms, end_terms):
@@ -65,8 +57,7 @@ class RearrangeEquation(Scene):
         like point-clouds.
         """
         num_start_terms = len(start_terms)
-        all_mobs = np.array(
-            Tex(start_terms).split() + Tex(end_terms).split())
+        all_mobs = np.array(Tex(start_terms).split() + Tex(end_terms).split())
         all_terms = np.array(start_terms + end_terms)
         for term in set(all_terms):
             matches = all_terms == term

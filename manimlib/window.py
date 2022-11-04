@@ -23,12 +23,7 @@ class Window(PygletWindow):
     vsync = True
     cursor = True
 
-    def __init__(
-        self,
-        scene: Scene,
-        size: tuple[int, int] = (1280, 720),
-        **kwargs
-    ):
+    def __init__(self, scene: Scene, size: tuple[int, int] = (1280, 720), **kwargs):
         super().__init__(size=size)
         digest_config(self, kwargs)
 
@@ -73,10 +68,7 @@ class Window(PygletWindow):
 
     # Delegate event handling to scene
     def pixel_coords_to_space_coords(
-        self,
-        px: int,
-        py: int,
-        relative: bool = False
+        self, px: int, py: int, relative: bool = False
     ) -> np.ndarray:
         pw, ph = self.size
         fw, fh = self.scene.camera.get_frame_shape()
@@ -84,11 +76,9 @@ class Window(PygletWindow):
         if relative:
             return np.array([px / pw, py / ph, 0])
         else:
-            return np.array([
-                fc[0] + px * fw / pw - fw / 2,
-                fc[1] + py * fh / ph - fh / 2,
-                0
-            ])
+            return np.array(
+                [fc[0] + px * fw / pw - fw / 2, fc[1] + py * fh / ph - fh / 2, 0]
+            )
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> None:
         super().on_mouse_motion(x, y, dx, dy)
@@ -96,7 +86,9 @@ class Window(PygletWindow):
         d_point = self.pixel_coords_to_space_coords(dx, dy, relative=True)
         self.scene.on_mouse_motion(point, d_point)
 
-    def on_mouse_drag(self, x: int, y: int, dx: int, dy: int, buttons: int, modifiers: int) -> None:
+    def on_mouse_drag(
+        self, x: int, y: int, dx: int, dy: int, buttons: int, modifiers: int
+    ) -> None:
         super().on_mouse_drag(x, y, dx, dy, buttons, modifiers)
         point = self.pixel_coords_to_space_coords(x, y)
         d_point = self.pixel_coords_to_space_coords(dx, dy, relative=True)
@@ -145,4 +137,4 @@ class Window(PygletWindow):
         self.scene.on_close()
 
     def is_key_pressed(self, symbol: int) -> bool:
-        return (symbol in self.pressed_keys)
+        return symbol in self.pressed_keys

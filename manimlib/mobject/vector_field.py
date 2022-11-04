@@ -34,16 +34,12 @@ if TYPE_CHECKING:
 
 
 def get_vectorized_rgb_gradient_function(
-    min_value: T,
-    max_value: T,
-    color_map: str
+    min_value: T, max_value: T, color_map: str
 ) -> Callable[[npt.ArrayLike], np.ndarray]:
     rgbs = np.array(get_colormap_list(color_map))
 
     def func(values):
-        alphas = inverse_interpolate(
-            min_value, max_value, np.array(values)
-        )
+        alphas = inverse_interpolate(min_value, max_value, np.array(values))
         alphas = np.clip(alphas, 0, 1)
         scaled_alphas = alphas * (len(rgbs) - 1)
         indices = scaled_alphas.astype(int)
@@ -52,33 +48,28 @@ def get_vectorized_rgb_gradient_function(
         inter_alphas = inter_alphas.repeat(3).reshape((len(indices), 3))
         result = interpolate(rgbs[indices], rgbs[next_indices], inter_alphas)
         return result
+
     return func
 
 
 def get_rgb_gradient_function(
-    min_value: T,
-    max_value: T,
-    color_map: str
+    min_value: T, max_value: T, color_map: str
 ) -> Callable[[T], np.ndarray]:
-    vectorized_func = get_vectorized_rgb_gradient_function(min_value, max_value, color_map)
+    vectorized_func = get_vectorized_rgb_gradient_function(
+        min_value, max_value, color_map
+    )
     return lambda value: vectorized_func([value])[0]
 
 
 def move_along_vector_field(
-    mobject: Mobject,
-    func: Callable[[np.ndarray], np.ndarray]
+    mobject: Mobject, func: Callable[[np.ndarray], np.ndarray]
 ) -> Mobject:
-    mobject.add_updater(
-        lambda m, dt: m.shift(
-            func(m.get_center()) * dt
-        )
-    )
+    mobject.add_updater(lambda m, dt: m.shift(func(m.get_center()) * dt))
     return mobject
 
 
 def move_submobjects_along_vector_field(
-    mobject: Mobject,
-    func: Callable[[np.ndarray], np.ndarray]
+    mobject: Mobject, func: Callable[[np.ndarray], np.ndarray]
 ) -> Mobject:
     def apply_nudge(mob, dt):
         for submob in mob:
@@ -93,22 +84,20 @@ def move_submobjects_along_vector_field(
 def move_points_along_vector_field(
     mobject: Mobject,
     func: Callable[[float, float], Iterable[float]],
-    coordinate_system: CoordinateSystem
+    coordinate_system: CoordinateSystem,
 ) -> Mobject:
     cs = coordinate_system
     origin = cs.get_origin()
 
     def apply_nudge(self, dt):
-        mobject.apply_function(
-            lambda p: p + (cs.c2p(*func(*cs.p2c(p))) - origin) * dt
-        )
+        mobject.apply_function(lambda p: p + (cs.c2p(*func(*cs.p2c(p))) - origin) * dt)
+
     mobject.add_updater(apply_nudge)
     return mobject
 
 
 def get_sample_points_from_coordinate_system(
-    coordinate_system: CoordinateSystem,
-    step_multiple: float
+    coordinate_system: CoordinateSystem, step_multiple: float
 ) -> it.product[tuple[np.ndarray, ...]]:
     ranges = []
     for range_args in coordinate_system.get_all_ranges():
@@ -119,6 +108,7 @@ def get_sample_points_from_coordinate_system(
 
 
 # Mobjects
+
 
 class VectorField(VGroup):
     CONFIG = {
@@ -135,28 +125,23 @@ class VectorField(VGroup):
         self,
         func: Callable[[float, float], Sequence[float]],
         coordinate_system: CoordinateSystem,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.func = func
         self.coordinate_system = coordinate_system
         self.value_to_rgb = get_rgb_gradient_function(
-            *self.magnitude_range, self.color_map,
+            *self.magnitude_range,
+            self.color_map,
         )
 
         samples = get_sample_points_from_coordinate_system(
             coordinate_system, self.step_multiple
         )
-        self.add(*(
-            self.get_vector(coords)
-            for coords in samples
-        ))
+        self.add(*(self.get_vector(coords) for coords in samples))
 
     def get_vector(self, coords: Iterable[float], **kwargs) -> Arrow:
-        vector_config = merge_dicts_recursively(
-            self.vector_config,
-            kwargs
-        )
+        vector_config = merge_dicts_recursively(self.vector_config, kwargs)
 
         output = np.array(self.func(*coords))
         norm = get_norm(output)
@@ -167,10 +152,7 @@ class VectorField(VGroup):
         _input = self.coordinate_system.c2p(*coords)
         _output = self.coordinate_system.c2p(*output)
 
-        vect = Arrow(
-            origin, _output, buff=0,
-            **vector_config
-        )
+        vect = Arrow(origin, _output, buff=0, **vector_config)
         vect.shift(_input - origin)
         vect.set_rgba_array([[*self.value_to_rgb(norm), self.opacity]])
         return vect
@@ -201,7 +183,7 @@ class StreamLines(VGroup):
         self,
         func: Callable[[float, float], Sequence[float]],
         coordinate_system: CoordinateSystem,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.func = func
@@ -224,7 +206,9 @@ class StreamLines(VGroup):
             for x in range(self.max_time_steps):
                 time += self.dt
                 last_point = points[-1]
-                new_point = last_point + self.dt * (self.point_func(last_point) - origin)
+                new_point = last_point + self.dt * (
+                    self.point_func(last_point) - origin
+                )
                 points.append(new_point)
                 total_arc_len += get_norm(new_point - last_point)
                 if get_norm(last_point) > self.cutoff_norm:
@@ -242,29 +226,32 @@ class StreamLines(VGroup):
     def get_start_points(self) -> np.ndarray:
         cs = self.coordinate_system
         sample_coords = get_sample_points_from_coordinate_system(
-            cs, self.step_multiple,
+            cs,
+            self.step_multiple,
         )
 
         noise_factor = self.noise_factor
         if noise_factor is None:
             noise_factor = cs.x_range[2] * self.step_multiple * 0.5
 
-        return np.array([
-            cs.c2p(*coords) + noise_factor * np.random.random(3)
-            for n in range(self.n_repeats)
-            for coords in sample_coords
-        ])
+        return np.array(
+            [
+                cs.c2p(*coords) + noise_factor * np.random.random(3)
+                for n in range(self.n_repeats)
+                for coords in sample_coords
+            ]
+        )
 
     def init_style(self) -> None:
         if self.color_by_magnitude:
             values_to_rgbs = get_vectorized_rgb_gradient_function(
-                *self.magnitude_range, self.color_map,
+                *self.magnitude_range,
+                self.color_map,
             )
             cs = self.coordinate_system
             for line in self.submobjects:
                 norms = [
-                    get_norm(self.func(*cs.p2c(point)))
-                    for point in line.get_points()
+                    get_norm(self.func(*cs.p2c(point))) for point in line.get_points()
                 ]
                 rgbs = values_to_rgbs(norms)
                 rgbas = np.zeros((len(rgbs), 4))
@@ -317,24 +304,23 @@ class AnimatedStreamLines(VGroup):
 
 # TODO: This class should be deleted
 class ShowPassingFlashWithThinningStrokeWidth(AnimationGroup):
-    CONFIG = {
-        "n_segments": 10,
-        "time_width": 0.1,
-        "remover": True
-    }
+    CONFIG = {"n_segments": 10, "time_width": 0.1, "remover": True}
 
     def __init__(self, vmobject: VMobject, **kwargs):
         digest_config(self, kwargs)
         max_stroke_width = vmobject.get_stroke_width()
         max_time_width = kwargs.pop("time_width", self.time_width)
-        AnimationGroup.__init__(self, *[
-            VShowPassingFlash(
-                vmobject.copy().set_stroke(width=stroke_width),
-                time_width=time_width,
-                **kwargs
-            )
-            for stroke_width, time_width in zip(
-                np.linspace(0, max_stroke_width, self.n_segments),
-                np.linspace(max_time_width, 0, self.n_segments)
-            )
-        ])
+        AnimationGroup.__init__(
+            self,
+            *[
+                VShowPassingFlash(
+                    vmobject.copy().set_stroke(width=stroke_width),
+                    time_width=time_width,
+                    **kwargs,
+                )
+                for stroke_width, time_width in zip(
+                    np.linspace(0, max_stroke_width, self.n_segments),
+                    np.linspace(max_time_width, 0, self.n_segments),
+                )
+            ],
+        )

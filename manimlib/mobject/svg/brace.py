@@ -30,17 +30,9 @@ if TYPE_CHECKING:
 
 
 class Brace(SingleStringTex):
-    CONFIG = {
-        "buff": 0.2,
-        "tex_string": r"\underbrace{\qquad}"
-    }
+    CONFIG = {"buff": 0.2, "tex_string": r"\underbrace{\qquad}"}
 
-    def __init__(
-        self,
-        mobject: Mobject,
-        direction: np.ndarray = DOWN,
-        **kwargs
-    ):
+    def __init__(self, mobject: Mobject, direction: np.ndarray = DOWN, **kwargs):
         digest_config(self, kwargs, locals())
         angle = -math.atan2(*direction[:2]) + PI
         mobject.rotate(-angle, about_point=ORIGIN)
@@ -58,28 +50,21 @@ class Brace(SingleStringTex):
     def set_initial_width(self, width: float):
         width_diff = width - self.get_width()
         if width_diff > 0:
-            for tip, rect, vect in [(self[0], self[1], RIGHT), (self[5], self[4], LEFT)]:
+            for tip, rect, vect in [
+                (self[0], self[1], RIGHT),
+                (self[5], self[4], LEFT),
+            ]:
                 rect.set_width(
-                    width_diff / 2 + rect.get_width(),
-                    about_edge=vect, stretch=True
+                    width_diff / 2 + rect.get_width(), about_edge=vect, stretch=True
                 )
                 tip.shift(-width_diff / 2 * vect)
         else:
             self.set_width(width, stretch=True)
         return self
 
-    def put_at_tip(
-        self,
-        mob: Mobject,
-        use_next_to: bool = True,
-        **kwargs
-    ):
+    def put_at_tip(self, mob: Mobject, use_next_to: bool = True, **kwargs):
         if use_next_to:
-            mob.next_to(
-                self.get_tip(),
-                np.round(self.get_direction()),
-                **kwargs
-            )
+            mob.next_to(self.get_tip(), np.round(self.get_direction()), **kwargs)
         else:
             mob.move_to(self.get_tip())
             buff = kwargs.get("buff", DEFAULT_MOBJECT_TO_MOBJECT_BUFFER)
@@ -113,7 +98,7 @@ class BraceLabel(VMobject):
     CONFIG = {
         "label_constructor": Tex,
         "label_scale": 1,
-        "label_buff": DEFAULT_MOBJECT_TO_MOBJECT_BUFFER  
+        "label_buff": DEFAULT_MOBJECT_TO_MOBJECT_BUFFER,
     }
 
     def __init__(
@@ -121,7 +106,7 @@ class BraceLabel(VMobject):
         obj: VMobject | list[VMobject],
         text: str | Iterable[str],
         brace_direction: np.ndarray = DOWN,
-        **kwargs
+        **kwargs,
     ) -> None:
         VMobject.__init__(self, **kwargs)
         self.brace_direction = brace_direction
@@ -136,9 +121,7 @@ class BraceLabel(VMobject):
         self.set_submobjects([self.brace, self.label])
 
     def creation_anim(
-        self,
-        label_anim: Animation = FadeIn,
-        brace_anim: Animation = GrowFromCenter
+        self, label_anim: Animation = FadeIn, brace_anim: Animation = GrowFromCenter
     ) -> AnimationGroup:
         return AnimationGroup(brace_anim(self.brace), label_anim(self.label))
 
@@ -174,6 +157,4 @@ class BraceLabel(VMobject):
 
 
 class BraceText(BraceLabel):
-    CONFIG = {
-        "label_constructor": TexText
-    }
+    CONFIG = {"label_constructor": TexText}

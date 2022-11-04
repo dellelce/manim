@@ -21,7 +21,9 @@ class CountingScene(Scene):
         return self
 
     def count_mobjects(
-        self, mobjects, mode="highlight",
+        self,
+        mobjects,
+        mode="highlight",
         color="red",
         display_numbers=True,
         num_offset=DEFAULT_COUNT_NUM_OFFSET,
@@ -34,8 +36,10 @@ class CountingScene(Scene):
         a warning is given and nothing is animating during the count
         """
         if len(mobjects) > 50:  # TODO
-            raise Exception("I don't know if you should be counting \
-                             too many mobjects...")
+            raise Exception(
+                "I don't know if you should be counting \
+                             too many mobjects..."
+            )
         if len(mobjects) == 0:
             raise Exception("Counting mobject list of length 0")
         if mode not in ["highlight", "show_creation", "show"]:
@@ -65,11 +69,14 @@ class CountingScene(Scene):
             self.number = num_mob
         return self
 
-    def count_regions(self, regions,
-                      mode="one_at_a_time",
-                      num_offset=DEFAULT_COUNT_NUM_OFFSET,
-                      run_time=DEFAULT_COUNT_RUN_TIME,
-                      **unused_kwargsn):
+    def count_regions(
+        self,
+        regions,
+        mode="one_at_a_time",
+        num_offset=DEFAULT_COUNT_NUM_OFFSET,
+        run_time=DEFAULT_COUNT_RUN_TIME,
+        **unused_kwargsn
+    ):
         if mode not in ["one_at_a_time", "show_all"]:
             raise Warning("Unknown mode")
         frame_time = run_time / (len(regions))
@@ -103,14 +110,11 @@ class GeneralizedPascalsTriangle(VMobject):
     def init_points(self):
         self.cell_height = float(self.height) / self.nrows
         self.cell_width = float(self.width) / self.nrows
-        self.bottom_left = (self.cell_width * self.nrows / 2.0) * LEFT + \
-                           (self.cell_height * self.nrows / 2.0) * DOWN
+        self.bottom_left = (self.cell_width * self.nrows / 2.0) * LEFT + (
+            self.cell_height * self.nrows / 2.0
+        ) * DOWN
         self.coords_to_mobs = {}
-        self.coords = [
-            (n, k)
-            for n in range(self.nrows)
-            for k in range(n + 1)
-        ]
+        self.coords = [(n, k) for n in range(self.nrows) for k in range(n + 1)]
         for n, k in self.coords:
             center = self.coords_to_center(n, k)
             num_mob = self.submob_class(n, k)  # Tex(str(num))
@@ -123,10 +127,7 @@ class GeneralizedPascalsTriangle(VMobject):
             if n not in self.coords_to_mobs:
                 self.coords_to_mobs[n] = {}
             self.coords_to_mobs[n][k] = num_mob
-        self.add(*[
-            self.coords_to_mobs[n][k]
-            for n, k in self.coords
-        ])
+        self.add(*[self.coords_to_mobs[n][k] for n, k in self.coords])
         return self
 
     def coords_to_center(self, n, k):
@@ -154,10 +155,7 @@ class GeneralizedPascalsTriangle(VMobject):
         if not hasattr(self, "coords_to_n_choose_k"):
             self.generate_n_choose_k_mobs()
         self.set_submobjects([])
-        self.add(*[
-            self.coords_to_n_choose_k[n][k]
-            for n, k in self.coords
-        ])
+        self.add(*[self.coords_to_n_choose_k[n][k] for n, k in self.coords])
         return self
 
     def generate_sea_of_zeros(self):
@@ -175,10 +173,7 @@ class GeneralizedPascalsTriangle(VMobject):
 
     def get_lowest_row(self):
         n = self.nrows - 1
-        lowest_row = VGroup(*[
-            self.coords_to_mobs[n][k]
-            for k in range(n + 1)
-        ])
+        lowest_row = VGroup(*[self.coords_to_mobs[n][k] for k in range(n + 1)])
         return lowest_row
 
 

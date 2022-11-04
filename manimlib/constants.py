@@ -26,16 +26,16 @@ DEFAULT_POINTWISE_FUNCTION_RUN_TIME = 3.0
 DEFAULT_WAIT_TIME = 1.0
 
 
-ORIGIN = np.array((0., 0., 0.))
-UP = np.array((0., 1., 0.))
-DOWN = np.array((0., -1., 0.))
-RIGHT = np.array((1., 0., 0.))
-LEFT = np.array((-1., 0., 0.))
-IN = np.array((0., 0., -1.))
-OUT = np.array((0., 0., 1.))
-X_AXIS = np.array((1., 0., 0.))
-Y_AXIS = np.array((0., 1., 0.))
-Z_AXIS = np.array((0., 0., 1.))
+ORIGIN = np.array((0.0, 0.0, 0.0))
+UP = np.array((0.0, 1.0, 0.0))
+DOWN = np.array((0.0, -1.0, 0.0))
+RIGHT = np.array((1.0, 0.0, 0.0))
+LEFT = np.array((-1.0, 0.0, 0.0))
+IN = np.array((0.0, 0.0, -1.0))
+OUT = np.array((0.0, 0.0, 1.0))
+X_AXIS = np.array((1.0, 0.0, 0.0))
+Y_AXIS = np.array((0.0, 1.0, 0.0))
+Z_AXIS = np.array((0.0, 0.0, 1.0))
 
 # Useful abbreviations for diagonals
 UL = UP + LEFT
@@ -140,17 +140,58 @@ GREEN_SCREEN = "#00FF00"
 ORANGE = "#FF862F"
 
 MANIM_COLORS = [
-    BLACK, GREY_E, GREY_D, GREY_C, GREY_B, GREY_A, WHITE,
-    BLUE_E, BLUE_D, BLUE_C, BLUE_B, BLUE_A,
-    TEAL_E, TEAL_D, TEAL_C, TEAL_B, TEAL_A,
-    GREEN_E, GREEN_D, GREEN_C, GREEN_B, GREEN_A,
-    YELLOW_E, YELLOW_D, YELLOW_C, YELLOW_B, YELLOW_A,
-    GOLD_E, GOLD_D, GOLD_C, GOLD_B, GOLD_A,
-    RED_E, RED_D, RED_C, RED_B, RED_A,
-    MAROON_E, MAROON_D, MAROON_C, MAROON_B, MAROON_A,
-    PURPLE_E, PURPLE_D, PURPLE_C, PURPLE_B, PURPLE_A,
-    GREY_BROWN, DARK_BROWN, LIGHT_BROWN,
-    PINK, LIGHT_PINK,
+    BLACK,
+    GREY_E,
+    GREY_D,
+    GREY_C,
+    GREY_B,
+    GREY_A,
+    WHITE,
+    BLUE_E,
+    BLUE_D,
+    BLUE_C,
+    BLUE_B,
+    BLUE_A,
+    TEAL_E,
+    TEAL_D,
+    TEAL_C,
+    TEAL_B,
+    TEAL_A,
+    GREEN_E,
+    GREEN_D,
+    GREEN_C,
+    GREEN_B,
+    GREEN_A,
+    YELLOW_E,
+    YELLOW_D,
+    YELLOW_C,
+    YELLOW_B,
+    YELLOW_A,
+    GOLD_E,
+    GOLD_D,
+    GOLD_C,
+    GOLD_B,
+    GOLD_A,
+    RED_E,
+    RED_D,
+    RED_C,
+    RED_B,
+    RED_A,
+    MAROON_E,
+    MAROON_D,
+    MAROON_C,
+    MAROON_B,
+    MAROON_A,
+    PURPLE_E,
+    PURPLE_D,
+    PURPLE_C,
+    PURPLE_B,
+    PURPLE_A,
+    GREY_BROWN,
+    DARK_BROWN,
+    LIGHT_BROWN,
+    PINK,
+    LIGHT_PINK,
 ]
 
 # Abbreviated names for the "median" colors

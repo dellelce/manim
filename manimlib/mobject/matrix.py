@@ -38,10 +38,7 @@ def matrix_to_tex_string(matrix: npt.ArrayLike) -> str:
     n_rows, n_cols = matrix.shape
     prefix = "\\left[ \\begin{array}{%s}" % ("c" * n_cols)
     suffix = "\\end{array} \\right]"
-    rows = [
-        " & ".join(row)
-        for row in matrix
-    ]
+    rows = [" & ".join(row) for row in matrix]
     return prefix + " \\\\ ".join(rows) + suffix
 
 
@@ -53,7 +50,7 @@ def vector_coordinate_label(
     vector_mob: VMobject,
     integer_labels: bool = True,
     n_dim: int = 2,
-    color: ManimColor = WHITE
+    color: ManimColor = WHITE,
 ) -> Matrix:
     vect = np.array(vector_mob.get_end())
     if integer_labels:
@@ -121,24 +118,26 @@ class Matrix(VMobject):
                 mob = matrix[i][j]
                 mob.move_to(
                     i * self.v_buff * DOWN + j * self.h_buff * RIGHT,
-                    self.element_alignment_corner
+                    self.element_alignment_corner,
                 )
         return self
 
     def add_brackets(self):
         height = len(self.mob_matrix)
-        bracket_pair = Tex("".join([
-            "\\left[",
-            "\\begin{array}{c}",
-            *height * ["\\quad \\\\"],
-            "\\end{array}",
-            "\\right]",
-        ]))[0]
-        bracket_pair.set_height(
-            self.get_height() + 1 * self.bracket_v_buff
-        )
-        l_bracket = bracket_pair[:len(bracket_pair) // 2]
-        r_bracket = bracket_pair[len(bracket_pair) // 2:]
+        bracket_pair = Tex(
+            "".join(
+                [
+                    "\\left[",
+                    "\\begin{array}{c}",
+                    *height * ["\\quad \\\\"],
+                    "\\end{array}",
+                    "\\right]",
+                ]
+            )
+        )[0]
+        bracket_pair.set_height(self.get_height() + 1 * self.bracket_v_buff)
+        l_bracket = bracket_pair[: len(bracket_pair) // 2]
+        r_bracket = bracket_pair[len(bracket_pair) // 2 :]
         l_bracket.next_to(self, LEFT, self.bracket_h_buff)
         r_bracket.next_to(self, RIGHT, self.bracket_h_buff)
         self.add(l_bracket, r_bracket)
@@ -146,16 +145,15 @@ class Matrix(VMobject):
         return self
 
     def get_columns(self) -> VGroup:
-        return VGroup(*[
-            VGroup(*[row[i] for row in self.mob_matrix])
-            for i in range(len(self.mob_matrix[0]))
-        ])
+        return VGroup(
+            *[
+                VGroup(*[row[i] for row in self.mob_matrix])
+                for i in range(len(self.mob_matrix[0]))
+            ]
+        )
 
     def get_rows(self) -> VGroup:
-        return VGroup(*[
-            VGroup(*row)
-            for row in self.mob_matrix
-        ])
+        return VGroup(*[VGroup(*row) for row in self.mob_matrix])
 
     def set_column_colors(self, *colors: ManimColor):
         columns = self.get_columns()
@@ -181,7 +179,7 @@ class Matrix(VMobject):
 class DecimalMatrix(Matrix):
     CONFIG = {
         "element_to_mobject": DecimalNumber,
-        "element_to_mobject_config": {"num_decimal_places": 1}
+        "element_to_mobject_config": {"num_decimal_places": 1},
     }
 
 
@@ -202,7 +200,7 @@ def get_det_text(
     matrix: Matrix,
     determinant: int | str | None = None,
     background_rect: bool = False,
-    initial_scale_factor: int = 2
+    initial_scale_factor: int = 2,
 ) -> VGroup:
     parens = Tex("(", ")")
     parens.scale(initial_scale_factor)

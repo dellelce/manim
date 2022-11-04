@@ -16,15 +16,13 @@ class UpdateFromFunc(Animation):
     to be used when the state of one mobject is dependent
     on another simultaneously animated mobject
     """
+
     CONFIG = {
         "suspend_mobject_updating": False,
     }
 
     def __init__(
-        self,
-        mobject: Mobject,
-        update_function: Callable[[Mobject]],
-        **kwargs
+        self, mobject: Mobject, update_function: Callable[[Mobject]], **kwargs
     ):
         self.update_function = update_function
         super().__init__(mobject, **kwargs)
@@ -39,12 +37,7 @@ class UpdateFromAlphaFunc(UpdateFromFunc):
 
 
 class MaintainPositionRelativeTo(Animation):
-    def __init__(
-        self,
-        mobject: Mobject,
-        tracked_mobject: Mobject,
-        **kwargs
-    ):
+    def __init__(self, mobject: Mobject, tracked_mobject: Mobject, **kwargs):
         self.tracked_mobject = tracked_mobject
         self.diff = mobject.get_center() - tracked_mobject.get_center()
         super().__init__(mobject, **kwargs)

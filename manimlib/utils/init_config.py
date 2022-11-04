@@ -69,7 +69,7 @@ def init_customization() -> None:
         scope = Prompt.ask(
             "  Select the scope of the configuration",
             choices=["global", "local"],
-            default="local"
+            default="local",
         )
 
         console.print("[bold]Directories:[/bold]")
@@ -77,67 +77,70 @@ def init_customization() -> None:
         dir_config["output"] = Prompt.ask(
             "  Where should manim [bold]output[/bold] video and image files place [prompt.default](optional, default is none)",
             default="",
-            show_default=False
+            show_default=False,
         )
         dir_config["raster_images"] = Prompt.ask(
             "  Which folder should manim find [bold]raster images[/bold] (.jpg .png .gif) in "
             "[prompt.default](optional, default is none)",
             default="",
-            show_default=False
+            show_default=False,
         )
         dir_config["vector_images"] = Prompt.ask(
             "  Which folder should manim find [bold]vector images[/bold] (.svg .xdv) in "
             "[prompt.default](optional, default is none)",
             default="",
-            show_default=False
+            show_default=False,
         )
         dir_config["sounds"] = Prompt.ask(
             "  Which folder should manim find [bold]sound files[/bold] (.mp3 .wav) in "
             "[prompt.default](optional, default is none)",
             default="",
-            show_default=False
+            show_default=False,
         )
         dir_config["temporary_storage"] = Prompt.ask(
             "  Which folder should manim storage [bold]temporary files[/bold] "
             "[prompt.default](recommended, use system temporary folder by default)",
             default="",
-            show_default=False
+            show_default=False,
         )
 
         console.print("[bold]Styles:[/bold]")
         style_config = configuration["style"]
         tex_template = Prompt.ask(
-            "  Select a TeX template to compile a LaTeX source file",
-            default="default"
+            "  Select a TeX template to compile a LaTeX source file", default="default"
         )
         style_config["tex_template"] = tex_template
         style_config["background_color"] = Prompt.ask(
             "  Which [bold]background color[/bold] do you want [italic](hex code)",
-            default="#333333"
+            default="#333333",
         )
 
         console.print("[bold]Camera qualities:[/bold]")
         table = Table(
-            "low", "medium", "high", "ultra_high",
+            "low",
+            "medium",
+            "high",
+            "ultra_high",
             title="Four defined qualities",
-            box=box.ROUNDED
+            box=box.ROUNDED,
         )
         table.add_row("480p15", "720p30", "1080p60", "2160p60")
         console.print(table)
         configuration["camera_resolutions"]["default_resolution"] = Prompt.ask(
             "  Which one to choose as the default rendering quality",
             choices=["low", "medium", "high", "ultra_high"],
-            default="high"
+            default="high",
         )
 
         write_to_file = Confirm.ask(
-            "\n[bold]Are you sure to write these configs to file?[/bold]",
-            default=True
+            "\n[bold]Are you sure to write these configs to file?[/bold]", default=True
         )
         if not write_to_file:
             raise KeyboardInterrupt
 
-        global_file_name = os.path.join(get_manim_dir(), "manimlib", "default_config.yml")
+        global_file_name = os.path.join(
+            get_manim_dir(), "manimlib", "default_config.yml"
+        )
         if scope == "global":
             file_name = global_file_name
         else:
@@ -147,7 +150,9 @@ def init_customization() -> None:
         with open(file_name, "w", encoding="utf-8") as f:
             yaml.dump(configuration, f)
 
-        console.print(f"\n:rocket: You have successfully set up a {scope} configuration file!")
+        console.print(
+            f"\n:rocket: You have successfully set up a {scope} configuration file!"
+        )
         console.print(f"You can manually modify it in: [cyan]`{file_name}`[/cyan]")
 
     except KeyboardInterrupt:

@@ -27,11 +27,11 @@ class ParametricCurve(VMobject):
         self,
         t_func: Callable[[float], np.ndarray],
         t_range: Sequence[float] | None = None,
-        **kwargs
+        **kwargs,
     ):
         digest_config(self, kwargs)
         if t_range is not None:
-            self.t_range[:len(t_range)] = t_range
+            self.t_range[: len(t_range)] = t_range
         # To be backward compatible with all the scenes specifying t_min, t_max, step_size
         self.t_range = [
             kwargs.get("t_min", self.t_range[0]),
@@ -49,7 +49,12 @@ class ParametricCurve(VMobject):
 
         jumps = np.array(self.discontinuities)
         jumps = jumps[(jumps > t_min) & (jumps < t_max)]
-        boundary_times = [t_min, t_max, *(jumps - self.epsilon), *(jumps + self.epsilon)]
+        boundary_times = [
+            t_min,
+            t_max,
+            *(jumps - self.epsilon),
+            *(jumps + self.epsilon),
+        ]
         boundary_times.sort()
         for t1, t2 in zip(boundary_times[0::2], boundary_times[1::2]):
             t_range = [*np.arange(t1, t2, step), t2]
@@ -86,13 +91,13 @@ class FunctionGraph(ParametricCurve):
         self,
         function: Callable[[float], float],
         x_range: Sequence[float] | None = None,
-        **kwargs
+        **kwargs,
     ):
         digest_config(self, kwargs)
         self.function = function
 
         if x_range is not None:
-            self.x_range[:len(x_range)] = x_range
+            self.x_range[: len(x_range)] = x_range
 
         def parametric_function(t):
             return [t, function(t), 0]
@@ -106,14 +111,10 @@ class ImplicitFunction(VMobject):
         "y_range": [-FRAME_Y_RADIUS, FRAME_Y_RADIUS],
         "min_depth": 5,
         "max_quads": 1500,
-        "use_smoothing": True
+        "use_smoothing": True,
     }
 
-    def __init__(
-        self,
-        func: Callable[[float, float], float],
-        **kwargs
-    ):
+    def __init__(self, func: Callable[[float, float], float], **kwargs):
         digest_config(self, kwargs)
         self.function = func
         super().__init__(**kwargs)

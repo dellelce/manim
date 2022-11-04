@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def add_extension_if_not_present(file_name: str, extension: str) -> str:
     # This could conceivably be smarter about handling existing differing extensions
-    if(file_name[-len(extension):] != extension):
+    if file_name[-len(extension) :] != extension:
         return file_name + extension
     else:
         return file_name
@@ -28,13 +28,14 @@ def guarantee_existence(path: str) -> str:
 def find_file(
     file_name: str,
     directories: Iterable[str] | None = None,
-    extensions: Iterable[str] | None = None
+    extensions: Iterable[str] | None = None,
 ) -> str:
     # Check if this is a file online first, and if so, download
     # it to a temporary directory
     if validators.url(file_name):
         import urllib.request
         from manimlib.utils.directories import get_downloads_dir
+
         stem, name = os.path.split(file_name)
         folder = get_downloads_dir()
         path = os.path.join(folder, name)
@@ -69,8 +70,8 @@ def get_sorted_integer_files(
 ) -> list[str]:
     indexed_files = []
     for file in os.listdir(directory):
-        if '.' in file:
-            index_str = file[:file.index('.')]
+        if "." in file:
+            index_str = file[: file.index(".")]
         else:
             index_str = file
 

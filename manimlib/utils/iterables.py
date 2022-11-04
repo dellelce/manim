@@ -34,10 +34,7 @@ def list_difference_update(l1: Iterable[T], l2: Iterable[T]) -> list[T]:
 
 
 def adjacent_n_tuples(objects: Sequence[T], n: int) -> zip[tuple[T, T]]:
-    return zip(*[
-        [*objects[k:], *objects[:k]]
-        for k in range(n)
-    ])
+    return zip(*[[*objects[k:], *objects[:k]] for k in range(n)])
 
 
 def adjacent_pairs(objects: Sequence[T]) -> zip[tuple[T, T]]:
@@ -45,8 +42,7 @@ def adjacent_pairs(objects: Sequence[T]) -> zip[tuple[T, T]]:
 
 
 def batch_by_property(
-    items: Iterable[T],
-    property_func: Callable[[T], S]
+    items: Iterable[T], property_func: Callable[[T], S]
 ) -> list[tuple[T, S]]:
     """
     Takes in a list, and returns a list of tuples, (batch, prop)
@@ -104,16 +100,17 @@ def resize_with_interpolation(nparray: np.ndarray, length: int) -> np.ndarray:
     if length == 0:
         return np.zeros((0, *nparray.shape[1:]))
     cont_indices = np.linspace(0, len(nparray) - 1, length)
-    return np.array([
-        (1 - a) * nparray[lh] + a * nparray[rh]
-        for ci in cont_indices
-        for lh, rh, a in [(int(ci), int(np.ceil(ci)), ci % 1)]
-    ])
+    return np.array(
+        [
+            (1 - a) * nparray[lh] + a * nparray[rh]
+            for ci in cont_indices
+            for lh, rh, a in [(int(ci), int(np.ceil(ci)), ci % 1)]
+        ]
+    )
 
 
 def make_even(
-    iterable_1: Sequence[T],
-    iterable_2: Sequence[S]
+    iterable_1: Sequence[T], iterable_2: Sequence[S]
 ) -> tuple[list[T], list[S]]:
     len1 = len(iterable_1)
     len2 = len(iterable_2)
@@ -122,15 +119,13 @@ def make_even(
     new_len = max(len1, len2)
     return (
         [iterable_1[(n * len1) // new_len] for n in range(new_len)],
-        [iterable_2[(n * len2) // new_len] for n in range(new_len)]
+        [iterable_2[(n * len2) // new_len] for n in range(new_len)],
     )
 
 
 def hash_obj(obj: object) -> int:
     if isinstance(obj, dict):
-        return hash(tuple(sorted([
-            (hash_obj(k), hash_obj(v)) for k, v in obj.items()
-        ])))
+        return hash(tuple(sorted([(hash_obj(k), hash_obj(v)) for k, v in obj.items()])))
 
     if isinstance(obj, set):
         return hash(tuple(sorted(hash_obj(e) for e in obj)))

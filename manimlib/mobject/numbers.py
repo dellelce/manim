@@ -28,7 +28,7 @@ class DecimalNumber(VMobject):
         "include_background_rectangle": False,
         "edge_to_fix": LEFT,
         "font_size": 48,
-        "text_config": {}  # Do not pass in font_size here
+        "text_config": {},  # Do not pass in font_size here
     }
 
     def __init__(self, number: float | complex = 0, **kwargs):
@@ -41,10 +41,7 @@ class DecimalNumber(VMobject):
         self.set_submobjects([])
         self.text_config["font_size"] = self.get_font_size()
         num_string = self.num_string = self.get_num_string(number)
-        self.add(*(
-            Text(ns, **self.text_config)
-            for ns in num_string
-        ))
+        self.add(*(Text(ns, **self.text_config) for ns in num_string))
 
         # Add non-numerical bits
         if self.show_ellipsis:
@@ -56,8 +53,7 @@ class DecimalNumber(VMobject):
             self.add(self.unit_sign)
 
         self.arrange(
-            buff=self.digit_buff_per_font_unit * self.get_font_size(),
-            aligned_edge=DOWN
+            buff=self.digit_buff_per_font_unit * self.get_font_size(), aligned_edge=DOWN
         )
 
         # Handle alignment of parts that should be aligned
@@ -107,32 +103,38 @@ class DecimalNumber(VMobject):
         - num_decimal_places
         - field_name (e.g. 0 or 0.real)
         """
-        config = dict([
-            (attr, getattr(self, attr))
-            for attr in [
-                "include_sign",
-                "group_with_commas",
-                "num_decimal_places",
+        config = dict(
+            [
+                (attr, getattr(self, attr))
+                for attr in [
+                    "include_sign",
+                    "group_with_commas",
+                    "num_decimal_places",
+                ]
             ]
-        ])
+        )
         config.update(kwargs)
         ndp = config["num_decimal_places"]
-        return "".join([
-            "{",
-            config.get("field_name", ""),
-            ":",
-            "+" if config["include_sign"] else "",
-            "," if config["group_with_commas"] else "",
-            f".{ndp}f",
-            "}",
-        ])
+        return "".join(
+            [
+                "{",
+                config.get("field_name", ""),
+                ":",
+                "+" if config["include_sign"] else "",
+                "," if config["group_with_commas"] else "",
+                f".{ndp}f",
+                "}",
+            ]
+        )
 
     def get_complex_formatter(self, **kwargs) -> str:
-        return "".join([
-            self.get_formatter(field_name="0.real"),
-            self.get_formatter(field_name="0.imag", include_sign=True),
-            "i"
-        ])
+        return "".join(
+            [
+                self.get_formatter(field_name="0.real"),
+                self.get_formatter(field_name="0.imag", include_sign=True),
+                "i",
+            ]
+        )
 
     def get_tex(self):
         return self.num_string

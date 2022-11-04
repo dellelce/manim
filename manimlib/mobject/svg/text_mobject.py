@@ -34,11 +34,7 @@ if TYPE_CHECKING:
         str,
         re.Pattern,
         tuple[Union[int, None], Union[int, None]],
-        Iterable[Union[
-            str,
-            re.Pattern,
-            tuple[Union[int, None], Union[int, None]]
-        ]]
+        Iterable[Union[str, re.Pattern, tuple[Union[int, None], Union[int, None]]]],
     ]
 
 
@@ -51,11 +47,7 @@ DEFAULT_CANVAS_HEIGHT = 16384
 
 # Temporary handler
 class _Alignment:
-    VAL_DICT = {
-        "LEFT": 0,
-        "CENTER": 1,
-        "RIGHT": 2
-    }
+    VAL_DICT = {"LEFT": 0, "CENTER": 1, "RIGHT": 2}
 
     def __init__(self, s: str):
         self.value = _Alignment.VAL_DICT[s.upper()]
@@ -100,8 +92,8 @@ class MarkupText(StringMobject):
         "<": "&lt;",
         ">": "&gt;",
         "&": "&amp;",
-        "\"": "&quot;",
-        "'": "&apos;"
+        '"': "&quot;",
+        "'": "&apos;",
     }
 
     def __init__(self, text: str, **kwargs):
@@ -153,7 +145,7 @@ class MarkupText(StringMobject):
             self.t2w,
             self.global_config,
             self.local_configs,
-            self.disable_ligatures
+            self.disable_ligatures,
         )
 
     def full2short(self, config: dict) -> None:
@@ -163,7 +155,7 @@ class MarkupText(StringMobject):
             "text2font": "t2f",
             "text2gradient": "t2g",
             "text2slant": "t2s",
-            "text2weight": "t2w"
+            "text2weight": "t2w",
         }
         for kwargs in [config, self.CONFIG]:
             for long_name, short_name in conversion_dict.items():
@@ -171,16 +163,10 @@ class MarkupText(StringMobject):
                     kwargs[short_name] = kwargs.pop(long_name)
 
     def get_file_path_by_content(self, content: str) -> str:
-        hash_content = str((
-            content,
-            self.justify,
-            self.indent,
-            self.alignment,
-            self.line_width
-        ))
-        svg_file = os.path.join(
-            get_text_dir(), hash_string(hash_content) + ".svg"
+        hash_content = str(
+            (content, self.justify, self.indent, self.alignment, self.line_width)
         )
+        svg_file = os.path.join(get_text_dir(), hash_string(hash_content) + ".svg")
         if not os.path.exists(svg_file):
             self.markup_to_svg(content, svg_file)
         return svg_file
@@ -198,11 +184,11 @@ class MarkupText(StringMobject):
 
         return manimpango.MarkupUtils.text2svg(
             text=markup_str,
-            font="",                     # Already handled
-            slant="NORMAL",              # Already handled
-            weight="NORMAL",             # Already handled
-            size=1,                      # Already handled
-            _=0,                         # Empty parameter
+            font="",  # Already handled
+            slant="NORMAL",  # Already handled
+            weight="NORMAL",  # Already handled
+            size=1,  # Already handled
+            _=0,  # Empty parameter
             disable_liga=False,
             file_name=file_name,
             START_X=0,
@@ -211,9 +197,9 @@ class MarkupText(StringMobject):
             height=DEFAULT_CANVAS_HEIGHT,
             justify=self.justify,
             indent=self.indent,
-            line_spacing=None,           # Already handled
+            line_spacing=None,  # Already handled
             alignment=alignment,
-            pango_width=pango_width
+            pango_width=pango_width,
         )
 
     @staticmethod
@@ -221,10 +207,7 @@ class MarkupText(StringMobject):
         validate_error = manimpango.MarkupUtils.validate(markup_str)
         if not validate_error:
             return
-        raise ValueError(
-            f"Invalid markup string \"{markup_str}\"\n"
-            f"{validate_error}"
-        )
+        raise ValueError(f'Invalid markup string "{markup_str}"\n' f"{validate_error}")
 
     # Toolkits
 
@@ -234,16 +217,16 @@ class MarkupText(StringMobject):
 
     @staticmethod
     def unescape_markup_char(substr: str) -> str:
-        return {
-            v: k
-            for k, v in MarkupText.MARKUP_ENTITY_DICT.items()
-        }.get(substr, substr)
+        return {v: k for k, v in MarkupText.MARKUP_ENTITY_DICT.items()}.get(
+            substr, substr
+        )
 
     # Parsing
 
     @staticmethod
     def get_command_matches(string: str) -> list[re.Match]:
-        pattern = re.compile(r"""
+        pattern = re.compile(
+            r"""
             (?P<tag>
                 <
                 (?P<close_slash>/)?
@@ -257,7 +240,9 @@ class MarkupText(StringMobject):
             )
             |(?P<entity>&(?P<unicode>\#(?P<hex>x)?)?(?P<content>.*?);)
             |(?P<char>[>"'])
-        """, flags=re.X | re.S)
+        """,
+            flags=re.X | re.S,
+        )
         return list(pattern.finditer(string))
 
     @staticmethod
@@ -317,7 +302,7 @@ class MarkupText(StringMobject):
                     (self.t2c, "foreground"),
                     (self.t2f, "font_family"),
                     (self.t2s, "font_style"),
-                    (self.t2w, "font_weight")
+                    (self.t2w, "font_weight"),
                 )
                 for selector, val in t2x_dict.items()
                 for span in self.find_spans_by_selector(selector)
@@ -326,7 +311,7 @@ class MarkupText(StringMobject):
                 (span, local_config)
                 for selector, local_config in self.local_configs.items()
                 for span in self.find_spans_by_selector(selector)
-            )
+            ),
         ]
 
     @staticmethod
@@ -340,23 +325,23 @@ class MarkupText(StringMobject):
             converted_attr_dict = {"foreground": label_hex}
             for key, val in attr_dict.items():
                 if key in (
-                    "background", "bgcolor",
-                    "underline_color", "overline_color", "strikethrough_color"
+                    "background",
+                    "bgcolor",
+                    "underline_color",
+                    "overline_color",
+                    "strikethrough_color",
                 ):
                     converted_attr_dict[key] = "black"
                 elif key not in ("foreground", "fgcolor", "color"):
                     converted_attr_dict[key] = val
         else:
             converted_attr_dict = attr_dict.copy()
-        attrs_str = " ".join([
-            f"{key}='{val}'"
-            for key, val in converted_attr_dict.items()
-        ])
+        attrs_str = " ".join(
+            [f"{key}='{val}'" for key, val in converted_attr_dict.items()]
+        )
         return f"<span {attrs_str}>"
 
-    def get_content_prefix_and_suffix(
-        self, is_labelled: bool
-    ) -> tuple[str, str]:
+    def get_content_prefix_and_suffix(self, is_labelled: bool) -> tuple[str, str]:
         global_attr_dict = {
             "foreground": self.color_to_hex(self.base_color),
             "font_family": self.font,
@@ -371,13 +356,11 @@ class MarkupText(StringMobject):
                 log.warning(
                     "Pango version %s found (< 1.50), "
                     "unable to set `line_height` attribute",
-                    pango_version
+                    pango_version,
                 )
         else:
             line_spacing_scale = self.lsh or DEFAULT_LINE_SPACING_SCALE
-            global_attr_dict["line_height"] = str(
-                ((line_spacing_scale) + 1) * 0.6
-            )
+            global_attr_dict["line_height"] = str(((line_spacing_scale) + 1) * 0.6)
         if self.disable_ligatures:
             global_attr_dict["font_features"] = "liga=0,dlig=0,clig=0,hlig=0"
 
@@ -386,7 +369,7 @@ class MarkupText(StringMobject):
             self.get_command_string(
                 global_attr_dict,
                 is_end=is_end,
-                label_hex=self.int_to_hex(0) if is_labelled else None
+                label_hex=self.int_to_hex(0) if is_labelled else None,
             )
             for is_end in (False, True)
         )
@@ -402,9 +385,7 @@ class MarkupText(StringMobject):
     def set_color_by_text(self, selector: Selector, color: ManimColor):
         return self.set_parts_color(selector, color)
 
-    def set_color_by_text_to_color_map(
-        self, color_map: dict[Selector, ManimColor]
-    ):
+    def set_color_by_text_to_color_map(self, color_map: dict[Selector, ManimColor]):
         return self.set_parts_color_by_dict(color_map)
 
     def get_text(self) -> str:
@@ -449,9 +430,7 @@ class Code(MarkupText):
         digest_config(self, kwargs)
         self.code = code
         lexer = pygments.lexers.get_lexer_by_name(self.language)
-        formatter = pygments.formatters.PangoMarkupFormatter(
-            style=self.code_style
-        )
+        formatter = pygments.formatters.PangoMarkupFormatter(style=self.code_style)
         markup = pygments.highlight(code, lexer, formatter)
         markup = re.sub(r"</?tt>", "", markup)
         super().__init__(markup, **kwargs)

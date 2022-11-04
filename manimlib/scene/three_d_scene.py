@@ -14,11 +14,13 @@ class ThreeDScene(Scene):
     def stop_ambient_camera_rotation(self):
         pass  # TODO
 
-    def move_camera(self,
-                    phi=None,
-                    theta=None,
-                    distance=None,
-                    gamma=None,
-                    frame_center=None,
-                    **kwargs):
+    def move_camera(
+        self,
+        phi=None,
+        theta=None,
+        distance=None,
+        gamma=None,
+        frame_center=None,
+        **kwargs
+    ):
         pass  # TODO

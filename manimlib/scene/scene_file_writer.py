@@ -68,12 +68,18 @@ class SceneFileWriter(object):
             self.image_file_path = os.path.join(image_dir, image_file)
         if self.write_to_movie:
             movie_dir = guarantee_existence(os.path.join(out_dir, "videos"))
-            movie_file = add_extension_if_not_present(scene_name, self.movie_file_extension)
+            movie_file = add_extension_if_not_present(
+                scene_name, self.movie_file_extension
+            )
             self.movie_file_path = os.path.join(movie_dir, movie_file)
             if self.break_into_partial_movies:
-                self.partial_movie_directory = guarantee_existence(os.path.join(
-                    movie_dir, "partial_movie_files", scene_name,
-                ))
+                self.partial_movie_directory = guarantee_existence(
+                    os.path.join(
+                        movie_dir,
+                        "partial_movie_files",
+                        scene_name,
+                    )
+                )
         # A place to save mobjects
         self.saved_mobject_directory = os.path.join(
             out_dir, "mobjects", str(self.scene)
@@ -98,9 +104,7 @@ class SceneFileWriter(object):
     def get_resolution_directory(self) -> str:
         pixel_height = self.scene.camera.pixel_height
         fps = self.scene.camera.fps
-        return "{}p{}".format(
-            pixel_height, fps
-        )
+        return "{}p{}".format(pixel_height, fps)
 
     # Directory getters
     def get_image_file_path(self) -> str:
@@ -112,7 +116,7 @@ class SceneFileWriter(object):
             "{:05}{}".format(
                 self.scene.num_plays,
                 self.movie_file_extension,
-            )
+            ),
         )
         return result
 
@@ -130,9 +134,10 @@ class SceneFileWriter(object):
         while default_name in files:
             default_name = default_name.replace(str(index), str(index + 1))
             index += 1
-        if platform.system() == 'Darwin':
+        if platform.system() == "Darwin":
             cmds = [
-                "osascript", "-e",
+                "osascript",
+                "-e",
                 f"""
                 set chosenfile to (choose file name default name "{default_name}" default location "{directory}")
                 POSIX path of chosenfile
@@ -163,7 +168,7 @@ class SceneFileWriter(object):
         self,
         new_segment: AudioSegment,
         time: float | None = None,
-        gain_to_background: float | None = None
+        gain_to_background: float | None = None,
     ) -> None:
         if not self.includes_sound:
             self.includes_sound = True
@@ -193,7 +198,7 @@ class SceneFileWriter(object):
         sound_file: str,
         time: float | None = None,
         gain: float | None = None,
-        gain_to_background: float | None = None
+        gain_to_background: float | None = None,
     ) -> None:
         file_path = get_full_sound_file_path(sound_file)
         new_segment = AudioSegment.from_file(file_path)
@@ -239,28 +244,38 @@ class SceneFileWriter(object):
 
         command = [
             FFMPEG_BIN,
-            '-y',  # overwrite output file if it exists
-            '-f', 'rawvideo',
-            '-s', f'{width}x{height}',  # size of one frame
-            '-pix_fmt', 'rgba',
-            '-r', str(fps),  # frames per second
-            '-i', '-',  # The input comes from a pipe
-            '-vf', 'vflip',
-            '-an',  # Tells FFMPEG not to expect any audio
-            '-loglevel', 'error',
+            "-y",  # overwrite output file if it exists
+            "-f",
+            "rawvideo",
+            "-s",
+            f"{width}x{height}",  # size of one frame
+            "-pix_fmt",
+            "rgba",
+            "-r",
+            str(fps),  # frames per second
+            "-i",
+            "-",  # The input comes from a pipe
+            "-vf",
+            "vflip",
+            "-an",  # Tells FFMPEG not to expect any audio
+            "-loglevel",
+            "error",
         ]
         if self.movie_file_extension == ".mov":
             # This is if the background of the exported
             # video should be transparent.
             command += [
-                '-vcodec', 'prores_ks',
+                "-vcodec",
+                "prores_ks",
             ]
         elif self.movie_file_extension == ".gif":
             command += []
         else:
             command += [
-                '-vcodec', 'libx264',
-                '-pix_fmt', 'yuv420p',
+                "-vcodec",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
             ]
         command += [self.temp_file_path]
         self.writing_process = sp.Popen(command, stdin=sp.PIPE)
@@ -270,7 +285,7 @@ class SceneFileWriter(object):
                 range(self.total_frames),
                 # bar_format="{l_bar}{bar}|{n_fmt}/{total_fmt}",
                 leave=False,
-                ascii=True if platform.system() == 'Windows' else None,
+                ascii=True if platform.system() == "Windows" else None,
                 dynamic_ncols=True,
             )
             self.has_progress_display = True
@@ -280,7 +295,7 @@ class SceneFileWriter(object):
         file = os.path.split(self.get_movie_file_path())[1]
         full_desc = f"Rendering {file} ({sub_desc})"
         if len(full_desc) > desc_len:
-            full_desc = full_desc[:desc_len - 4] + "...)"
+            full_desc = full_desc[: desc_len - 4] + "...)"
         else:
             full_desc += " " * (desc_len - len(full_desc))
         self.progress_display.set_description(full_desc)
@@ -316,8 +331,7 @@ class SceneFileWriter(object):
         else:
             kwargs["remove_indices_greater_than"] = self.scene.num_plays - 1
         partial_movie_files = get_sorted_integer_files(
-            self.partial_movie_directory,
-            **kwargs
+            self.partial_movie_directory, **kwargs
         )
         if len(partial_movie_files) == 0:
             log.warning("No animations in this scene")
@@ -326,28 +340,32 @@ class SceneFileWriter(object):
         # Write a file partial_file_list.txt containing all
         # partial movie files
         file_list = os.path.join(
-            self.partial_movie_directory,
-            "partial_movie_file_list.txt"
+            self.partial_movie_directory, "partial_movie_file_list.txt"
         )
-        with open(file_list, 'w') as fp:
+        with open(file_list, "w") as fp:
             for pf_path in partial_movie_files:
-                if os.name == 'nt':
-                    pf_path = pf_path.replace('\\', '/')
-                fp.write(f"file \'{pf_path}\'\n")
+                if os.name == "nt":
+                    pf_path = pf_path.replace("\\", "/")
+                fp.write(f"file '{pf_path}'\n")
 
         movie_file_path = self.get_movie_file_path()
         commands = [
             FFMPEG_BIN,
-            '-y',  # overwrite output file if it exists
-            '-f', 'concat',
-            '-safe', '0',
-            '-i', file_list,
-            '-loglevel', 'error',
-            '-c', 'copy',
-            movie_file_path
+            "-y",  # overwrite output file if it exists
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            file_list,
+            "-loglevel",
+            "error",
+            "-c",
+            "copy",
+            movie_file_path,
         ]
         if not self.includes_sound:
-            commands.insert(-1, '-an')
+            commands.insert(-1, "-an")
 
         combine_process = sp.Popen(commands)
         combine_process.wait()
@@ -360,22 +378,30 @@ class SceneFileWriter(object):
         self.add_audio_segment(AudioSegment.silent(0))
         self.audio_segment.export(
             sound_file_path,
-            bitrate='312k',
+            bitrate="312k",
         )
         temp_file_path = stem + "_temp" + ext
         commands = [
             FFMPEG_BIN,
-            "-i", movie_file_path,
-            "-i", sound_file_path,
-            '-y',  # overwrite output file if it exists
-            "-c:v", "copy",
-            "-c:a", "aac",
-            "-b:a", "320k",
+            "-i",
+            movie_file_path,
+            "-i",
+            sound_file_path,
+            "-y",  # overwrite output file if it exists
+            "-c:v",
+            "copy",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "320k",
             # select video stream from first file
-            "-map", "0:v:0",
+            "-map",
+            "0:v:0",
             # select audio stream from second file
-            "-map", "1:a:0",
-            '-loglevel', 'error',
+            "-map",
+            "1:a:0",
+            "-loglevel",
+            "error",
             # "-shortest",
             temp_file_path,
         ]
@@ -393,10 +419,12 @@ class SceneFileWriter(object):
             log.info(f"File ready at {file_path}")
 
     def should_open_file(self) -> bool:
-        return any([
-            self.show_file_location_upon_completion,
-            self.open_file_upon_completion,
-        ])
+        return any(
+            [
+                self.show_file_location_upon_completion,
+                self.open_file_upon_completion,
+            ]
+        )
 
     def open_file(self) -> None:
         if self.quiet:
@@ -428,7 +456,7 @@ class SceneFileWriter(object):
 
                 commands.append(file_path)
 
-                FNULL = open(os.devnull, 'w')
+                FNULL = open(os.devnull, "w")
                 sp.call(commands, stdout=FNULL, stderr=sp.STDOUT)
                 FNULL.close()
 

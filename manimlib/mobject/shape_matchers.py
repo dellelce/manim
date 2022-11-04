@@ -37,16 +37,11 @@ class SurroundingRectangle(Rectangle):
 
 
 class BackgroundRectangle(SurroundingRectangle):
-    CONFIG = {
-        "stroke_width": 0,
-        "stroke_opacity": 0,
-        "fill_opacity": 0.75,
-        "buff": 0
-    }
+    CONFIG = {"stroke_width": 0, "stroke_opacity": 0, "fill_opacity": 0.75, "buff": 0}
 
     def __init__(self, mobject: Mobject, color: ManimColor = None, **kwargs):
         if color is None:
-            color = get_customization()['style']['background_color']
+            color = get_customization()["style"]["background_color"]
         SurroundingRectangle.__init__(self, mobject, color=color, **kwargs)
         self.original_fill_opacity = self.fill_opacity
 
@@ -60,7 +55,7 @@ class BackgroundRectangle(SurroundingRectangle):
         stroke_width: float | None = None,
         fill_color: ManimColor | None = None,
         fill_opacity: float | None = None,
-        family: bool = True
+        family: bool = True,
     ):
         # Unchangeable style, except for fill_opacity
         VMobject.set_style_data(
@@ -68,7 +63,7 @@ class BackgroundRectangle(SurroundingRectangle):
             stroke_color=BLACK,
             stroke_width=0,
             fill_color=BLACK,
-            fill_opacity=fill_opacity
+            fill_opacity=fill_opacity,
         )
         return self
 

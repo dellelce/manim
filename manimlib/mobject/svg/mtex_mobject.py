@@ -21,11 +21,7 @@ if TYPE_CHECKING:
         str,
         re.Pattern,
         tuple[Union[int, None], Union[int, None]],
-        Iterable[Union[
-            str,
-            re.Pattern,
-            tuple[Union[int, None], Union[int, None]]
-        ]]
+        Iterable[Union[str, re.Pattern, tuple[Union[int, None], Union[int, None]]]],
     ]
 
 
@@ -66,11 +62,11 @@ class MTex(StringMobject):
             self.tex_environment,
             self.tex_to_color_map,
             self.template,
-            self.additional_preamble
+            self.additional_preamble,
         )
 
     def get_file_path_by_content(self, content: str) -> str:
-        with display_during_execution(f"Writing \"{self.tex_string}\""):
+        with display_during_execution(f'Writing "{self.tex_string}"'):
             file_path = tex_content_to_svg_file(
                 content, self.template, self.additional_preamble
             )
@@ -81,11 +77,14 @@ class MTex(StringMobject):
     @staticmethod
     def get_command_matches(string: str) -> list[re.Match]:
         # Lump together adjacent brace pairs
-        pattern = re.compile(r"""
+        pattern = re.compile(
+            r"""
             (?P<command>\\(?:[a-zA-Z]+|.))
             |(?P<open>{+)
             |(?P<close>}+)
-        """, flags=re.X | re.S)
+        """,
+            flags=re.X | re.S,
+        )
         result = []
         open_stack = []
         for match_obj in pattern.finditer(string):
@@ -98,12 +97,15 @@ class MTex(StringMobject):
                         raise ValueError("Missing '{' inserted")
                     (open_start, open_end), index = open_stack.pop()
                     n = min(open_end - open_start, close_end - close_start)
-                    result.insert(index, pattern.fullmatch(
-                        string, pos=open_end - n, endpos=open_end
-                    ))
-                    result.append(pattern.fullmatch(
-                        string, pos=close_start, endpos=close_start + n
-                    ))
+                    result.insert(
+                        index,
+                        pattern.fullmatch(string, pos=open_end - n, endpos=open_end),
+                    )
+                    result.append(
+                        pattern.fullmatch(
+                            string, pos=close_start, endpos=close_start + n
+                        )
+                    )
                     close_start += n
                     if close_start < close_end:
                         continue
@@ -167,15 +169,13 @@ class MTex(StringMobject):
             return "}}"
         return "{{" + MTex.get_color_command(label_hex)
 
-    def get_content_prefix_and_suffix(
-        self, is_labelled: bool
-    ) -> tuple[str, str]:
+    def get_content_prefix_and_suffix(self, is_labelled: bool) -> tuple[str, str]:
         prefix_lines = []
         suffix_lines = []
         if not is_labelled:
-            prefix_lines.append(self.get_color_command(
-                self.color_to_hex(self.base_color)
-            ))
+            prefix_lines.append(
+                self.get_color_command(self.color_to_hex(self.base_color))
+            )
         if self.alignment:
             prefix_lines.append(self.alignment)
         if self.tex_environment:
@@ -183,7 +183,7 @@ class MTex(StringMobject):
             suffix_lines.append(f"\\end{{{self.tex_environment}}}")
         return (
             "".join([line + "\n" for line in prefix_lines]),
-            "".join(["\n" + line for line in suffix_lines])
+            "".join(["\n" + line for line in suffix_lines]),
         )
 
     # Method alias
@@ -197,9 +197,7 @@ class MTex(StringMobject):
     def set_color_by_tex(self, selector: Selector, color: ManimColor):
         return self.set_parts_color(selector, color)
 
-    def set_color_by_tex_to_color_map(
-        self, color_map: dict[Selector, ManimColor]
-    ):
+    def set_color_by_tex_to_color_map(self, color_map: dict[Selector, ManimColor]):
         return self.set_parts_color_by_dict(color_map)
 
     def get_tex(self) -> str:

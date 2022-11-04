@@ -9,6 +9,7 @@ from manimlib.mobject.types.vectorized_mobject import VMobject
 # Boolean operations between 2D mobjects
 # Borrowed from from https://github.com/ManimCommunity/manim/
 
+
 def _convert_vmobject_to_skia_path(vmobject: VMobject) -> pathops.Path:
     path = pathops.Path()
     subpaths = vmobject.get_subpaths_from_points(vmobject.get_all_points())
@@ -23,10 +24,7 @@ def _convert_vmobject_to_skia_path(vmobject: VMobject) -> pathops.Path:
     return path
 
 
-def _convert_skia_path_to_vmobject(
-    path: pathops.Path,
-    vmobject: VMobject
-) -> VMobject:
+def _convert_skia_path_to_vmobject(path: pathops.Path, vmobject: VMobject) -> VMobject:
     PathVerb = pathops.PathVerb
     current_path_start = np.array([0.0, 0.0, 0.0])
     for path_verb, points in path:
@@ -55,10 +53,7 @@ class Union(VMobject):
             raise ValueError("At least 2 mobjects needed for Union.")
         super().__init__(**kwargs)
         outpen = pathops.Path()
-        paths = [
-            _convert_vmobject_to_skia_path(vmobject)
-            for vmobject in vmobjects
-        ]
+        paths = [_convert_vmobject_to_skia_path(vmobject) for vmobject in vmobjects]
         pathops.union(paths, outpen.getPen())
         _convert_skia_path_to_vmobject(outpen, self)
 

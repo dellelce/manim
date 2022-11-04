@@ -77,11 +77,11 @@ class ComplexTransformationScene(Scene):
         if x_range is not None:
             x_min, x_max = x_range
             plane_config["x_radius"] = x_max - x_min
-            shift_val += (x_max + x_min) * RIGHT / 2.
+            shift_val += (x_max + x_min) * RIGHT / 2.0
         if y_range is not None:
             y_min, y_max = y_range
             plane_config["y_radius"] = y_max - y_min
-            shift_val += (y_max + y_min) * UP / 2.
+            shift_val += (y_max + y_min) * UP / 2.0
         plane = ComplexPlane(**plane_config)
         plane.shift(shift_val)
         if self.use_multicolored_plane:
@@ -90,9 +90,7 @@ class ComplexTransformationScene(Scene):
 
     def prepare_for_transformation(self, mob):
         if hasattr(mob, "prepare_for_nonlinear_transform"):
-            mob.prepare_for_nonlinear_transform(
-                self.num_anchors_to_add_per_line
-            )
+            mob.prepare_for_nonlinear_transform(self.num_anchors_to_add_per_line)
         # TODO...
 
     def paint_plane(self, plane):
@@ -126,7 +124,7 @@ class ComplexTransformationScene(Scene):
         transformer.generate_target()
         # Rescale, apply function, scale back
         transformer.target.shift(-self.background.get_center_point())
-        transformer.target.scale(1. / self.background.unit_size)
+        transformer.target.scale(1.0 / self.background.unit_size)
         transformer.target.apply_complex_function(func)
         transformer.target.scale(self.background.unit_size)
         transformer.target.shift(self.background.get_center_point())
@@ -135,12 +133,8 @@ class ComplexTransformationScene(Scene):
         for mob in transformer.target[0].family_members_with_points():
             mob.make_smooth()
         if self.post_transformation_stroke_width is not None:
-            transformer.target.set_stroke(
-                width=self.post_transformation_stroke_width)
-        self.play(
-            MoveToTarget(transformer, **transform_kwargs),
-            *added_anims
-        )
+            transformer.target.set_stroke(width=self.post_transformation_stroke_width)
+        self.play(MoveToTarget(transformer, **transform_kwargs), *added_anims)
 
     def apply_complex_homotopy(self, complex_homotopy, added_anims=[], **kwargs):
         transformer, transform_kwargs = self.get_transformer(**kwargs)

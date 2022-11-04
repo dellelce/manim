@@ -13,6 +13,7 @@ class ValueTracker(Mobject):
     uses for its update function, and by treating it as a mobject it can
     still be animated and manipulated just like anything else.
     """
+
     CONFIG = {
         "value_type": np.float64,
     }
@@ -58,6 +59,4 @@ class ExponentialValueTracker(ValueTracker):
 
 
 class ComplexValueTracker(ValueTracker):
-    CONFIG = {
-        "value_type": np.complex128
-    }
+    CONFIG = {"value_type": np.complex128}

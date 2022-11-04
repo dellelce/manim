@@ -17,7 +17,7 @@ def get_full_raster_image_path(image_file_name: str) -> str:
     return find_file(
         image_file_name,
         directories=[get_raster_image_dir()],
-        extensions=[".jpg", ".jpeg", ".png", ".gif", ""]
+        extensions=[".jpg", ".jpeg", ".png", ".gif", ""],
     )
 
 

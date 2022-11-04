@@ -34,15 +34,10 @@ class Broadcast(LaggedStart):
                 stroke_color=BLACK,
                 stroke_width=0,
             )
-            circle.add_updater(
-                lambda c: c.move_to(focal_point)
-            )
+            circle.add_updater(lambda c: c.move_to(focal_point))
             circle.save_state()
             circle.set_width(self.small_radius * 2)
             circle.set_stroke(self.color, self.start_stroke_width)
             circles.add(circle)
-        animations = [
-            Restore(circle)
-            for circle in circles
-        ]
+        animations = [Restore(circle) for circle in circles]
         super().__init__(*animations, **kwargs)

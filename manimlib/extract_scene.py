@@ -40,7 +40,9 @@ def prompt_user_for_choice(scene_classes):
             "\nScene Name or Number: "
         )
         return [
-            name_to_class[split_str] if not split_str.isnumeric() else scene_classes[int(split_str) - 1]
+            name_to_class[split_str]
+            if not split_str.isnumeric()
+            else scene_classes[int(split_str) - 1]
             for split_str in user_input.replace(" ", "").split(",")
         ]
     except IndexError:
@@ -54,21 +56,23 @@ def prompt_user_for_choice(scene_classes):
 
 
 def get_scene_config(config):
-    return dict([
-        (key, config[key])
-        for key in [
-            "window_config",
-            "camera_config",
-            "file_writer_config",
-            "skip_animations",
-            "start_at_animation_number",
-            "end_at_animation_number",
-            "leave_progress_bars",
-            "show_animation_progress",
-            "preview",
-            "presenter_mode",
+    return dict(
+        [
+            (key, config[key])
+            for key in [
+                "window_config",
+                "camera_config",
+                "file_writer_config",
+                "skip_animations",
+                "start_at_animation_number",
+                "end_at_animation_number",
+                "leave_progress_bars",
+                "show_animation_progress",
+                "preview",
+                "presenter_mode",
+            ]
         ]
-    ])
+    )
 
 
 def compute_total_frames(scene_class, scene_config):
@@ -102,7 +106,9 @@ def get_scenes_to_render(scene_classes, scene_config, config):
             if scene_class.__name__ == scene_name:
                 fw_config = scene_config["file_writer_config"]
                 if fw_config["write_to_movie"]:
-                    fw_config["total_frames"] = compute_total_frames(scene_class, scene_config)
+                    fw_config["total_frames"] = compute_total_frames(
+                        scene_class, scene_config
+                    )
                 scene = scene_class(**scene_config)
                 result.append(scene)
                 found = True
@@ -111,9 +117,9 @@ def get_scenes_to_render(scene_classes, scene_config, config):
             log.error(f"No scene named {scene_name} found")
     if result:
         return result
-    
+
     # another case
-    result=[]
+    result = []
     if len(scene_classes) == 1:
         scene_classes = [scene_classes[0]]
     else:
@@ -134,8 +140,7 @@ def get_scene_classes_from_module(module):
         return [
             member[1]
             for member in inspect.getmembers(
-                module,
-                lambda x: is_child_scene(x, module)
+                module, lambda x: is_child_scene(x, module)
             )
         ]
 

@@ -81,7 +81,7 @@ class SVGMobject(VMobject):
             self.__class__.__name__,
             self.svg_default,
             self.path_string_config,
-            self.file_name
+            self.file_name,
         )
 
     def generate_mobject(self) -> None:
@@ -113,14 +113,10 @@ class SVGMobject(VMobject):
             "stroke",
             "stroke-opacity",
             "stroke-width",
-            "style"
+            "style",
         )
         root = element_tree.getroot()
-        style_attrs = {
-            k: v
-            for k, v in root.attrib.items()
-            if k in style_keys
-        }
+        style_attrs = {k: v for k, v in root.attrib.items() if k in style_keys}
 
         # Ignore other attributes in case that svgelements cannot parse them
         SVG_XMLNS = "{http://www.w3.org/2000/svg}"
@@ -136,7 +132,7 @@ class SVGMobject(VMobject):
             "fill-opacity": ("opacity", "fill_opacity"),
             "stroke": ("color", "stroke_color"),
             "stroke-opacity": ("opacity", "stroke_opacity"),
-            "stroke-width": ("stroke_width",)
+            "stroke-width": ("stroke_width",),
         }
         svg_default_dict = self.svg_default
         result = {}
@@ -182,26 +178,20 @@ class SVGMobject(VMobject):
 
     @staticmethod
     def handle_transform(mob: VMobject, matrix: se.Matrix) -> VMobject:
-        mat = np.array([
-            [matrix.a, matrix.c],
-            [matrix.b, matrix.d]
-        ])
+        mat = np.array([[matrix.a, matrix.c], [matrix.b, matrix.d]])
         vec = np.array([matrix.e, matrix.f, 0.0])
         mob.apply_matrix(mat)
         mob.shift(vec)
         return mob
 
     @staticmethod
-    def apply_style_to_mobject(
-        mob: VMobject,
-        shape: se.GraphicObject
-    ) -> VMobject:
+    def apply_style_to_mobject(mob: VMobject, shape: se.GraphicObject) -> VMobject:
         mob.set_style(
             stroke_width=shape.stroke_width,
             stroke_color=shape.stroke.hexrgb,
             stroke_opacity=shape.stroke.opacity,
             fill_color=shape.fill.hexrgb,
-            fill_opacity=shape.fill.opacity
+            fill_opacity=shape.fill.opacity,
         )
         return mob
 
@@ -211,7 +201,7 @@ class SVGMobject(VMobject):
     def line_to_mobject(self, line: se.SimpleLine) -> Line:
         return Line(
             start=_convert_point_to_3d(line.x1, line.y1),
-            end=_convert_point_to_3d(line.x2, line.y2)
+            end=_convert_point_to_3d(line.x2, line.y2),
         )
 
     def rect_to_mobject(self, rect: se.Rect) -> Rectangle:
@@ -224,35 +214,26 @@ class SVGMobject(VMobject):
             mob = RoundedRectangle(
                 width=rect.width,
                 height=rect.height * rect.rx / rect.ry,
-                corner_radius=rect.rx
+                corner_radius=rect.rx,
             )
             mob.stretch_to_fit_height(rect.height)
-        mob.shift(_convert_point_to_3d(
-            rect.x + rect.width / 2,
-            rect.y + rect.height / 2
-        ))
+        mob.shift(
+            _convert_point_to_3d(rect.x + rect.width / 2, rect.y + rect.height / 2)
+        )
         return mob
 
     def ellipse_to_mobject(self, ellipse: se.Circle | se.Ellipse) -> Circle:
         mob = Circle(radius=ellipse.rx)
         mob.stretch_to_fit_height(2 * ellipse.ry)
-        mob.shift(_convert_point_to_3d(
-            ellipse.cx, ellipse.cy
-        ))
+        mob.shift(_convert_point_to_3d(ellipse.cx, ellipse.cy))
         return mob
 
     def polygon_to_mobject(self, polygon: se.Polygon) -> Polygon:
-        points = [
-            _convert_point_to_3d(*point)
-            for point in polygon
-        ]
+        points = [_convert_point_to_3d(*point) for point in polygon]
         return Polygon(*points)
 
     def polyline_to_mobject(self, polyline: se.Polyline) -> Polyline:
-        points = [
-            _convert_point_to_3d(*point)
-            for point in polyline
-        ]
+        points = [_convert_point_to_3d(*point) for point in polyline]
         return Polyline(*points)
 
     def text_to_mobject(self, text: se.Text):
@@ -286,7 +267,9 @@ class VMobjectFromSVGPath(VMobject):
         # don't need to retrace the same computation.
         path_string = self.path_obj.d()
         path_hash = hash_string(path_string)
-        points_filepath = os.path.join(get_mobject_data_dir(), f"{path_hash}_points.npy")
+        points_filepath = os.path.join(
+            get_mobject_data_dir(), f"{path_hash}_points.npy"
+        )
         tris_filepath = os.path.join(get_mobject_data_dir(), f"{path_hash}_tris.npy")
 
         if os.path.exists(points_filepath) and os.path.exists(tris_filepath):
@@ -310,8 +293,14 @@ class VMobjectFromSVGPath(VMobject):
             se.Move: (self.start_new_path, ("end",)),
             se.Close: (self.close_path, ()),
             se.Line: (self.add_line_to, ("end",)),
-            se.QuadraticBezier: (self.add_quadratic_bezier_curve_to, ("control", "end")),
-            se.CubicBezier: (self.add_cubic_bezier_curve_to, ("control1", "control2", "end"))
+            se.QuadraticBezier: (
+                self.add_quadratic_bezier_curve_to,
+                ("control", "end"),
+            ),
+            se.CubicBezier: (
+                self.add_cubic_bezier_curve_to,
+                ("control1", "control2", "end"),
+            ),
         }
         for segment in self.path_obj:
             segment_class = segment.__class__

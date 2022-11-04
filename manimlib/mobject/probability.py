@@ -40,9 +40,7 @@ class SampleSpace(Rectangle):
     }
 
     def add_title(
-        self,
-        title: str = "Sample space",
-        buff: float = MED_SMALL_BUFF
+        self, title: str = "Sample space", buff: float = MED_SMALL_BUFF
     ) -> None:
         # TODO, should this really exist in SampleSpaceScene
         title_mob = TexText(title)
@@ -67,7 +65,7 @@ class SampleSpace(Rectangle):
         p_list: list[float],
         dim: int,
         colors: Iterable[ManimColor],
-        vect: np.ndarray
+        vect: np.ndarray,
     ) -> VGroup:
         p_list = self.complete_p_list(p_list)
         colors = color_gradient(colors, len(p_list))
@@ -88,7 +86,7 @@ class SampleSpace(Rectangle):
         self,
         p_list: list[float],
         colors: Iterable[ManimColor] = [GREEN_E, BLUE_E],
-        vect: np.ndarray = DOWN
+        vect: np.ndarray = DOWN,
     ) -> VGroup:
         return self.get_division_along_dimension(p_list, 1, colors, vect)
 
@@ -96,7 +94,7 @@ class SampleSpace(Rectangle):
         self,
         p_list: list[float],
         colors: Iterable[ManimColor] = [MAROON_B, YELLOW],
-        vect: np.ndarray = RIGHT
+        vect: np.ndarray = RIGHT,
     ) -> VGroup:
         return self.get_division_along_dimension(p_list, 0, colors, vect)
 
@@ -118,10 +116,7 @@ class SampleSpace(Rectangle):
         label_mobs = VGroup()
         braces = VGroup()
         for label, part in zip(labels, parts):
-            brace = Brace(
-                part, direction,
-                buff=buff
-            )
+            brace = Brace(part, direction, buff=buff)
             if isinstance(label, Mobject):
                 label_mob = label
             else:
@@ -141,30 +136,21 @@ class SampleSpace(Rectangle):
         return VGroup(parts.braces, parts.labels)
 
     def get_side_braces_and_labels(
-        self,
-        labels: str,
-        direction: np.ndarray = LEFT,
-        **kwargs
+        self, labels: str, direction: np.ndarray = LEFT, **kwargs
     ) -> VGroup:
-        assert(hasattr(self, "horizontal_parts"))
+        assert hasattr(self, "horizontal_parts")
         parts = self.horizontal_parts
-        return self.get_subdivision_braces_and_labels(parts, labels, direction, **kwargs)
+        return self.get_subdivision_braces_and_labels(
+            parts, labels, direction, **kwargs
+        )
 
-    def get_top_braces_and_labels(
-        self,
-        labels: str,
-        **kwargs
-    ) -> VGroup:
-        assert(hasattr(self, "vertical_parts"))
+    def get_top_braces_and_labels(self, labels: str, **kwargs) -> VGroup:
+        assert hasattr(self, "vertical_parts")
         parts = self.vertical_parts
         return self.get_subdivision_braces_and_labels(parts, labels, UP, **kwargs)
 
-    def get_bottom_braces_and_labels(
-        self,
-        labels: str,
-        **kwargs
-    ) -> VGroup:
-        assert(hasattr(self, "vertical_parts"))
+    def get_bottom_braces_and_labels(self, labels: str, **kwargs) -> VGroup:
+        assert hasattr(self, "vertical_parts")
         parts = self.vertical_parts
         return self.get_subdivision_braces_and_labels(parts, labels, DOWN, **kwargs)
 
@@ -278,7 +264,5 @@ class BarChart(VGroup):
     def change_bar_values(self, values: Iterable[float]) -> None:
         for bar, value in zip(self.bars, values):
             bar_bottom = bar.get_bottom()
-            bar.stretch_to_fit_height(
-                (value / self.max_value) * self.height
-            )
+            bar.stretch_to_fit_height((value / self.max_value) * self.height)
             bar.move_to(bar_bottom, DOWN)

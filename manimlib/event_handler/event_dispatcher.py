@@ -8,24 +8,21 @@ from manimlib.event_handler.event_type import EventType
 
 class EventDispatcher(object):
     def __init__(self):
-        self.event_listners: dict[
-            EventType, list[EventListner]
-        ] = {
-            event_type: []
-            for event_type in EventType
+        self.event_listners: dict[EventType, list[EventListner]] = {
+            event_type: [] for event_type in EventType
         }
-        self.mouse_point = np.array((0., 0., 0.))
-        self.mouse_drag_point = np.array((0., 0., 0.))
+        self.mouse_point = np.array((0.0, 0.0, 0.0))
+        self.mouse_drag_point = np.array((0.0, 0.0, 0.0))
         self.pressed_keys: set[int] = set()
         self.draggable_object_listners: list[EventListner] = []
 
     def add_listner(self, event_listner: EventListner):
-        assert(isinstance(event_listner, EventListner))
+        assert isinstance(event_listner, EventListner)
         self.event_listners[event_listner.event_type].append(event_listner)
         return self
 
     def remove_listner(self, event_listner: EventListner):
-        assert(isinstance(event_listner, EventListner))
+        assert isinstance(event_listner, EventListner)
         try:
             while event_listner in self.event_listners[event_listner.event_type]:
                 self.event_listners[event_listner.event_type].remove(event_listner)
@@ -56,20 +53,19 @@ class EventDispatcher(object):
 
         if event_type == EventType.MouseDragEvent:
             for listner in self.draggable_object_listners:
-                assert(isinstance(listner, EventListner))
+                assert isinstance(listner, EventListner)
                 propagate_event = listner.callback(listner.mobject, event_data)
                 if propagate_event is not None and propagate_event is False:
                     return propagate_event
 
-        elif event_type.value.startswith('mouse'):
+        elif event_type.value.startswith("mouse"):
             for listner in self.event_listners[event_type]:
                 if listner.mobject.is_point_touching(self.mouse_point):
-                    propagate_event = listner.callback(
-                        listner.mobject, event_data)
+                    propagate_event = listner.callback(listner.mobject, event_data)
                     if propagate_event is not None and propagate_event is False:
                         return propagate_event
 
-        elif event_type.value.startswith('key'):
+        elif event_type.value.startswith("key"):
             for listner in self.event_listners[event_type]:
                 propagate_event = listner.callback(listner.mobject, event_data)
                 if propagate_event is not None and propagate_event is False:
@@ -87,7 +83,7 @@ class EventDispatcher(object):
         return self.mouse_drag_point
 
     def is_key_pressed(self, symbol: int) -> bool:
-        return (symbol in self.pressed_keys)
+        return symbol in self.pressed_keys
 
     __iadd__ = add_listner
     __isub__ = remove_listner

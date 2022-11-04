@@ -9,8 +9,7 @@ if TYPE_CHECKING:
 
 
 def extract_mobject_family_members(
-    mobject_list: Iterable[Mobject],
-    exclude_pointless: bool = False
+    mobject_list: Iterable[Mobject], exclude_pointless: bool = False
 ) -> list[Mobject]:
     return [
         sm

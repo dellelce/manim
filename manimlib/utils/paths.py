@@ -19,9 +19,7 @@ STRAIGHT_PATH_THRESHOLD = 0.01
 
 
 def straight_path(
-    start_points: np.ndarray,
-    end_points: np.ndarray,
-    alpha: float
+    start_points: np.ndarray, end_points: np.ndarray, alpha: float
 ) -> np.ndarray:
     """
     Same function as interpolate, but renamed to reflect
@@ -33,8 +31,7 @@ def straight_path(
 
 
 def path_along_arc(
-    arc_angle: float, 
-    axis: np.ndarray = OUT
+    arc_angle: float, axis: np.ndarray = OUT
 ) -> Callable[[np.ndarray, np.ndarray, float], np.ndarray]:
     """
     If vect is vector from start to end, [vect[:,1], -vect[:,0]] is

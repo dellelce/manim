@@ -26,11 +26,7 @@ if TYPE_CHECKING:
         str,
         re.Pattern,
         tuple[Union[int, None], Union[int, None]],
-        Iterable[Union[
-            str,
-            re.Pattern,
-            tuple[Union[int, None], Union[int, None]]
-        ]]
+        Iterable[Union[str, re.Pattern, tuple[Union[int, None], Union[int, None]]]],
     ]
 
 
@@ -53,6 +49,7 @@ class StringMobject(SVGMobject, ABC):
     so that each submobject of the original `SVGMobject` will be labelled
     by the color of its paired submobject from the additional `SVGMobject`.
     """
+
     CONFIG = {
         "height": None,
         "stroke_width": 0,
@@ -110,9 +107,9 @@ class StringMobject(SVGMobject, ABC):
         for submob, labelled_svg_submob in zip(
             self.submobjects, labelled_svg.submobjects
         ):
-            label = self.hex_to_int(self.color_to_hex(
-                labelled_svg_submob.get_fill_color()
-            ))
+            label = self.hex_to_int(
+                self.color_to_hex(labelled_svg_submob.get_fill_color())
+            )
             if label >= labels_count:
                 unrecognizable_colors.append(label)
                 label = 0
@@ -121,15 +118,10 @@ class StringMobject(SVGMobject, ABC):
             log.warning(
                 "Unrecognizable color labels detected (%s). "
                 "The result could be unexpected.",
-                ", ".join(
-                    self.int_to_hex(color)
-                    for color in unrecognizable_colors
-                )
+                ", ".join(self.int_to_hex(color) for color in unrecognizable_colors),
             )
 
-    def rearrange_submobjects_by_positions(
-        self, labelled_svg: SVGMobject
-    ) -> None:
+    def rearrange_submobjects_by_positions(self, labelled_svg: SVGMobject) -> None:
         # Rearrange submobjects of `labelled_svg` so that
         # each submobject is labelled by the nearest one of `labelled_svg`.
         # The correctness cannot be ensured, since the svg may
@@ -144,13 +136,12 @@ class StringMobject(SVGMobject, ABC):
 
         distance_matrix = cdist(
             [submob.get_center() for submob in self.submobjects],
-            [submob.get_center() for submob in labelled_svg.submobjects]
+            [submob.get_center() for submob in labelled_svg.submobjects],
         )
         _, indices = linear_sum_assignment(distance_matrix)
-        labelled_svg.set_submobjects([
-            labelled_svg.submobjects[index]
-            for index in indices
-        ])
+        labelled_svg.set_submobjects(
+            [labelled_svg.submobjects[index] for index in indices]
+        )
 
     # Toolkits
 
@@ -162,18 +153,19 @@ class StringMobject(SVGMobject, ABC):
                     for match_obj in re.finditer(re.escape(sel), self.string)
                 ]
             if isinstance(sel, re.Pattern):
-                return [
-                    match_obj.span()
-                    for match_obj in sel.finditer(self.string)
-                ]
-            if isinstance(sel, tuple) and len(sel) == 2 and all(
-                isinstance(index, int) or index is None
-                for index in sel
+                return [match_obj.span() for match_obj in sel.finditer(self.string)]
+            if (
+                isinstance(sel, tuple)
+                and len(sel) == 2
+                and all(isinstance(index, int) or index is None for index in sel)
             ):
                 l = len(self.string)
                 span = tuple(
-                    default_index if index is None else
-                    min(index, l) if index >= 0 else max(index + l, 0)
+                    default_index
+                    if index is None
+                    else min(index, l)
+                    if index >= 0
+                    else max(index + l, 0)
                     for index, default_index in zip(sel, (0, l))
                 )
                 return [span]
@@ -232,20 +224,25 @@ class StringMobject(SVGMobject, ABC):
                 flag * (2 if index != paired_index else -1),
                 -paired_index,
                 flag * category,
-                flag * i
+                flag * i,
             )
 
-        index_items = sorted([
-            (category, i, flag)
-            for category, item_length in enumerate((
-                len(configured_items),
-                len(isolated_spans),
-                len(protected_spans),
-                len(command_matches)
-            ))
-            for i in range(item_length)
-            for flag in (1, -1)
-        ], key=lambda t: get_key(*t))
+        index_items = sorted(
+            [
+                (category, i, flag)
+                for category, item_length in enumerate(
+                    (
+                        len(configured_items),
+                        len(isolated_spans),
+                        len(protected_spans),
+                        len(command_matches),
+                    )
+                )
+                for i in range(item_length)
+                for flag in (1, -1)
+            ],
+            key=lambda t: get_key(*t),
+        )
 
         inserted_items = []
         labelled_items = []
@@ -288,15 +285,20 @@ class StringMobject(SVGMobject, ABC):
                 label += 1
                 continue
             if flag == 1:
-                open_stack.append((
-                    len(inserted_items), category, i,
-                    protect_level, bracket_stack.copy()
-                ))
+                open_stack.append(
+                    (
+                        len(inserted_items),
+                        category,
+                        i,
+                        protect_level,
+                        bracket_stack.copy(),
+                    )
+                )
                 continue
-            span, attr_dict = configured_items[i] \
-                if category == 0 else (isolated_spans[i], {})
-            pos, category_, i_, protect_level_, bracket_stack_ \
-                = open_stack.pop()
+            span, attr_dict = (
+                configured_items[i] if category == 0 else (isolated_spans[i], {})
+            )
+            pos, category_, i_, protect_level_, bracket_stack_ = open_stack.pop()
             if category_ != category or i_ != i:
                 overlapping_spans.append(span)
                 continue
@@ -316,52 +318,42 @@ class StringMobject(SVGMobject, ABC):
         if overlapping_spans:
             log.warning(
                 "Partly overlapping substrings detected: %s",
-                ", ".join(
-                    f"'{get_substr(span)}'"
-                    for span in overlapping_spans
-                )
+                ", ".join(f"'{get_substr(span)}'" for span in overlapping_spans),
             )
         if level_mismatched_spans:
             log.warning(
                 "Cannot handle substrings: %s",
-                ", ".join(
-                    f"'{get_substr(span)}'"
-                    for span in level_mismatched_spans
-                )
+                ", ".join(f"'{get_substr(span)}'" for span in level_mismatched_spans),
             )
 
         def reconstruct_string(
             start_item: tuple[int, int],
             end_item: tuple[int, int],
             command_replace_func: Callable[[re.Match], str],
-            command_insert_func: Callable[[int, int, dict[str, str]], str]
+            command_insert_func: Callable[[int, int, dict[str, str]], str],
         ) -> str:
             def get_edge_item(i: int, flag: int) -> tuple[Span, str]:
                 if flag == 0:
                     match_obj = command_matches[i]
-                    return (
-                        match_obj.span(),
-                        command_replace_func(match_obj)
-                    )
+                    return (match_obj.span(), command_replace_func(match_obj))
                 span, attr_dict = labelled_items[i]
                 index = span[flag < 0]
-                return (
-                    (index, index),
-                    command_insert_func(i, flag, attr_dict)
-                )
+                return ((index, index), command_insert_func(i, flag, attr_dict))
 
             items = [
                 get_edge_item(i, flag)
-                for i, flag in inserted_items[slice(
-                    inserted_items.index(start_item),
-                    inserted_items.index(end_item) + 1
-                )]
+                for i, flag in inserted_items[
+                    slice(
+                        inserted_items.index(start_item),
+                        inserted_items.index(end_item) + 1,
+                    )
+                ]
             ]
             pieces = [
                 get_substr((start, end))
                 for start, end in zip(
                     [interval_end for (_, interval_end), _ in items[:-1]],
-                    [interval_start for (interval_start, _), _ in items[1:]]
+                    [interval_start for (interval_start, _), _ in items[1:]],
                 )
             ]
             interval_pieces = [piece for _, piece in items[1:-1]]
@@ -372,17 +364,16 @@ class StringMobject(SVGMobject, ABC):
 
     def get_content(self, is_labelled: bool) -> str:
         content = self.reconstruct_string(
-            (0, 1), (0, -1),
+            (0, 1),
+            (0, -1),
             self.replace_for_content,
             lambda label, flag, attr_dict: self.get_command_string(
                 attr_dict,
                 is_end=flag < 0,
-                label_hex=self.int_to_hex(label) if is_labelled else None
-            )
+                label_hex=self.int_to_hex(label) if is_labelled else None,
+            ),
         )
-        prefix, suffix = self.get_content_prefix_and_suffix(
-            is_labelled=is_labelled
-        )
+        prefix, suffix = self.get_content_prefix_and_suffix(is_labelled=is_labelled)
         return "".join((prefix, content, suffix))
 
     @staticmethod
@@ -408,7 +399,8 @@ class StringMobject(SVGMobject, ABC):
     @staticmethod
     @abstractmethod
     def get_attr_dict_from_command_pair(
-        open_command: re.Match, close_command: re.Match,
+        open_command: re.Match,
+        close_command: re.Match,
     ) -> dict[str, str] | None:
         return None
 
@@ -424,16 +416,12 @@ class StringMobject(SVGMobject, ABC):
         return ""
 
     @abstractmethod
-    def get_content_prefix_and_suffix(
-        self, is_labelled: bool
-    ) -> tuple[str, str]:
+    def get_content_prefix_and_suffix(self, is_labelled: bool) -> tuple[str, str]:
         return "", ""
 
     # Selector
 
-    def get_submob_indices_list_by_span(
-        self, arbitrary_span: Span
-    ) -> list[int]:
+    def get_submob_indices_list_by_span(self, arbitrary_span: Span) -> list[int]:
         return [
             submob_index
             for submob_index, label in enumerate(self.labels)
@@ -442,10 +430,7 @@ class StringMobject(SVGMobject, ABC):
 
     def get_specified_part_items(self) -> list[tuple[str, list[int]]]:
         return [
-            (
-                self.string[slice(*span)],
-                self.get_submob_indices_list_by_span(span)
-            )
+            (self.string[slice(*span)], self.get_submob_indices_list_by_span(span))
             for span in self.labelled_spans[1:]
         ]
 
@@ -456,15 +441,12 @@ class StringMobject(SVGMobject, ABC):
         def get_neighbouring_pairs(vals):
             return list(zip(vals[:-1], vals[1:]))
 
-        range_lens, group_labels = zip(*(
-            (len(list(grouper)), val)
-            for val, grouper in it.groupby(self.labels)
-        ))
+        range_lens, group_labels = zip(
+            *((len(list(grouper)), val) for val, grouper in it.groupby(self.labels))
+        )
         submob_indices_lists = [
             list(range(*submob_range))
-            for submob_range in get_neighbouring_pairs(
-                [0, *it.accumulate(range_lens)]
-            )
+            for submob_range in get_neighbouring_pairs([0, *it.accumulate(range_lens)])
         ]
         labelled_spans = self.labelled_spans
         start_items = [
@@ -475,10 +457,8 @@ class StringMobject(SVGMobject, ABC):
                     labelled_spans[prev_label], labelled_spans[curr_label]
                 )
                 else (prev_label, -1)
-                for prev_label, curr_label in get_neighbouring_pairs(
-                    group_labels
-                )
-            )
+                for prev_label, curr_label in get_neighbouring_pairs(group_labels)
+            ),
         ]
         end_items = [
             *(
@@ -487,18 +467,21 @@ class StringMobject(SVGMobject, ABC):
                     labelled_spans[next_label], labelled_spans[curr_label]
                 )
                 else (next_label, 1)
-                for curr_label, next_label in get_neighbouring_pairs(
-                    group_labels
-                )
+                for curr_label, next_label in get_neighbouring_pairs(group_labels)
             ),
-            (group_labels[-1], -1)
+            (group_labels[-1], -1),
         ]
         group_substrs = [
-            re.sub(r"\s+", "", self.reconstruct_string(
-                start_item, end_item,
-                self.replace_for_matching,
-                lambda label, flag, attr_dict: ""
-            ))
+            re.sub(
+                r"\s+",
+                "",
+                self.reconstruct_string(
+                    start_item,
+                    end_item,
+                    self.replace_for_matching,
+                    lambda label, flag, attr_dict: "",
+                ),
+            )
             for start_item, end_item in zip(start_items, end_items)
         ]
         return list(zip(group_substrs, submob_indices_lists))
@@ -506,30 +489,30 @@ class StringMobject(SVGMobject, ABC):
     def get_submob_indices_lists_by_selector(
         self, selector: Selector
     ) -> list[list[int]]:
-        return list(filter(
-            lambda indices_list: indices_list,
-            [
-                self.get_submob_indices_list_by_span(span)
-                for span in self.find_spans_by_selector(selector)
-            ]
-        ))
+        return list(
+            filter(
+                lambda indices_list: indices_list,
+                [
+                    self.get_submob_indices_list_by_span(span)
+                    for span in self.find_spans_by_selector(selector)
+                ],
+            )
+        )
 
-    def build_parts_from_indices_lists(
-        self, indices_lists: list[list[int]]
-    ) -> VGroup:
-        return VGroup(*(
-            VGroup(*(
-                self.submobjects[submob_index]
-                for submob_index in indices_list
-            ))
-            for indices_list in indices_lists
-        ))
+    def build_parts_from_indices_lists(self, indices_lists: list[list[int]]) -> VGroup:
+        return VGroup(
+            *(
+                VGroup(
+                    *(self.submobjects[submob_index] for submob_index in indices_list)
+                )
+                for indices_list in indices_lists
+            )
+        )
 
     def build_groups(self) -> VGroup:
-        return self.build_parts_from_indices_lists([
-            indices_list
-            for _, indices_list in self.get_group_part_items()
-        ])
+        return self.build_parts_from_indices_lists(
+            [indices_list for _, indices_list in self.get_group_part_items()]
+        )
 
     def select_parts(self, selector: Selector) -> VGroup:
         return self.build_parts_from_indices_lists(

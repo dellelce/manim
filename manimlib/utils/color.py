@@ -55,7 +55,7 @@ def invert_color(color: ManimColor) -> Color:
 
 
 def color_to_int_rgb(color: ManimColor) -> np.ndarray:
-    return (255 * color_to_rgb(color)).astype('uint8')
+    return (255 * color_to_rgb(color)).astype("uint8")
 
 
 def color_to_int_rgba(color: ManimColor, opacity: float = 1.0) -> np.ndarray:
@@ -64,14 +64,13 @@ def color_to_int_rgba(color: ManimColor, opacity: float = 1.0) -> np.ndarray:
 
 
 def color_gradient(
-    reference_colors: Iterable[ManimColor],
-    length_of_output: int
+    reference_colors: Iterable[ManimColor], length_of_output: int
 ) -> list[Color]:
     if length_of_output == 0:
         return []
     rgbs = list(map(color_to_rgb, reference_colors))
     alphas = np.linspace(0, (len(rgbs) - 1), length_of_output)
-    floors = alphas.astype('int')
+    floors = alphas.astype("int")
     alphas_mod1 = alphas % 1
     # End edge case
     alphas_mod1[-1] = 1
@@ -82,11 +81,7 @@ def color_gradient(
     ]
 
 
-def interpolate_color(
-    color1: ManimColor,
-    color2: ManimColor,
-    alpha: float
-) -> Color:
+def interpolate_color(color1: ManimColor, color2: ManimColor, alpha: float) -> Color:
     rgb = interpolate(color_to_rgb(color1), color_to_rgb(color2), alpha)
     return rgb_to_color(rgb)
 
@@ -105,10 +100,7 @@ def random_bright_color() -> Color:
     return average_color(color, Color(WHITE))
 
 
-def get_colormap_list(
-    map_name: str = "viridis",
-    n_colors: int = 9
-) -> np.ndarray:
+def get_colormap_list(map_name: str = "viridis", n_colors: int = 9) -> np.ndarray:
     """
     Options for map_name:
     3b1b_colormap

@@ -24,6 +24,7 @@ class ShowPartial(Animation, ABC):
     """
     Abstract class for ShowCreation and ShowPassingFlash
     """
+
     CONFIG = {
         "should_match_start": False,
     }
@@ -38,14 +39,9 @@ class ShowPartial(Animation, ABC):
         self.mobject.unlock_data()
 
     def interpolate_submobject(
-        self,
-        submob: VMobject,
-        start_submob: VMobject,
-        alpha: float
+        self, submob: VMobject, start_submob: VMobject, alpha: float
     ) -> None:
-        submob.pointwise_become_partial(
-            start_submob, *self.get_bounds(alpha)
-        )
+        submob.pointwise_become_partial(start_submob, *self.get_bounds(alpha))
 
     @abstractmethod
     def get_bounds(self, alpha: float) -> tuple[float, float]:
@@ -80,11 +76,8 @@ class DrawBorderThenFill(Animation):
     }
 
     def __init__(self, vmobject: VMobject, **kwargs):
-        assert(isinstance(vmobject, VMobject))
-        self.sm_to_index = dict([
-            (hash(sm), 0)
-            for sm in vmobject.get_family()
-        ])
+        assert isinstance(vmobject, VMobject)
+        self.sm_to_index = dict([(hash(sm), 0) for sm in vmobject.get_family()])
         super().__init__(vmobject, **kwargs)
 
     def begin(self) -> None:
@@ -106,8 +99,7 @@ class DrawBorderThenFill(Animation):
         outline.set_fill(opacity=0)
         for sm in outline.get_family():
             sm.set_stroke(
-                color=self.get_stroke_color(sm),
-                width=float(self.stroke_width)
+                color=self.get_stroke_color(sm), width=float(self.stroke_width)
             )
         return outline
 
@@ -122,11 +114,7 @@ class DrawBorderThenFill(Animation):
         return [*super().get_all_mobjects(), self.outline]
 
     def interpolate_submobject(
-        self,
-        submob: VMobject,
-        start: VMobject,
-        outline: VMobject,
-        alpha: float
+        self, submob: VMobject, start: VMobject, outline: VMobject, alpha: float
     ) -> None:
         index, subalpha = integer_interpolate(0, 2, alpha)
 

@@ -2,6 +2,7 @@ from functools import reduce
 import random
 
 from manimlib.constants import *
+
 # from manimlib.for_3b1b_videos.pi_creature import PiCreature
 # from manimlib.for_3b1b_videos.pi_creature import Randolph
 # from manimlib.for_3b1b_videos.pi_creature import get_all_pi_creature_modes
@@ -33,23 +34,28 @@ def fractalify(vmobject, order=3, *args, **kwargs):
     return vmobject
 
 
-def fractalification_iteration(vmobject, dimension=1.05, num_inserted_anchors_range=list(range(1, 4))):
+def fractalification_iteration(
+    vmobject, dimension=1.05, num_inserted_anchors_range=list(range(1, 4))
+):
     num_points = vmobject.get_num_points()
     if num_points > 0:
         # original_anchors = vmobject.get_anchors()
         original_anchors = [
             vmobject.point_from_proportion(x)
-            for x in np.linspace(0, 1 - 1. / num_points, num_points)
+            for x in np.linspace(0, 1 - 1.0 / num_points, num_points)
         ]
         new_anchors = []
-        for p1, p2, in zip(original_anchors, original_anchors[1:]):
+        for (
+            p1,
+            p2,
+        ) in zip(original_anchors, original_anchors[1:]):
             num_inserts = random.choice(num_inserted_anchors_range)
             inserted_points = [
                 interpolate(p1, p2, alpha)
                 for alpha in np.linspace(0, 1, num_inserts + 2)[1:-1]
             ]
-            mass_scaling_factor = 1. / (num_inserts + 1)
-            length_scaling_factor = mass_scaling_factor**(1. / dimension)
+            mass_scaling_factor = 1.0 / (num_inserts + 1)
+            length_scaling_factor = mass_scaling_factor ** (1.0 / dimension)
             target_length = get_norm(p1 - p2) * length_scaling_factor
             curr_length = get_norm(p1 - p2) * mass_scaling_factor
             # offset^2 + curr_length^2 = target_length^2
@@ -63,11 +69,12 @@ def fractalification_iteration(vmobject, dimension=1.05, num_inserted_anchors_ra
             new_anchors += [p1] + inserted_points
         new_anchors.append(original_anchors[-1])
         vmobject.set_points_as_corners(new_anchors)
-    vmobject.set_submobjects([
-        fractalification_iteration(
-            submob, dimension, num_inserted_anchors_range)
-        for submob in vmobject.submobjects
-    ])
+    vmobject.set_submobjects(
+        [
+            fractalification_iteration(submob, dimension, num_inserted_anchors_range)
+            for submob in vmobject.submobjects
+        ]
+    )
     return vmobject
 
 
@@ -98,10 +105,7 @@ class SelfSimilarFractal(VMobject):
             result = self.get_seed_shape()
         else:
             lower_order = self.get_order_n_self(order - 1)
-            subparts = [
-                lower_order.copy()
-                for x in range(self.num_subparts)
-            ]
+            subparts = [lower_order.copy() for x in range(self.num_subparts)]
             self.arrange_subparts(*subparts)
             result = VGroup(*subparts)
 
@@ -119,7 +123,9 @@ class SelfSimilarFractal(VMobject):
 class Sierpinski(SelfSimilarFractal):
     def get_seed_shape(self):
         return Polygon(
-            RIGHT, np.sqrt(3) * UP, LEFT,
+            RIGHT,
+            np.sqrt(3) * UP,
+            LEFT,
         )
 
     def arrange_subparts(self, *subparts):
@@ -164,11 +170,7 @@ class PentagonalFractal(SelfSimilarFractal):
 class PentagonalPiCreatureFractal(PentagonalFractal):
     def init_colors(self):
         SelfSimilarFractal.init_colors(self)
-        internal_pis = [
-            pi
-            for pi in self.get_family()
-            if isinstance(pi, PiCreature)
-        ]
+        internal_pis = [pi for pi in self.get_family() if isinstance(pi, PiCreature)]
         colors = color_gradient(self.colors, len(internal_pis))
         for pi, color in zip(internal_pis, colors):
             pi.init_colors()
@@ -191,8 +193,16 @@ class PiCreatureFractal(VMobject):
         "start_mode": "hooray",
         "height": 6,
         "colors": [
-            BLUE_D, BLUE_B, MAROON_B, MAROON_D, GREY,
-            YELLOW, RED, GREY_BROWN, RED, RED_E,
+            BLUE_D,
+            BLUE_B,
+            MAROON_B,
+            MAROON_D,
+            GREY,
+            YELLOW,
+            RED,
+            GREY_BROWN,
+            RED,
+            RED_E,
         ],
         "random_seed": 0,
         "stroke_width": 0,
@@ -200,11 +210,7 @@ class PiCreatureFractal(VMobject):
 
     def init_colors(self):
         VMobject.init_colors(self)
-        internal_pis = [
-            pi
-            for pi in self.get_family()
-            if isinstance(pi, PiCreature)
-        ]
+        internal_pis = [pi for pi in self.get_family() if isinstance(pi, PiCreature)]
         random.seed(self.random_seed)
         for pi in reversed(internal_pis):
             color = random.choice(self.colors)
@@ -223,17 +229,9 @@ class PiCreatureFractal(VMobject):
             new_creatures = []
             for creature in creatures:
                 for eye, vect in zip(creature.eyes, [LEFT, RIGHT]):
-                    new_creature = PiCreature(
-                        mode=random.choice(modes)
-                    )
-                    new_creature.set_height(
-                        self.scale_val * eye.get_height()
-                    )
-                    new_creature.next_to(
-                        eye, vect,
-                        buff=0,
-                        aligned_edge=DOWN
-                    )
+                    new_creature = PiCreature(mode=random.choice(modes))
+                    new_creature.set_height(self.scale_val * eye.get_height())
+                    new_creature.next_to(eye, vect, buff=0, aligned_edge=DOWN)
                     new_creatures.append(new_creature)
                 creature.look_at(random.choice(new_creatures))
             self.add_to_back(VGroup(*new_creatures))
@@ -245,9 +243,7 @@ class PiCreatureFractal(VMobject):
 
 
 class WonkyHexagonFractal(SelfSimilarFractal):
-    CONFIG = {
-        "num_subparts": 7
-    }
+    CONFIG = {"num_subparts": 7}
 
     def get_seed_shape(self):
         return RegularPolygon(n=6)
@@ -267,10 +263,7 @@ class WonkyHexagonFractal(SelfSimilarFractal):
 
 
 class CircularFractal(SelfSimilarFractal):
-    CONFIG = {
-        "num_subparts": 3,
-        "colors": [GREEN, BLUE, GREY]
-    }
+    CONFIG = {"num_subparts": 3, "colors": [GREEN, BLUE, GREY]}
 
     def get_seed_shape(self):
         return Circle()
@@ -281,12 +274,10 @@ class CircularFractal(SelfSimilarFractal):
             self.been_here = True
         for i, part in enumerate(subparts):
             theta = np.pi / self.num_subparts
-            part.next_to(
-                ORIGIN, UP,
-                buff=self.height / (2 * np.tan(theta))
-            )
+            part.next_to(ORIGIN, UP, buff=self.height / (2 * np.tan(theta)))
             part.rotate(i * 2 * np.pi / self.num_subparts, about_point=ORIGIN)
         self.num_subparts -= 1
+
 
 ######## Space filling curves ############
 
@@ -296,9 +287,7 @@ class JaggedCurvePiece(VMobject):
         if self.get_num_curves() == 0:
             self.set_points(np.zeros((1, 3)))
         anchors = self.get_anchors()
-        indices = np.linspace(
-            0, len(anchors) - 1, n + len(anchors)
-        ).astype('int')
+        indices = np.linspace(0, len(anchors) - 1, n + len(anchors)).astype("int")
         self.set_points_as_corners(anchors[indices])
 
 
@@ -323,9 +312,7 @@ class FractalCurve(VMobject):
             alphas = np.linspace(0, 1, self.num_submobjects)
             for alpha_pair in zip(alphas, alphas[1:]):
                 submobject = JaggedCurvePiece()
-                submobject.pointwise_become_partial(
-                    self, *alpha_pair
-                )
+                submobject.pointwise_become_partial(self, *alpha_pair)
                 self.add(submobject)
             self.set_points(np.zeros((0, 3)))
 
@@ -367,7 +354,7 @@ class LindenmayerCurve(FractalCurve):
 
     def get_anchor_points(self):
         step = float(self.radius) * self.start_step
-        step /= (self.scale_factor**self.order)
+        step /= self.scale_factor**self.order
         curr = np.zeros(3)
         result = [curr]
         for letter in self.get_command_string():
@@ -397,23 +384,14 @@ class SelfSimilarSpaceFillingCurve(FractalCurve):
         """
         copy = np.array(points)
         if str(offset) in self.offset_to_rotation_axis:
-            copy = rotate(
-                copy,
-                axis=self.offset_to_rotation_axis[str(offset)]
-            )
-        copy /= self.scale_factor,
+            copy = rotate(copy, axis=self.offset_to_rotation_axis[str(offset)])
+        copy /= (self.scale_factor,)
         copy += offset * self.radius * self.radius_scale_factor
         return copy
 
     def refine_into_subparts(self, points):
-        transformed_copies = [
-            self.transform(points, offset)
-            for offset in self.offsets
-        ]
-        return reduce(
-            lambda a, b: np.append(a, b, axis=0),
-            transformed_copies
-        )
+        transformed_copies = [self.transform(points, offset) for offset in self.offsets]
+        return reduce(lambda a, b: np.append(a, b, axis=0), transformed_copies)
 
     def get_anchor_points(self):
         points = np.zeros((1, 3))
@@ -472,7 +450,7 @@ class HilbertCurve3D(SelfSimilarSpaceFillingCurve):
             axis=self.offset_to_rotation_axis_and_angle[str(offset)][0],
             angle=self.offset_to_rotation_axis_and_angle[str(offset)][1],
         )
-        copy /= self.scale_factor,
+        copy /= (self.scale_factor,)
         copy += offset * self.radius * self.radius_scale_factor
         return copy
 
@@ -507,18 +485,19 @@ class TriangleFillingCurve(SelfSimilarSpaceFillingCurve):
     CONFIG = {
         "colors": [MAROON, YELLOW],
         "offsets": [
-            LEFT / 4. + DOWN / 6.,
+            LEFT / 4.0 + DOWN / 6.0,
             ORIGIN,
-            RIGHT / 4. + DOWN / 6.,
-            UP / 3.,
+            RIGHT / 4.0 + DOWN / 6.0,
+            UP / 3.0,
         ],
         "offset_to_rotation_axis": {
             str(ORIGIN): RIGHT,
-            str(UP / 3.): UP,
+            str(UP / 3.0): UP,
         },
         "scale_factor": 2,
         "radius_scale_factor": 1.5,
     }
+
 
 # class HexagonFillingCurve(SelfSimilarSpaceFillingCurve):
 #     CONFIG = {
@@ -547,9 +526,7 @@ class TriangleFillingCurve(SelfSimilarSpaceFillingCurve):
 class UtahFillingCurve(SelfSimilarSpaceFillingCurve):
     CONFIG = {
         "colors": [WHITE, BLUE_D],
-        "axis_offset_pairs": [
-
-        ],
+        "axis_offset_pairs": [],
         "scale_factor": 3,
         "radius_scale_factor": 2 / (3 * np.sqrt(3)),
     }
@@ -593,9 +570,7 @@ class KochSnowFlake(LindenmayerCurve):
     CONFIG = {
         "colors": [BLUE_D, WHITE, BLUE_D],
         "axiom": "A--A--A--",
-        "rule": {
-            "A": "A+A--A+A"
-        },
+        "rule": {"A": "A+A--A+A"},
         "radius": 4,
         "scale_factor": 3,
         "start_step": RIGHT,
@@ -614,29 +589,23 @@ class KochSnowFlake(LindenmayerCurve):
 
 
 class KochCurve(KochSnowFlake):
-    CONFIG = {
-        "axiom": "A--"
-    }
+    CONFIG = {"axiom": "A--"}
 
 
 class QuadraticKoch(LindenmayerCurve):
     CONFIG = {
         "colors": [YELLOW, WHITE, MAROON_B],
         "axiom": "A",
-        "rule": {
-            "A": "A+A-A-AA+A+A-A"
-        },
+        "rule": {"A": "A+A-A-AA+A+A-A"},
         "radius": 4,
         "scale_factor": 4,
         "start_step": RIGHT,
-        "angle": np.pi / 2
+        "angle": np.pi / 2,
     }
 
 
 class QuadraticKochIsland(QuadraticKoch):
-    CONFIG = {
-        "axiom": "A+A+A+A"
-    }
+    CONFIG = {"axiom": "A+A+A+A"}
 
 
 class StellarCurve(LindenmayerCurve):
@@ -662,16 +631,14 @@ class SnakeCurve(FractalCurve):
         result = []
         resolution = 2**self.order
         step = 2.0 * self.radius / resolution
-        lower_left = ORIGIN + \
-            LEFT * (self.radius - step / 2) + \
-            DOWN * (self.radius - step / 2)
+        lower_left = (
+            ORIGIN + LEFT * (self.radius - step / 2) + DOWN * (self.radius - step / 2)
+        )
 
         for y in range(resolution):
             x_range = list(range(resolution))
             if y % 2 == 0:
                 x_range.reverse()
             for x in x_range:
-                result.append(
-                    lower_left + x * step * RIGHT + y * step * UP
-                )
+                result.append(lower_left + x * step * RIGHT + y * step * UP)
         return result

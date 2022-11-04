@@ -29,9 +29,9 @@ class DotCloud(PMobject):
         "shader_folder": "true_dot",
         "render_primitive": moderngl.POINTS,
         "shader_dtype": [
-            ('point', np.float32, (3,)),
-            ('radius', np.float32, (1,)),
-            ('color', np.float32, (4,)),
+            ("point", np.float32, (3,)),
+            ("radius", np.float32, (1,)),
+            ("color", np.float32, (4,)),
         ],
     }
 
@@ -116,10 +116,7 @@ class DotCloud(PMobject):
         return bb
 
     def scale(
-        self,
-        scale_factor: float | npt.ArrayLike,
-        scale_radii: bool = True,
-        **kwargs
+        self, scale_factor: float | npt.ArrayLike, scale_radii: bool = True, **kwargs
     ):
         super().scale(scale_factor, **kwargs)
         if scale_radii:

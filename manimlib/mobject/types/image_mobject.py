@@ -16,10 +16,10 @@ class ImageMobject(Mobject):
         "opacity": 1,
         "shader_folder": "image",
         "shader_dtype": [
-            ('point', np.float32, (3,)),
-            ('im_coords', np.float32, (2,)),
-            ('opacity', np.float32, (1,)),
-        ]
+            ("point", np.float32, (3,)),
+            ("im_coords", np.float32, (2,)),
+            ("opacity", np.float32, (1,)),
+        ],
     }
 
     def __init__(self, filename: str, **kwargs):
@@ -61,10 +61,12 @@ class ImageMobject(Mobject):
             raise Exception("Cannot sample color from outside an image")
 
         pw, ph = self.image.size
-        rgb = self.image.getpixel((
-            int((pw - 1) * x_alpha),
-            int((ph - 1) * y_alpha),
-        ))
+        rgb = self.image.getpixel(
+            (
+                int((pw - 1) * x_alpha),
+                int((ph - 1) * y_alpha),
+            )
+        )
         return np.array(rgb) / 255
 
     def get_shader_data(self) -> np.ndarray:

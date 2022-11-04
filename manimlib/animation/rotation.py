@@ -26,11 +26,7 @@ class Rotating(Animation):
     }
 
     def __init__(
-        self,
-        mobject: Mobject,
-        angle: float = TAU,
-        axis: np.ndarray = OUT,
-        **kwargs
+        self, mobject: Mobject, angle: float = TAU, axis: np.ndarray = OUT, **kwargs
     ):
         self.angle = angle
         self.axis = axis
@@ -55,10 +51,6 @@ class Rotate(Rotating):
     }
 
     def __init__(
-        self,
-        mobject: Mobject,
-        angle: float = PI,
-        axis: np.ndarray = OUT,
-        **kwargs
+        self, mobject: Mobject, angle: float = PI, axis: np.ndarray = OUT, **kwargs
     ):
         super().__init__(mobject, angle, axis, **kwargs)

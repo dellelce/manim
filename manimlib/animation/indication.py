@@ -59,9 +59,7 @@ class FocusOn(Transform):
     def create_target(self) -> Dot:
         little_dot = Dot(radius=0)
         little_dot.set_fill(self.color, opacity=self.opacity)
-        little_dot.add_updater(
-            lambda d: d.move_to(self.focus_point)
-        )
+        little_dot.add_updater(lambda d: d.move_to(self.focus_point))
         return little_dot
 
     def create_starting_mobject(self) -> Dot:
@@ -96,12 +94,7 @@ class Flash(AnimationGroup):
         "run_time": 1,
     }
 
-    def __init__(
-        self,
-        point: np.ndarray,
-        color: ManimColor = YELLOW,
-        **kwargs
-    ):
+    def __init__(self, point: np.ndarray, color: ManimColor = YELLOW, **kwargs):
         self.point = point
         self.color = color
         digest_config(self, kwargs)
@@ -120,18 +113,12 @@ class Flash(AnimationGroup):
             line.shift((self.flash_radius - self.line_length) * RIGHT)
             line.rotate(angle, about_point=ORIGIN)
             lines.add(line)
-        lines.set_stroke(
-            color=self.color,
-            width=self.line_stroke_width
-        )
+        lines.set_stroke(color=self.color, width=self.line_stroke_width)
         lines.add_updater(lambda l: l.move_to(self.point))
         return lines
 
     def create_line_anims(self) -> list[Animation]:
-        return [
-            ShowCreationThenDestruction(line)
-            for line in self.lines
-        ]
+        return [ShowCreationThenDestruction(line) for line in self.lines]
 
 
 class CircleIndicate(Indicate):
@@ -206,10 +193,7 @@ class VShowPassingFlash(Animation):
         super().begin()
 
     def interpolate_submobject(
-        self,
-        submobject: VMobject,
-        starting_sumobject: None,
-        alpha: float
+        self, submobject: VMobject, starting_sumobject: None, alpha: float
     ) -> None:
         anchor_widths = self.submob_to_anchor_widths[hash(submobject)]
         # Create a gaussian such that 3 sigmas out on either side
@@ -279,11 +263,7 @@ class ShowCreationThenFadeOut(Succession):
     }
 
     def __init__(self, mobject: Mobject, **kwargs):
-        super().__init__(
-            ShowCreation(mobject),
-            FadeOut(mobject),
-            **kwargs
-        )
+        super().__init__(ShowCreation(mobject), FadeOut(mobject), **kwargs)
 
 
 class AnimationOnSurroundingRectangle(AnimationGroup):
@@ -292,7 +272,7 @@ class AnimationOnSurroundingRectangle(AnimationGroup):
         # Function which takes in a rectangle, and spits
         # out some animation.  Could be some animation class,
         # could be something more
-        "rect_animation": Animation
+        "rect_animation": Animation,
     }
 
     def __init__(self, mobject: Mobject, **kwargs):
@@ -310,27 +290,20 @@ class AnimationOnSurroundingRectangle(AnimationGroup):
 
     def get_rect(self) -> SurroundingRectangle:
         return SurroundingRectangle(
-            self.mobject_to_surround,
-            **self.surrounding_rectangle_config
+            self.mobject_to_surround, **self.surrounding_rectangle_config
         )
 
 
 class ShowPassingFlashAround(AnimationOnSurroundingRectangle):
-    CONFIG = {
-        "rect_animation": ShowPassingFlash
-    }
+    CONFIG = {"rect_animation": ShowPassingFlash}
 
 
 class ShowCreationThenDestructionAround(AnimationOnSurroundingRectangle):
-    CONFIG = {
-        "rect_animation": ShowCreationThenDestruction
-    }
+    CONFIG = {"rect_animation": ShowCreationThenDestruction}
 
 
 class ShowCreationThenFadeAround(AnimationOnSurroundingRectangle):
-    CONFIG = {
-        "rect_animation": ShowCreationThenFadeOut
-    }
+    CONFIG = {"rect_animation": ShowCreationThenFadeOut}
 
 
 class ApplyWave(Homotopy):
@@ -374,19 +347,16 @@ class WiggleOutThenIn(Animation):
             return self.mobject.get_center()
 
     def interpolate_submobject(
-        self,
-        submobject: Mobject,
-        starting_sumobject: Mobject,
-        alpha: float
+        self, submobject: Mobject, starting_sumobject: Mobject, alpha: float
     ) -> None:
         submobject.match_points(starting_sumobject)
         submobject.scale(
             interpolate(1, self.scale_value, there_and_back(alpha)),
-            about_point=self.get_scale_about_point()
+            about_point=self.get_scale_about_point(),
         )
         submobject.rotate(
             wiggle(alpha, self.n_wiggles) * self.rotation_angle,
-            about_point=self.get_rotate_about_point()
+            about_point=self.get_rotate_about_point(),
         )
 
 
@@ -414,5 +384,5 @@ class FlashyFadeIn(AnimationGroup):
         super().__init__(
             FadeIn(vmobject, rate_func=squish_rate_func(rate_func, self.fade_lag, 1)),
             VShowPassingFlash(outline, time_width=1),
-            **kwargs
+            **kwargs,
         )

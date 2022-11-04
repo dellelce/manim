@@ -12,10 +12,12 @@ from manimlib.scene.scene import Scene
 
 import itertools as it
 
+
 class CountingScene(Scene):
     CONFIG = {
         "digit_place_colors": [YELLOW, MAROON_B, RED, GREEN, BLUE, PURPLE_D],
-        "counting_dot_starting_position": (FRAME_X_RADIUS - 1) * RIGHT + (FRAME_Y_RADIUS - 1) * UP,
+        "counting_dot_starting_position": (FRAME_X_RADIUS - 1) * RIGHT
+        + (FRAME_Y_RADIUS - 1) * UP,
         "count_dot_starting_radius": 0.5,
         "dot_configuration_height": 2,
         "ones_configuration_location": UP + 2 * RIGHT,
@@ -45,23 +47,23 @@ class CountingScene(Scene):
         result = []
         for down_right_steps in range(5):
             for left_steps in range(down_right_steps):
-                result.append(
-                    down_right_steps * down_right + left_steps * LEFT
-                )
-        return reversed(result[:self.get_place_max(place)])
+                result.append(down_right_steps * down_right + left_steps * LEFT)
+        return reversed(result[: self.get_place_max(place)])
 
     def get_dot_template(self, place):
         # This should be replaced for non-base-10 counting scenes
-        dots = VGroup(*[
-            Dot(
-                point,
-                radius=0.25,
-                fill_opacity=0,
-                stroke_width=2,
-                stroke_color=WHITE,
-            )
-            for point in self.get_template_configuration(place)
-        ])
+        dots = VGroup(
+            *[
+                Dot(
+                    point,
+                    radius=0.25,
+                    fill_opacity=0,
+                    stroke_width=2,
+                    stroke_color=WHITE,
+                )
+                for point in self.get_template_configuration(place)
+            ]
+        )
         dots.set_height(self.dot_configuration_height)
         return dots
 
@@ -69,13 +71,9 @@ class CountingScene(Scene):
         new_template = self.get_dot_template(len(self.dot_templates))
         new_template.move_to(self.ones_configuration_location)
         left_vect = (new_template.get_width() + LARGE_BUFF) * LEFT
-        new_template.shift(
-            left_vect * len(self.dot_templates)
-        )
+        new_template.shift(left_vect * len(self.dot_templates))
         self.dot_templates.append(new_template)
-        self.dot_template_iterators.append(
-            it.cycle(new_template)
-        )
+        self.dot_template_iterators.append(it.cycle(new_template))
         self.curr_configurations.append(VGroup())
 
     def count(self, max_val, run_time_per_anim=1):
@@ -90,9 +88,7 @@ class CountingScene(Scene):
         )
         moving_dot.generate_target()
         moving_dot.set_fill(opacity=0)
-        kwargs = {
-            "run_time": run_time_per_anim
-        }
+        kwargs = {"run_time": run_time_per_anim}
 
         continue_rolling_over = True
         first_move = True
@@ -102,13 +98,13 @@ class CountingScene(Scene):
             if first_move:
                 added_anims += self.get_digit_increment_animations()
                 first_move = False
-            moving_dot.target.replace(
-                next(self.dot_template_iterators[place])
-            )
+            moving_dot.target.replace(next(self.dot_template_iterators[place]))
             self.play(MoveToTarget(moving_dot), *added_anims, **kwargs)
             self.curr_configurations[place].add(moving_dot)
 
-            if len(self.curr_configurations[place].split()) == self.get_place_max(place):
+            if len(self.curr_configurations[place].split()) == self.get_place_max(
+                place
+            ):
                 full_configuration = self.curr_configurations[place]
                 self.curr_configurations[place] = VGroup()
                 place += 1
@@ -145,14 +141,11 @@ class CountingScene(Scene):
             arrow = Arrow(
                 new_number_mob[place].get_top(),
                 self.dot_templates[place].get_bottom(),
-                color=self.digit_place_colors[place]
+                color=self.digit_place_colors[place],
             )
             self.arrows.add(arrow)
             result.append(ShowCreation(arrow))
-        result.append(Transform(
-            self.number_mob, new_number_mob,
-            lag_ratio=0.5
-        ))
+        result.append(Transform(self.number_mob, new_number_mob, lag_ratio=0.5))
         return result
 
     def get_number_mob(self, num):
@@ -193,7 +186,7 @@ class PowerCounter(CountingScene):
         return self.base
 
     def get_place_num(self, num, place):
-        return (num / (self.base ** place)) % self.base
+        return (num / (self.base**place)) % self.base
 
 
 class CountInDecimal(PowerCounter):
@@ -214,7 +207,7 @@ class CountInTernary(PowerCounter):
     CONFIG = {
         "base": 3,
         "dot_configuration_height": 1,
-        "ones_configuration_location": UP + 4 * RIGHT
+        "ones_configuration_location": UP + 4 * RIGHT,
     }
 
     def construct(self):
@@ -228,7 +221,7 @@ class CountInBinaryTo256(PowerCounter):
     CONFIG = {
         "base": 2,
         "dot_configuration_height": 1,
-        "ones_configuration_location": UP + 5 * RIGHT
+        "ones_configuration_location": UP + 5 * RIGHT,
     }
 
     def construct(self):
@@ -241,7 +234,7 @@ class CountInBinaryTo256(PowerCounter):
 class FactorialBase(CountingScene):
     CONFIG = {
         "dot_configuration_height": 1,
-        "ones_configuration_location": UP + 4 * RIGHT
+        "ones_configuration_location": UP + 4 * RIGHT,
     }
 
     def construct(self):
@@ -257,7 +250,7 @@ class FactorialBase(CountingScene):
         return (num / self.factorial(place + 1)) % self.get_place_max(place)
 
     def factorial(self, n):
-        if (n == 1):
+        if n == 1:
             return 1
         else:
             return n * self.factorial(n - 1)

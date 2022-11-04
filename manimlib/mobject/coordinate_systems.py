@@ -46,6 +46,7 @@ class CoordinateSystem(ABC):
     """
     Abstract class for Axes and NumberPlane
     """
+
     CONFIG = {
         "dimension": 2,
         "default_x_range": [-8.0, 8.0, 1.0],
@@ -104,11 +105,10 @@ class CoordinateSystem(ABC):
         label_tex: str,
         edge: np.ndarray = RIGHT,
         direction: np.ndarray = DL,
-        **kwargs
+        **kwargs,
     ) -> Tex:
         return self.get_axis_label(
-            label_tex, self.get_x_axis(),
-            edge, direction, **kwargs
+            label_tex, self.get_x_axis(), edge, direction, **kwargs
         )
 
     def get_y_axis_label(
@@ -116,11 +116,10 @@ class CoordinateSystem(ABC):
         label_tex: str,
         edge: np.ndarray = UP,
         direction: np.ndarray = DR,
-        **kwargs
+        **kwargs,
     ) -> Tex:
         return self.get_axis_label(
-            label_tex, self.get_y_axis(),
-            edge, direction, **kwargs
+            label_tex, self.get_y_axis(), edge, direction, **kwargs
         )
 
     def get_axis_label(
@@ -129,21 +128,14 @@ class CoordinateSystem(ABC):
         axis: np.ndarray,
         edge: np.ndarray,
         direction: np.ndarray,
-        buff: float = MED_SMALL_BUFF
+        buff: float = MED_SMALL_BUFF,
     ) -> Tex:
         label = Tex(label_tex)
-        label.next_to(
-            axis.get_edge_center(edge), direction,
-            buff=buff
-        )
+        label.next_to(axis.get_edge_center(edge), direction, buff=buff)
         label.shift_onto_screen(buff=MED_SMALL_BUFF)
         return label
 
-    def get_axis_labels(
-        self,
-        x_label_tex: str = "x",
-        y_label_tex: str = "y"
-    ) -> VGroup:
+    def get_axis_labels(self, x_label_tex: str = "x", y_label_tex: str = "y") -> VGroup:
         self.axis_labels = VGroup(
             self.get_x_axis_label(x_label_tex),
             self.get_y_axis_label(y_label_tex),
@@ -151,12 +143,12 @@ class CoordinateSystem(ABC):
         return self.axis_labels
 
     def get_line_from_axis_to_point(
-        self, 
+        self,
         index: int,
         point: np.ndarray,
         line_func: Type[T] = DashedLine,
         color: ManimColor = GREY_A,
-        stroke_width: float = 2
+        stroke_width: float = 2,
     ) -> T:
         axis = self.get_axis(index)
         line = line_func(axis.get_projection(point), point)
@@ -174,11 +166,11 @@ class CoordinateSystem(ABC):
         self,
         function: Callable[[float], float],
         x_range: Sequence[float] | None = None,
-        **kwargs
+        **kwargs,
     ) -> ParametricCurve:
         t_range = np.array(self.x_range, dtype=float)
         if x_range is not None:
-            t_range[:len(x_range)] = x_range
+            t_range[: len(x_range)] = x_range
         # For axes, the third coordinate of x_range indicates
         # tick frequency.  But for functions, it indicates a
         # sample frequency
@@ -186,31 +178,24 @@ class CoordinateSystem(ABC):
             t_range[2] /= self.num_sampled_graph_points_per_tick
 
         graph = ParametricCurve(
-            lambda t: self.c2p(t, function(t)),
-            t_range=t_range,
-            **kwargs
+            lambda t: self.c2p(t, function(t)), t_range=t_range, **kwargs
         )
         graph.underlying_function = function
         graph.x_range = x_range
         return graph
 
     def get_parametric_curve(
-        self,
-        function: Callable[[float], np.ndarray],
-        **kwargs
+        self, function: Callable[[float], np.ndarray], **kwargs
     ) -> ParametricCurve:
         dim = self.dimension
         graph = ParametricCurve(
-            lambda t: self.coords_to_point(*function(t)[:dim]),
-            **kwargs
+            lambda t: self.coords_to_point(*function(t)[:dim]), **kwargs
         )
         graph.underlying_function = function
         return graph
 
     def input_to_graph_point(
-        self,
-        x: float,
-        graph: ParametricCurve
+        self, x: float, graph: ParametricCurve
     ) -> np.ndarray | None:
         if hasattr(graph, "underlying_function"):
             return self.coords_to_point(x, graph.underlying_function(x))
@@ -240,7 +225,9 @@ class CoordinateSystem(ABC):
         conditions
         """
         graph.x_values = [self.x_axis.p2n(p) for p in graph.get_points()]
-        graph.add_updater(lambda g: g.set_points([self.c2p(x, func(x)) for x in g.x_values]))
+        graph.add_updater(
+            lambda g: g.set_points([self.c2p(x, func(x)) for x in g.x_values])
+        )
         if jagged:
             graph.add_updater(lambda g: g.make_jagged())
         else:
@@ -254,7 +241,7 @@ class CoordinateSystem(ABC):
         x: float | None = None,
         direction: np.ndarray = RIGHT,
         buff: float = MED_SMALL_BUFF,
-        color: ManimColor | None = None
+        color: ManimColor | None = None,
     ) -> Tex | Mobject:
         if isinstance(label, str):
             label = Tex(label)
@@ -288,29 +275,18 @@ class CoordinateSystem(ABC):
     def get_h_line_to_graph(self, x: float, graph: ParametricCurve, **kwargs):
         return self.get_h_line(self.i2gp(x, graph), **kwargs)
 
-    def get_scatterplot(self,
-                        x_values: np.ndarray,
-                        y_values: np.ndarray,
-                        **dot_config):
+    def get_scatterplot(self, x_values: np.ndarray, y_values: np.ndarray, **dot_config):
         return DotCloud(self.c2p(x_values, y_values), **dot_config)
 
     # For calculus
     def angle_of_tangent(
-        self,
-        x: float,
-        graph: ParametricCurve,
-        dx: float = EPSILON
+        self, x: float, graph: ParametricCurve, dx: float = EPSILON
     ) -> float:
         p0 = self.input_to_graph_point(x, graph)
         p1 = self.input_to_graph_point(x + dx, graph)
         return angle_of_vector(p1 - p0)
 
-    def slope_of_tangent(
-        self,
-        x: float,
-        graph: ParametricCurve,
-        **kwargs
-    ) -> float:
+    def slope_of_tangent(self, x: float, graph: ParametricCurve, **kwargs) -> float:
         return np.tan(self.angle_of_tangent(x, graph, **kwargs))
 
     def get_tangent_line(
@@ -318,7 +294,7 @@ class CoordinateSystem(ABC):
         x: float,
         graph: ParametricCurve,
         length: float = 5,
-        line_func: Type[T] = Line
+        line_func: Type[T] = Line,
     ) -> T:
         line = line_func(LEFT, RIGHT)
         line.set_width(length)
@@ -338,7 +314,7 @@ class CoordinateSystem(ABC):
         colors: Iterable[ManimColor] = (BLUE, GREEN),
         negative_color: ManimColor = RED,
         stroke_background: bool = True,
-        show_signed_area: bool = True
+        show_signed_area: bool = True,
     ) -> VGroup:
         if x_range is None:
             x_range = self.x_range[:2]
@@ -373,7 +349,7 @@ class CoordinateSystem(ABC):
             stroke_width=stroke_width,
             stroke_color=stroke_color,
             fill_opacity=fill_opacity,
-            stroke_background=stroke_background
+            stroke_background=stroke_background,
         )
         for rect in result:
             if not rect.positive:
@@ -403,22 +379,22 @@ class Axes(VGroup, CoordinateSystem):
         self,
         x_range: Sequence[float] | None = None,
         y_range: Sequence[float] | None = None,
-        **kwargs
+        **kwargs,
     ):
         CoordinateSystem.__init__(self, **kwargs)
         VGroup.__init__(self, **kwargs)
 
         if x_range is not None:
-            self.x_range[:len(x_range)] = x_range
+            self.x_range[: len(x_range)] = x_range
         if y_range is not None:
-            self.y_range[:len(y_range)] = y_range
+            self.y_range[: len(y_range)] = y_range
 
         self.x_axis = self.create_axis(
-            self.x_range, self.x_axis_config, self.width,
+            self.x_range,
+            self.x_axis_config,
+            self.width,
         )
-        self.y_axis = self.create_axis(
-            self.y_range, self.y_axis_config, self.height
-        )
+        self.y_axis = self.create_axis(self.y_range, self.y_axis_config, self.height)
         self.y_axis.rotate(90 * DEGREES, about_point=ORIGIN)
         # Add as a separate group in case various other
         # mobjects are added to self, as for example in
@@ -428,10 +404,7 @@ class Axes(VGroup, CoordinateSystem):
         self.center()
 
     def create_axis(
-        self,
-        range_terms: Sequence[float],
-        axis_config: dict[str],
-        length: float
+        self, range_terms: Sequence[float], axis_config: dict[str], length: float
     ) -> NumberLine:
         new_config = merge_dicts_recursively(self.axis_config, axis_config)
         new_config["width"] = length
@@ -447,10 +420,7 @@ class Axes(VGroup, CoordinateSystem):
         )
 
     def point_to_coords(self, point: np.ndarray) -> tuple[float, ...]:
-        return tuple([
-            axis.point_to_number(point)
-            for axis in self.get_axes()
-        ])
+        return tuple([axis.point_to_number(point) for axis in self.get_axes()])
 
     def get_axes(self) -> VGroup:
         return self.axes
@@ -462,7 +432,7 @@ class Axes(VGroup, CoordinateSystem):
         self,
         x_values: Iterable[float] | None = None,
         y_values: Iterable[float] | None = None,
-        **kwargs
+        **kwargs,
     ) -> VGroup:
         axes = self.get_axes()
         self.coordinate_labels = VGroup()
@@ -492,11 +462,11 @@ class ThreeDAxes(Axes):
         x_range: Sequence[float] | None = None,
         y_range: Sequence[float] | None = None,
         z_range: Sequence[float] | None = None,
-        **kwargs
+        **kwargs,
     ):
         Axes.__init__(self, x_range, y_range, **kwargs)
         if z_range is not None:
-            self.z_range[:len(z_range)] = z_range
+            self.z_range[: len(z_range)] = z_range
 
         z_axis = self.create_axis(
             self.z_range,
@@ -504,10 +474,7 @@ class ThreeDAxes(Axes):
             self.depth,
         )
         z_axis.rotate(-PI / 2, UP, about_point=ORIGIN)
-        z_axis.rotate(
-            angle_of_vector(self.z_normal), OUT,
-            about_point=ORIGIN
-        )
+        z_axis.rotate(angle_of_vector(self.z_normal), OUT, about_point=ORIGIN)
         z_axis.shift(self.x_axis.n2p(0))
         self.axes.add(z_axis)
         self.add(z_axis)
@@ -550,7 +517,7 @@ class NumberPlane(Axes):
         self,
         x_range: Sequence[float] | None = None,
         y_range: Sequence[float] | None = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(x_range, y_range, **kwargs)
         self.init_background_lines()
@@ -584,14 +551,12 @@ class NumberPlane(Axes):
         return lines1, lines2
 
     def get_lines_parallel_to_axis(
-        self,
-        axis1: NumberLine,
-        axis2: NumberLine
+        self, axis1: NumberLine, axis2: NumberLine
     ) -> tuple[VGroup, VGroup]:
         freq = axis2.x_step
         ratio = self.faded_line_ratio
         line = Line(axis1.get_start(), axis1.get_end())
-        dense_freq = (1 + ratio)
+        dense_freq = 1 + ratio
         step = (1 / dense_freq) * freq
 
         lines1 = VGroup()
@@ -648,20 +613,14 @@ class ComplexPlane(NumberPlane):
     def p2n(self, point: np.ndarray) -> complex:
         return self.point_to_number(point)
 
-    def get_default_coordinate_values(
-        self,
-        skip_first: bool = True
-    ) -> list[complex]:
+    def get_default_coordinate_values(self, skip_first: bool = True) -> list[complex]:
         x_numbers = self.get_x_axis().get_tick_range()[1:]
         y_numbers = self.get_y_axis().get_tick_range()[1:]
         y_numbers = [complex(0, y) for y in y_numbers if y != 0]
         return [*x_numbers, *y_numbers]
 
     def add_coordinate_labels(
-        self,
-        numbers: list[complex] | None = None,
-        skip_first: bool = True,
-        **kwargs
+        self, numbers: list[complex] | None = None, skip_first: bool = True, **kwargs
     ):
         if numbers is None:
             numbers = self.get_default_coordinate_values(skip_first)
@@ -683,8 +642,7 @@ class ComplexPlane(NumberPlane):
             if z.imag == -1:
                 number_mob.remove(number_mob[1])
                 number_mob[0].next_to(
-                    number_mob[1], LEFT,
-                    buff=number_mob[0].get_width() / 4
+                    number_mob[1], LEFT, buff=number_mob[0].get_width() / 4
                 )
             self.coordinate_labels.add(number_mob)
         self.add(self.coordinate_labels)

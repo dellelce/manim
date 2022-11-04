@@ -23,10 +23,7 @@ def print_family(mobject: Mobject, n_tabs: int = 0) -> None:
         print_family(submob, n_tabs + 1)
 
 
-def index_labels(
-    mobject: Mobject | np.ndarray, 
-    label_height: float = 0.15
-) -> VGroup:
+def index_labels(mobject: Mobject | np.ndarray, label_height: float = 0.15) -> VGroup:
     labels = VGroup()
     for n, submob in enumerate(mobject):
         label = Integer(n)

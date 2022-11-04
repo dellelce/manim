@@ -45,8 +45,8 @@ def there_and_back(t: float) -> float:
     return smooth(new_t)
 
 
-def there_and_back_with_pause(t: float, pause_ratio: float = 1. / 3) -> float:
-    a = 1. / pause_ratio
+def there_and_back_with_pause(t: float, pause_ratio: float = 1.0 / 3) -> float:
+    a = 1.0 / pause_ratio
     if t < 0.5 - pause_ratio / 2:
         return smooth(a * t)
     elif t < 0.5 + pause_ratio / 2:
@@ -60,11 +60,11 @@ def running_start(t: float, pull_factor: float = -0.5) -> float:
 
 
 def not_quite_there(
-    func: Callable[[float], float] = smooth,
-    proportion: float = 0.7
+    func: Callable[[float], float] = smooth, proportion: float = 0.7
 ) -> Callable[[float], float]:
     def result(t):
         return proportion * func(t)
+
     return result
 
 
@@ -73,9 +73,7 @@ def wiggle(t: float, wiggles: float = 2) -> float:
 
 
 def squish_rate_func(
-    func: Callable[[float], float],
-    a: float = 0.4,
-    b: float = 0.6
+    func: Callable[[float], float], a: float = 0.4, b: float = 0.6
 ) -> Callable[[float], float]:
     def result(t):
         if a == b:
@@ -88,6 +86,7 @@ def squish_rate_func(
             return func((t - a) / (b - a))
 
     return result
+
 
 # Stylistically, should this take parameters (with default values)?
 # Ultimately, the functionality is entirely subsumed by squish_rate_func,
