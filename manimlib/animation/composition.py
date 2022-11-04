@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from manimlib.mobject.mobject import Mobject
     from manimlib.scene.scene import Scene
 
-
 DEFAULT_LAGGED_START_LAG_RATIO = 0.05
 
 
@@ -42,9 +41,8 @@ class AnimationGroup(Animation):
         digest_config(self, kwargs)
         self.animations = [prepare_animation(anim) for anim in animations]
         if self.group is None:
-            self.group = Group(
-                *remove_list_redundancies([anim.mobject for anim in animations])
-            )
+            self.group = Group(*remove_list_redundancies(
+                [anim.mobject for anim in animations]))
         self.init_run_time()
         Animation.__init__(self, self.group, **kwargs)
 
@@ -73,7 +71,8 @@ class AnimationGroup(Animation):
     def init_run_time(self) -> None:
         self.build_animations_with_timings()
         if self.anims_with_timings:
-            self.max_end_time = np.max([awt[2] for awt in self.anims_with_timings])
+            self.max_end_time = np.max(
+                [awt[2] for awt in self.anims_with_timings])
         else:
             self.max_end_time = 0
         if self.run_time is None:
@@ -160,9 +159,11 @@ class LaggedStartMap(LaggedStart):
             if arg_creator:
                 args_list.append(arg_creator(submob))
             else:
-                args_list.append((submob,))
+                args_list.append((submob, ))
         anim_kwargs = dict(kwargs)
         if "lag_ratio" in anim_kwargs:
             anim_kwargs.pop("lag_ratio")
-        animations = [AnimationClass(*args, **anim_kwargs) for args in args_list]
+        animations = [
+            AnimationClass(*args, **anim_kwargs) for args in args_list
+        ]
         super().__init__(*animations, group=mobject, **kwargs)

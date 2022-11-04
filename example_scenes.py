@@ -10,14 +10,13 @@ import numpy as np
 
 
 class OpeningManimExample(Scene):
+
     def construct(self):
-        intro_words = Text(
-            """
+        intro_words = Text("""
             The original motivation for manim was to
             better illustrate mathematical functions
             as transformations.
-        """
-        )
+        """)
         intro_words.to_edge(UP)
 
         self.play(Write(intro_words))
@@ -35,9 +34,8 @@ class OpeningManimExample(Scene):
         linear_transform_words.to_edge(UP)
         linear_transform_words.set_stroke(BLACK, 10, background=True)
 
-        self.play(
-            ShowCreation(grid), FadeTransform(intro_words, linear_transform_words)
-        )
+        self.play(ShowCreation(grid),
+                  FadeTransform(intro_words, linear_transform_words))
         self.wait()
         self.play(grid.animate.apply_matrix(matrix), run_time=3)
         self.wait()
@@ -48,12 +46,10 @@ class OpeningManimExample(Scene):
         moving_c_grid.prepare_for_nonlinear_transform()
         c_grid.set_stroke(BLUE_E, 1)
         c_grid.add_coordinate_labels(font_size=24)
-        complex_map_words = TexText(
-            """
+        complex_map_words = TexText("""
             Or thinking of the plane as $\\mathds{C}$,\\\\
             this is the map $z \\rightarrow z^2$
-        """
-        )
+        """)
         complex_map_words.to_corner(UR)
         complex_map_words.set_stroke(BLACK, 5, background=True)
 
@@ -72,6 +68,7 @@ class OpeningManimExample(Scene):
 
 
 class AnimatingMethods(Scene):
+
     def construct(self):
         grid = Tex(r"\pi").get_grid(10, 10, height=4)
         self.add(grid)
@@ -103,19 +100,18 @@ class AnimatingMethods(Scene):
         # Even more generally, you could apply Mobject.apply_function,
         # which takes in functions form R^3 to R^3
         self.play(
-            grid.animate.apply_function(
-                lambda p: [
-                    p[0] + 0.5 * math.sin(p[1]),
-                    p[1] + 0.5 * math.sin(p[0]),
-                    p[2],
-                ]
-            ),
+            grid.animate.apply_function(lambda p: [
+                p[0] + 0.5 * math.sin(p[1]),
+                p[1] + 0.5 * math.sin(p[0]),
+                p[2],
+            ]),
             run_time=5,
         )
         self.wait()
 
 
 class TextExample(Scene):
+
     def construct(self):
         # To run this scene properly, you should have "Consolas" font in your computer
         # for full usage, you can see https://github.com/3b1b/manim/pull/680
@@ -128,7 +124,11 @@ class TextExample(Scene):
             font="Arial",
             font_size=24,
             # t2c is a dict that you can choose color for different text
-            t2c={"Text": BLUE, "TexText": BLUE, "LaTeX": ORANGE},
+            t2c={
+                "Text": BLUE,
+                "TexText": BLUE,
+                "LaTeX": ORANGE
+            },
         )
         VGroup(text, difference).arrange(DOWN, buff=1)
         self.play(Write(text))
@@ -138,8 +138,14 @@ class TextExample(Scene):
         fonts = Text(
             "And you can also set the font according to different words",
             font="Arial",
-            t2f={"font": "Consolas", "words": "Consolas"},
-            t2c={"font": BLUE, "words": GREEN},
+            t2f={
+                "font": "Consolas",
+                "words": "Consolas"
+            },
+            t2c={
+                "font": BLUE,
+                "words": GREEN
+            },
         )
         fonts.set_width(FRAME_WIDTH - 1)
         slant = Text(
@@ -147,7 +153,10 @@ class TextExample(Scene):
             font="Consolas",
             t2s={"slant": ITALIC},
             t2w={"weight": BOLD},
-            t2c={"slant": ORANGE, "weight": RED},
+            t2c={
+                "slant": ORANGE,
+                "weight": RED
+            },
         )
         VGroup(fonts, slant).arrange(DOWN, buff=0.8)
         self.play(FadeOut(text), FadeOut(difference, shift=DOWN))
@@ -158,6 +167,7 @@ class TextExample(Scene):
 
 
 class TexTransformExample(Scene):
+
     def construct(self):
         to_isolate = ["B", "C", "=", "(", ")"]
         lines = VGroup(
@@ -182,13 +192,11 @@ class TexTransformExample(Scene):
         )
         lines.arrange(DOWN, buff=LARGE_BUFF)
         for line in lines:
-            line.set_color_by_tex_to_color_map(
-                {
-                    "A": BLUE,
-                    "B": TEAL,
-                    "C": GREEN,
-                }
-            )
+            line.set_color_by_tex_to_color_map({
+                "A": BLUE,
+                "B": TEAL,
+                "C": GREEN,
+            })
 
         play_kw = {"run_time": 2}
         self.add(lines[0])
@@ -202,9 +210,7 @@ class TexTransformExample(Scene):
                 lines[0].copy(),
                 lines[1],
                 path_arc=90 * DEGREES,
-            ),
-            **play_kw
-        )
+            ), **play_kw)
         self.wait()
 
         # Now, we could try this again on the next line...
@@ -224,9 +230,7 @@ class TexTransformExample(Scene):
                     "C^2": "C",
                     "B^2": "B",
                 },
-            ),
-            **play_kw
-        )
+            ), **play_kw)
         self.wait()
 
         # And to finish off, a simple TransformMatchingShapes would work
@@ -247,9 +251,7 @@ class TexTransformExample(Scene):
                 new_line2,
                 lines[3],
                 transform_mismatches=True,
-            ),
-            **play_kw
-        )
+            ), **play_kw)
         self.wait(3)
         self.play(FadeOut(lines, RIGHT))
 
@@ -272,6 +274,7 @@ class TexTransformExample(Scene):
 
 
 class UpdatersExample(Scene):
+
     def construct(self):
         square = Square()
         square.set_fill(BLUE_E, 1)
@@ -330,11 +333,13 @@ class UpdatersExample(Scene):
         # the mobject and the amount of time since the last frame.
         now = self.time
         w0 = square.get_width()
-        square.add_updater(lambda m: m.set_width(w0 * math.sin(self.time - now) + w0))
+        square.add_updater(
+            lambda m: m.set_width(w0 * math.sin(self.time - now) + w0))
         self.wait(4 * PI)
 
 
 class CoordinateSystemExample(Scene):
+
     def construct(self):
         axes = Axes(
             # x-axis ranges from -1 to 10, with a default step size of 1
@@ -413,6 +418,7 @@ class CoordinateSystemExample(Scene):
 
 
 class GraphExample(Scene):
+
     def construct(self):
         axes = Axes((-3, 10), (-1, 8))
         axes.add_coordinate_labels()
@@ -466,7 +472,8 @@ class GraphExample(Scene):
 
         parabola = axes.get_graph(lambda x: 0.25 * x**2)
         parabola.set_stroke(BLUE)
-        self.play(FadeOut(step_graph), FadeOut(step_label), ShowCreation(parabola))
+        self.play(FadeOut(step_graph), FadeOut(step_label),
+                  ShowCreation(parabola))
         self.wait()
 
         # You can use axes.input_to_graph_point, abbreviated
@@ -479,7 +486,8 @@ class GraphExample(Scene):
         # with the intent of having other mobjects update based
         # on the parameter
         x_tracker = ValueTracker(2)
-        f_always(dot.move_to, lambda: axes.i2gp(x_tracker.get_value(), parabola))
+        f_always(dot.move_to,
+                 lambda: axes.i2gp(x_tracker.get_value(), parabola))
 
         self.play(x_tracker.animate.set_value(4), run_time=3)
         self.play(x_tracker.animate.set_value(-2), run_time=3)
@@ -575,6 +583,7 @@ class SurfaceExample(Scene):
 
 
 class InteractiveDevelopment(Scene):
+
     def construct(self):
         circle = Circle()
         circle.set_fill(BLUE, opacity=0.5)
@@ -598,12 +607,10 @@ class InteractiveDevelopment(Scene):
         self.play(Rotate(circle, 90 * DEGREES))
         self.play(circle.animate.shift(2 * RIGHT).scale(0.25))
 
-        text = Text(
-            """
+        text = Text("""
             In general, using the interactive shell
             is very helpful when developing new scenes
-        """
-        )
+        """)
         self.play(Write(text))
 
         # In the interactive shell, you can just type
@@ -623,6 +630,7 @@ class InteractiveDevelopment(Scene):
 
 
 class ControlsExample(Scene):
+
     def setup(self):
         self.textbox = Textbox()
         self.checkbox = Checkbox()
@@ -644,7 +652,8 @@ class ControlsExample(Scene):
 
         def text_updater(old_text):
             assert isinstance(old_text, Text)
-            new_text = Text(self.textbox.get_value(), font_size=old_text.font_size)
+            new_text = Text(self.textbox.get_value(),
+                            font_size=old_text.font_size)
             # new_text.align_data_and_family(old_text)
             new_text.move_to(old_text)
             if self.checkbox.get_value():

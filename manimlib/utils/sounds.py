@@ -5,6 +5,6 @@ from manimlib.utils.file_ops import find_file
 
 
 def get_full_sound_file_path(sound_file_name: str) -> str:
-    return find_file(
-        sound_file_name, directories=[get_sound_dir()], extensions=[".wav", ".mp3", ""]
-    )
+    return find_file(sound_file_name,
+                     directories=[get_sound_dir()],
+                     extensions=[".wav", ".mp3", ""])

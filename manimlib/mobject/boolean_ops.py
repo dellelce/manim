@@ -5,7 +5,6 @@ import pathops
 
 from manimlib.mobject.types.vectorized_mobject import VMobject
 
-
 # Boolean operations between 2D mobjects
 # Borrowed from from https://github.com/ManimCommunity/manim/
 
@@ -24,7 +23,8 @@ def _convert_vmobject_to_skia_path(vmobject: VMobject) -> pathops.Path:
     return path
 
 
-def _convert_skia_path_to_vmobject(path: pathops.Path, vmobject: VMobject) -> VMobject:
+def _convert_skia_path_to_vmobject(path: pathops.Path,
+                                   vmobject: VMobject) -> VMobject:
     PathVerb = pathops.PathVerb
     current_path_start = np.array([0.0, 0.0, 0.0])
     for path_verb, points in path:
@@ -48,17 +48,21 @@ def _convert_skia_path_to_vmobject(path: pathops.Path, vmobject: VMobject) -> VM
 
 
 class Union(VMobject):
+
     def __init__(self, *vmobjects: VMobject, **kwargs):
         if len(vmobjects) < 2:
             raise ValueError("At least 2 mobjects needed for Union.")
         super().__init__(**kwargs)
         outpen = pathops.Path()
-        paths = [_convert_vmobject_to_skia_path(vmobject) for vmobject in vmobjects]
+        paths = [
+            _convert_vmobject_to_skia_path(vmobject) for vmobject in vmobjects
+        ]
         pathops.union(paths, outpen.getPen())
         _convert_skia_path_to_vmobject(outpen, self)
 
 
 class Difference(VMobject):
+
     def __init__(self, subject: VMobject, clip: VMobject, **kwargs):
         super().__init__(**kwargs)
         outpen = pathops.Path()
@@ -71,6 +75,7 @@ class Difference(VMobject):
 
 
 class Intersection(VMobject):
+
     def __init__(self, *vmobjects: VMobject, **kwargs):
         if len(vmobjects) < 2:
             raise ValueError("At least 2 mobjects needed for Intersection.")
@@ -94,6 +99,7 @@ class Intersection(VMobject):
 
 
 class Exclusion(VMobject):
+
     def __init__(self, *vmobjects: VMobject, **kwargs):
         if len(vmobjects) < 2:
             raise ValueError("At least 2 mobjects needed for Exclusion.")

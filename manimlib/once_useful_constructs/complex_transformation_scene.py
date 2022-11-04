@@ -51,8 +51,7 @@ class ComplexTransformationScene(Scene):
         Scene.play(
             self,
             *list(animations) + list(map(Animation, self.foreground_mobjects)),
-            **kwargs
-        )
+            **kwargs)
 
     def add_background_plane(self):
         background = ComplexPlane(**self.plane_config)
@@ -90,7 +89,8 @@ class ComplexTransformationScene(Scene):
 
     def prepare_for_transformation(self, mob):
         if hasattr(mob, "prepare_for_nonlinear_transform"):
-            mob.prepare_for_nonlinear_transform(self.num_anchors_to_add_per_line)
+            mob.prepare_for_nonlinear_transform(
+                self.num_anchors_to_add_per_line)
         # TODO...
 
     def paint_plane(self, plane):
@@ -133,10 +133,14 @@ class ComplexTransformationScene(Scene):
         for mob in transformer.target[0].family_members_with_points():
             mob.make_smooth()
         if self.post_transformation_stroke_width is not None:
-            transformer.target.set_stroke(width=self.post_transformation_stroke_width)
+            transformer.target.set_stroke(
+                width=self.post_transformation_stroke_width)
         self.play(MoveToTarget(transformer, **transform_kwargs), *added_anims)
 
-    def apply_complex_homotopy(self, complex_homotopy, added_anims=[], **kwargs):
+    def apply_complex_homotopy(self,
+                               complex_homotopy,
+                               added_anims=[],
+                               **kwargs):
         transformer, transform_kwargs = self.get_transformer(**kwargs)
 
         # def homotopy(x, y, z, t):
@@ -146,5 +150,4 @@ class ComplexTransformationScene(Scene):
 
         self.play(
             ComplexHomotopy(complex_homotopy, transformer, **transform_kwargs),
-            *added_anims
-        )
+            *added_anims)

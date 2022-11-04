@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Iterable
 
-
 # Mobjects that should be rendered with
 # the same shader will be organized and
 # clumped together based on keeping track
@@ -24,6 +23,7 @@ if TYPE_CHECKING:
 
 
 class ShaderWrapper(object):
+
     def __init__(
         self,
         vert_data: np.ndarray | None = None,
@@ -48,23 +48,18 @@ class ShaderWrapper(object):
         self.refresh_id()
 
     def __eq__(self, shader_wrapper: ShaderWrapper):
-        return all(
-            (
-                np.all(self.vert_data == shader_wrapper.vert_data),
-                np.all(self.vert_indices == shader_wrapper.vert_indices),
-                self.shader_folder == shader_wrapper.shader_folder,
-                all(
-                    np.all(self.uniforms[key] == shader_wrapper.uniforms[key])
-                    for key in self.uniforms
-                ),
-                all(
-                    self.texture_paths[key] == shader_wrapper.texture_paths[key]
-                    for key in self.texture_paths
-                ),
-                self.depth_test == shader_wrapper.depth_test,
-                self.render_primitive == shader_wrapper.render_primitive,
-            )
-        )
+        return all((
+            np.all(self.vert_data == shader_wrapper.vert_data),
+            np.all(self.vert_indices == shader_wrapper.vert_indices),
+            self.shader_folder == shader_wrapper.shader_folder,
+            all(
+                np.all(self.uniforms[key] == shader_wrapper.uniforms[key])
+                for key in self.uniforms),
+            all(self.texture_paths[key] == shader_wrapper.texture_paths[key]
+                for key in self.texture_paths),
+            self.depth_test == shader_wrapper.depth_test,
+            self.render_primitive == shader_wrapper.render_primitive,
+        ))
 
     def copy(self):
         result = copy.copy(self)
@@ -73,20 +68,19 @@ class ShaderWrapper(object):
             result.vert_indices = np.array(self.vert_indices)
         if self.uniforms:
             result.uniforms = {
-                key: np.array(value) for key, value in self.uniforms.items()
+                key: np.array(value)
+                for key, value in self.uniforms.items()
             }
         if self.texture_paths:
             result.texture_paths = dict(self.texture_paths)
         return result
 
     def is_valid(self) -> bool:
-        return all(
-            [
-                self.vert_data is not None,
-                self.program_code["vertex_shader"] is not None,
-                self.program_code["fragment_shader"] is not None,
-            ]
-        )
+        return all([
+            self.vert_data is not None,
+            self.program_code["vertex_shader"] is not None,
+            self.program_code["fragment_shader"] is not None,
+        ])
 
     def get_id(self) -> str:
         return self.id
@@ -106,28 +100,21 @@ class ShaderWrapper(object):
                     self.depth_test,
                     self.render_primitive,
                 ],
-            )
-        )
+            ))
 
     def refresh_id(self) -> None:
         self.program_id = self.create_program_id()
         self.id = self.create_id()
 
     def create_program_id(self) -> int:
-        return hash(
-            "".join(
-                (
-                    self.program_code[f"{name}_shader"] or ""
-                    for name in ("vertex", "geometry", "fragment")
-                )
-            )
-        )
+        return hash("".join((self.program_code[f"{name}_shader"] or ""
+                             for name in ("vertex", "geometry", "fragment"))))
 
     def init_program_code(self) -> None:
+
         def get_code(name: str) -> str | None:
             return get_shader_code_from_file(
-                os.path.join(self.shader_folder, f"{name}.glsl")
-            )
+                os.path.join(self.shader_folder, f"{name}.glsl"))
 
         self.program_code: dict[str, str | None] = {
             "vertex_shader": get_code("vert"),
@@ -162,8 +149,7 @@ class ShaderWrapper(object):
             self.vert_data = np.hstack(data_list)
         else:
             self.vert_data = np.hstack(
-                [self.vert_data, *[sw.vert_data for sw in shader_wrappers]]
-            )
+                [self.vert_data, *[sw.vert_data for sw in shader_wrappers]])
         return self
 
 
@@ -196,8 +182,7 @@ def get_shader_code_from_file(filename: str) -> str | None:
     insertions = re.findall(r"^#INSERT .*\.glsl$", result, flags=re.MULTILINE)
     for line in insertions:
         inserted_code = get_shader_code_from_file(
-            os.path.join("inserts", line.replace("#INSERT ", ""))
-        )
+            os.path.join("inserts", line.replace("#INSERT ", "")))
         result = result.replace(line, inserted_code)
     filename_to_code_map[filename] = result
     return result

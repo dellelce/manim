@@ -17,13 +17,11 @@ if TYPE_CHECKING:
 
     ManimColor = Union[str, Color]
     Span = tuple[int, int]
-    Selector = Union[
-        str,
-        re.Pattern,
-        tuple[Union[int, None], Union[int, None]],
-        Iterable[Union[str, re.Pattern, tuple[Union[int, None], Union[int, None]]]],
-    ]
-
+    Selector = Union[str, re.Pattern, tuple[Union[int, None], Union[int,
+                                                                    None]],
+                     Iterable[Union[str, re.Pattern, tuple[Union[int, None],
+                                                           Union[int,
+                                                                 None]]]], ]
 
 SCALE_FACTOR_PER_FONT_POINT = 0.001
 
@@ -67,9 +65,8 @@ class MTex(StringMobject):
 
     def get_file_path_by_content(self, content: str) -> str:
         with display_during_execution(f'Writing "{self.tex_string}"'):
-            file_path = tex_content_to_svg_file(
-                content, self.template, self.additional_preamble
-            )
+            file_path = tex_content_to_svg_file(content, self.template,
+                                                self.additional_preamble)
         return file_path
 
     # Parsing
@@ -99,13 +96,14 @@ class MTex(StringMobject):
                     n = min(open_end - open_start, close_end - close_start)
                     result.insert(
                         index,
-                        pattern.fullmatch(string, pos=open_end - n, endpos=open_end),
+                        pattern.fullmatch(string,
+                                          pos=open_end - n,
+                                          endpos=open_end),
                     )
                     result.append(
-                        pattern.fullmatch(
-                            string, pos=close_start, endpos=close_start + n
-                        )
-                    )
+                        pattern.fullmatch(string,
+                                          pos=close_start,
+                                          endpos=close_start + n))
                     close_start += n
                     if close_start < close_end:
                         continue
@@ -139,18 +137,15 @@ class MTex(StringMobject):
 
     @staticmethod
     def get_attr_dict_from_command_pair(
-        open_command: re.Match, close_command: re.Match
-    ) -> dict[str, str] | None:
+            open_command: re.Match,
+            close_command: re.Match) -> dict[str, str] | None:
         if len(open_command.group()) >= 2:
             return {}
         return None
 
     def get_configured_items(self) -> list[tuple[Span, dict[str, str]]]:
-        return [
-            (span, {})
-            for selector in self.tex_to_color_map
-            for span in self.find_spans_by_selector(selector)
-        ]
+        return [(span, {}) for selector in self.tex_to_color_map
+                for span in self.find_spans_by_selector(selector)]
 
     @staticmethod
     def get_color_command(rgb_hex: str) -> str:
@@ -160,22 +155,21 @@ class MTex(StringMobject):
         return f"\\color[RGB]{{{r}, {g}, {b}}}"
 
     @staticmethod
-    def get_command_string(
-        attr_dict: dict[str, str], is_end: bool, label_hex: str | None
-    ) -> str:
+    def get_command_string(attr_dict: dict[str, str], is_end: bool,
+                           label_hex: str | None) -> str:
         if label_hex is None:
             return ""
         if is_end:
             return "}}"
         return "{{" + MTex.get_color_command(label_hex)
 
-    def get_content_prefix_and_suffix(self, is_labelled: bool) -> tuple[str, str]:
+    def get_content_prefix_and_suffix(self,
+                                      is_labelled: bool) -> tuple[str, str]:
         prefix_lines = []
         suffix_lines = []
         if not is_labelled:
             prefix_lines.append(
-                self.get_color_command(self.color_to_hex(self.base_color))
-            )
+                self.get_color_command(self.color_to_hex(self.base_color)))
         if self.alignment:
             prefix_lines.append(self.alignment)
         if self.tex_environment:
@@ -197,7 +191,8 @@ class MTex(StringMobject):
     def set_color_by_tex(self, selector: Selector, color: ManimColor):
         return self.set_parts_color(selector, color)
 
-    def set_color_by_tex_to_color_map(self, color_map: dict[Selector, ManimColor]):
+    def set_color_by_tex_to_color_map(self, color_map: dict[Selector,
+                                                            ManimColor]):
         return self.set_parts_color_by_dict(color_map)
 
     def get_tex(self) -> str:

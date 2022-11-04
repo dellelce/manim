@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-
 DEFAULT_DOT_RADIUS = 0.05
 DEFAULT_GLOW_DOT_RADIUS = 0.2
 DEFAULT_GRID_HEIGHT = 6
@@ -22,16 +21,22 @@ DEFAULT_BUFF_RATIO = 0.5
 
 class DotCloud(PMobject):
     CONFIG = {
-        "color": GREY_C,
-        "opacity": 1,
-        "radius": DEFAULT_DOT_RADIUS,
-        "glow_factor": 0,
-        "shader_folder": "true_dot",
-        "render_primitive": moderngl.POINTS,
+        "color":
+        GREY_C,
+        "opacity":
+        1,
+        "radius":
+        DEFAULT_DOT_RADIUS,
+        "glow_factor":
+        0,
+        "shader_folder":
+        "true_dot",
+        "render_primitive":
+        moderngl.POINTS,
         "shader_dtype": [
-            ("point", np.float32, (3,)),
-            ("radius", np.float32, (1,)),
-            ("color", np.float32, (4,)),
+            ("point", np.float32, (3, )),
+            ("radius", np.float32, (1, )),
+            ("color", np.float32, (4, )),
         ],
     }
 
@@ -77,7 +82,9 @@ class DotCloud(PMobject):
         brs = [h_buff_ratio, v_buff_ratio, d_buff_ratio]
         self.set_radius(0)
         for n, br, dim in zip(ns, brs, range(3)):
-            self.rescale_to_fit(2 * radius * (1 + br) * (n - 1), dim, stretch=True)
+            self.rescale_to_fit(2 * radius * (1 + br) * (n - 1),
+                                dim,
+                                stretch=True)
         self.set_radius(radius)
         if height is not None:
             self.set_height(height)
@@ -111,13 +118,14 @@ class DotCloud(PMobject):
     def compute_bounding_box(self) -> np.ndarray:
         bb = super().compute_bounding_box()
         radius = self.get_radius()
-        bb[0] += np.full((3,), -radius)
-        bb[2] += np.full((3,), radius)
+        bb[0] += np.full((3, ), -radius)
+        bb[2] += np.full((3, ), radius)
         return bb
 
-    def scale(
-        self, scale_factor: float | npt.ArrayLike, scale_radii: bool = True, **kwargs
-    ):
+    def scale(self,
+              scale_factor: float | npt.ArrayLike,
+              scale_radii: bool = True,
+              **kwargs):
         super().scale(scale_factor, **kwargs)
         if scale_radii:
             self.set_radii(scale_factor * self.get_radii())
@@ -137,6 +145,7 @@ class DotCloud(PMobject):
 
 
 class TrueDot(DotCloud):
+
     def __init__(self, center: np.ndarray = ORIGIN, **kwargs):
         super().__init__(points=[center], **kwargs)
 

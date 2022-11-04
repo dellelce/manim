@@ -30,7 +30,8 @@ class NumericalMatrixMultiplication(Scene):
 
         left = Matrix(left_string_matrix)
         right = Matrix(right_string_matrix)
-        result = self.get_result_matrix(left_string_matrix, right_string_matrix)
+        result = self.get_result_matrix(left_string_matrix,
+                                        right_string_matrix)
 
         self.organize_matrices(left, right, result)
         self.animate_product(left, right, result)
@@ -43,8 +44,7 @@ class NumericalMatrixMultiplication(Scene):
                 template = "(%s)(%s)" if self.use_parens else "%s%s"
                 parts = [
                     prefix + template % (left[a][c], right[c][b])
-                    for c in range(k)
-                    for prefix in ["" if c == 0 else "+"]
+                    for c in range(k) for prefix in ["" if c == 0 else "+"]
                 ]
                 mob_matrix[a][b] = Tex(parts, next_to_buff=0.1)
         return Matrix(mob_matrix)
@@ -61,7 +61,9 @@ class NumericalMatrixMultiplication(Scene):
             h_line.next_to(row, DOWN, buff=left.v_buff / 2.0)
             h_lines.add(h_line)
 
-        right_cols = [VGroup(*col) for col in np.transpose(right.get_mob_matrix())]
+        right_cols = [
+            VGroup(*col) for col in np.transpose(right.get_mob_matrix())
+        ]
         v_lines = VGroup()
         for col in right_cols[:-1]:
             v_line = Line(col.get_top(), col.get_bottom(), **line_kwargs)
@@ -85,9 +87,10 @@ class NumericalMatrixMultiplication(Scene):
         r_matrix = right.get_mob_matrix()
         result_matrix = result.get_mob_matrix()
         circle = Circle(radius=l_matrix[0][0].get_height(), color=GREEN)
-        circles = VGroup(
-            *[entry.get_point_mobject() for entry in (l_matrix[0][0], r_matrix[0][0])]
-        )
+        circles = VGroup(*[
+            entry.get_point_mobject()
+            for entry in (l_matrix[0][0], r_matrix[0][0])
+        ])
         (m, k), n = l_matrix.shape, r_matrix.shape[1]
         for mob in result_matrix.flatten():
             mob.set_color(BLACK)
@@ -98,15 +101,14 @@ class NumericalMatrixMultiplication(Scene):
                     l_matrix[a][c].set_color(YELLOW)
                     r_matrix[c][b].set_color(YELLOW)
                 for c in range(k):
-                    start_parts = VGroup(l_matrix[a][c].copy(), r_matrix[c][b].copy())
+                    start_parts = VGroup(l_matrix[a][c].copy(),
+                                         r_matrix[c][b].copy())
                     result_entry = result_matrix[a][b].split()[c]
 
-                    new_circles = VGroup(
-                        *[
-                            circle.copy().shift(part.get_center())
-                            for part in start_parts.split()
-                        ]
-                    )
+                    new_circles = VGroup(*[
+                        circle.copy().shift(part.get_center())
+                        for part in start_parts.split()
+                    ])
                     self.play(Transform(circles, new_circles))
                     self.play(
                         Transform(
@@ -114,12 +116,12 @@ class NumericalMatrixMultiplication(Scene):
                             result_entry.copy().set_color(YELLOW),
                             path_arc=-np.pi / 2,
                             lag_ratio=0,
-                        ),
-                        *lagging_anims
-                    )
+                        ), *lagging_anims)
                     result_entry.set_color(YELLOW)
                     self.remove(start_parts)
-                    lagging_anims = [ApplyMethod(result_entry.set_color, WHITE)]
+                    lagging_anims = [
+                        ApplyMethod(result_entry.set_color, WHITE)
+                    ]
 
                 for c in range(k):
                     l_matrix[a][c].set_color(WHITE)

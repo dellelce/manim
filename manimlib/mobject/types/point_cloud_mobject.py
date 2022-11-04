@@ -61,9 +61,11 @@ class PMobject(Mobject):
         if color is not None:
             if opacity is None:
                 opacity = self.data["rgbas"][-1, 3]
-            rgbas = np.repeat([color_to_rgba(color, opacity)], len(points), axis=0)
+            rgbas = np.repeat([color_to_rgba(color, opacity)],
+                              len(points),
+                              axis=0)
         if rgbas is not None:
-            self.data["rgbas"][-len(rgbas) :] = rgbas
+            self.data["rgbas"][-len(rgbas):] = rgbas
         return self
 
     def add_point(self, point, rgba=None, color=None, opacity=None):
@@ -73,14 +75,14 @@ class PMobject(Mobject):
 
     def set_color_by_gradient(self, *colors: ManimColor):
         self.data["rgbas"] = np.array(
-            list(map(color_to_rgba, color_gradient(colors, self.get_num_points())))
-        )
+            list(
+                map(color_to_rgba, color_gradient(colors,
+                                                  self.get_num_points()))))
         return self
 
     def match_colors(self, pmobject: PMobject):
         self.data["rgbas"][:] = resize_with_interpolation(
-            pmobject.data["rgbas"], self.get_num_points()
-        )
+            pmobject.data["rgbas"], self.get_num_points())
         return self
 
     def filter_out(self, condition: Callable[[np.ndarray], bool]):
@@ -97,14 +99,16 @@ class PMobject(Mobject):
         function is any map from R^3 to R
         """
         for mob in self.family_members_with_points():
-            indices = np.argsort(np.apply_along_axis(function, 1, mob.get_points()))
+            indices = np.argsort(
+                np.apply_along_axis(function, 1, mob.get_points()))
             for key in mob.data:
                 mob.data[key] = mob.data[key][indices]
         return self
 
     def ingest_submobjects(self):
         for key in self.data:
-            self.data[key] = np.vstack([sm.data[key] for sm in self.get_family()])
+            self.data[key] = np.vstack(
+                [sm.data[key] for sm in self.get_family()])
         return self
 
     def point_from_proportion(self, alpha: float) -> np.ndarray:
@@ -122,6 +126,7 @@ class PMobject(Mobject):
 
 
 class PGroup(PMobject):
+
     def __init__(self, *pmobs: PMobject, **kwargs):
         if not all([isinstance(m, PMobject) for m in pmobs]):
             raise Exception("All submobjects must be of type PMobject")

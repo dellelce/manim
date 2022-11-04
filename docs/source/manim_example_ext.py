@@ -42,7 +42,9 @@ class ManimExampleDirective(Directive):
         state_machine = self.state_machine
         document = state_machine.document
 
-        if any(media_file_name.endswith(ext) for ext in [".png", ".jpg", ".gif"]):
+        if any(
+                media_file_name.endswith(ext)
+                for ext in [".png", ".jpg", ".gif"]):
             is_video = False
         else:
             is_video = True
@@ -55,9 +57,8 @@ class ManimExampleDirective(Directive):
             media_file_name=media_file_name,
             source_block=source_block,
         )
-        state_machine.insert_input(
-            rendered_template.split("\n"), source=document.attributes["source"]
-        )
+        state_machine.insert_input(rendered_template.split("\n"),
+                                   source=document.attributes["source"])
 
         return []
 

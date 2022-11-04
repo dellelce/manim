@@ -84,7 +84,7 @@ class Mobject(object):
         "is_fixed_in_frame": False,
         # Must match in attributes of vert shader
         "shader_dtype": [
-            ("point", np.float32, (3,)),
+            ("point", np.float32, (3, )),
         ],
     }
 
@@ -254,16 +254,11 @@ class Mobject(object):
         return self.data["bounding_box"]
 
     def compute_bounding_box(self) -> np.ndarray:
-        all_points = np.vstack(
-            [
-                self.get_points(),
-                *(
-                    mob.get_bounding_box()
-                    for mob in self.get_family()[1:]
-                    if mob.has_points()
-                ),
-            ]
-        )
+        all_points = np.vstack([
+            self.get_points(),
+            *(mob.get_bounding_box()
+              for mob in self.get_family()[1:] if mob.has_points()),
+        ])
         if len(all_points) == 0:
             return np.zeros((3, self.dim))
         else:
@@ -273,7 +268,9 @@ class Mobject(object):
             mids = (mins + maxs) / 2
             return np.array([mins, mids, maxs])
 
-    def refresh_bounding_box(self, recurse_down: bool = False, recurse_up: bool = True):
+    def refresh_bounding_box(self,
+                             recurse_down: bool = False,
+                             recurse_up: bool = True):
         for mob in self.get_family(recurse_down):
             mob.needs_new_bounding_box = True
         if recurse_up:
@@ -293,16 +290,12 @@ class Mobject(object):
     def is_touching(self, mobject: Mobject, buff: float = 1e-2) -> bool:
         bb1 = self.get_bounding_box()
         bb2 = mobject.get_bounding_box()
-        return not any(
-            (
-                (
-                    bb2[2] < bb1[0] - buff
-                ).any(),  # E.g. Right of mobject is left of self's left
-                (
-                    bb2[0] > bb1[2] + buff
-                ).any(),  # E.g. Left of mobject is right of self's right
-            )
-        )
+        return not any((
+            (bb2[2] < bb1[0] -
+             buff).any(),  # E.g. Right of mobject is left of self's left
+            (bb2[0] > bb1[2] +
+             buff).any(),  # E.g. Left of mobject is right of self's right
+        ))
 
     # Family matters
 
@@ -416,7 +409,10 @@ class Mobject(object):
 
     # Submobject organization
 
-    def arrange(self, direction: np.ndarray = RIGHT, center: bool = True, **kwargs):
+    def arrange(self,
+                direction: np.ndarray = RIGHT,
+                center: bool = True,
+                **kwargs):
         for m1, m2 in zip(self.submobjects, self.submobjects[1:]):
             m2.next_to(m1, direction, **kwargs)
         if center:
@@ -502,7 +498,8 @@ class Mobject(object):
         if submob_func is not None:
             self.submobjects.sort(key=submob_func)
         else:
-            self.submobjects.sort(key=lambda m: point_to_num_func(m.get_center()))
+            self.submobjects.sort(
+                key=lambda m: point_to_num_func(m.get_center()))
         self.assemble_family()
         return self
 
@@ -517,6 +514,7 @@ class Mobject(object):
     # Copying and serialization
 
     def stash_mobject_pointers(func):
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             uncopied_attrs = ["parents", "target", "saved_state"]
@@ -558,8 +556,14 @@ class Mobject(object):
         # The line above is only a shallow copy, so the internal
         # data which are numpyu arrays or other mobjects still
         # need to be further copied.
-        result.data = {key: np.array(value) for key, value in self.data.items()}
-        result.uniforms = {key: np.array(value) for key, value in self.uniforms.items()}
+        result.data = {
+            key: np.array(value)
+            for key, value in self.data.items()
+        }
+        result.uniforms = {
+            key: np.array(value)
+            for key, value in self.uniforms.items()
+        }
 
         # Instead of adding using result.add, which does some checks for updating
         # updater statues and bounding box, just directly modify the family-related
@@ -581,7 +585,8 @@ class Mobject(object):
         for attr, value in list(self.__dict__.items()):
             if isinstance(value, Mobject) and value is not self:
                 if value in family:
-                    setattr(result, attr, result.family[self.family.index(value)])
+                    setattr(result, attr,
+                            result.family[self.family.index(value)])
             if isinstance(value, np.ndarray):
                 setattr(result, attr, value.copy())
             if isinstance(value, ShaderWrapper):
@@ -604,7 +609,9 @@ class Mobject(object):
         self.become(self.saved_state)
         return self
 
-    def save_to_file(self, file_path: str, supress_overwrite_warning: bool = False):
+    def save_to_file(self,
+                     file_path: str,
+                     supress_overwrite_warning: bool = False):
         with open(file_path, "wb") as fp:
             fp.write(self.serialize())
         log.info(f"Saved mobject to {file_path}")
@@ -668,9 +675,11 @@ class Mobject(object):
         group_class = self.get_group_class()
         return group_class(*(self.copy() for _ in range(n)))
 
-    def get_grid(
-        self, n_rows: int, n_cols: int, height: float | None = None, **kwargs
-    ) -> Group:
+    def get_grid(self,
+                 n_rows: int,
+                 n_cols: int,
+                 height: float | None = None,
+                 **kwargs) -> Group:
         """
         Returns a new mobject containing multiple copies of this one
         arranged in a grid
@@ -777,7 +786,8 @@ class Mobject(object):
         return self
 
     def refresh_has_updater_status(self):
-        self.has_updaters = any(mob.get_updaters() for mob in self.get_family())
+        self.has_updaters = any(mob.get_updaters()
+                                for mob in self.get_family())
         return self
 
     # Check if mark as static or not for camera
@@ -785,7 +795,9 @@ class Mobject(object):
     def is_changing(self) -> bool:
         return self._is_animating or self.has_updaters
 
-    def set_animating_status(self, is_animating: bool, recurse: bool = True) -> None:
+    def set_animating_status(self,
+                             is_animating: bool,
+                             recurse: bool = True) -> None:
         for mob in self.get_family(recurse):
             mob._is_animating = is_animating
         return self
@@ -836,6 +848,7 @@ class Mobject(object):
         pass
 
     def stretch(self, factor: float, dim: int, **kwargs):
+
         def func(points):
             points[:, dim] *= factor
             return points
@@ -854,30 +867,30 @@ class Mobject(object):
         **kwargs,
     ):
         rot_matrix_T = rotation_matrix_transpose(angle, axis)
-        self.apply_points_function(
-            lambda points: np.dot(points, rot_matrix_T), about_point, **kwargs
-        )
+        self.apply_points_function(lambda points: np.dot(points, rot_matrix_T),
+                                   about_point, **kwargs)
         return self
 
     def flip(self, axis: np.ndarray = UP, **kwargs):
         return self.rotate(TAU / 2, axis, **kwargs)
 
-    def apply_function(self, function: Callable[[np.ndarray], np.ndarray], **kwargs):
+    def apply_function(self, function: Callable[[np.ndarray], np.ndarray],
+                       **kwargs):
         # Default to applying matrix about the origin, not mobjects center
         if len(kwargs) == 0:
             kwargs["about_point"] = ORIGIN
         self.apply_points_function(
-            lambda points: np.array([function(p) for p in points]), **kwargs
-        )
+            lambda points: np.array([function(p) for p in points]), **kwargs)
         return self
 
-    def apply_function_to_position(self, function: Callable[[np.ndarray], np.ndarray]):
+    def apply_function_to_position(self, function: Callable[[np.ndarray],
+                                                            np.ndarray]):
         self.move_to(function(self.get_center()))
         return self
 
-    def apply_function_to_submobject_positions(
-        self, function: Callable[[np.ndarray], np.ndarray]
-    ):
+    def apply_function_to_submobject_positions(self,
+                                               function: Callable[[np.ndarray],
+                                                                  np.ndarray]):
         for submob in self.submobjects:
             submob.apply_function_to_position(function)
         return self
@@ -888,13 +901,14 @@ class Mobject(object):
             kwargs["about_point"] = ORIGIN
         full_matrix = np.identity(self.dim)
         matrix = np.array(matrix)
-        full_matrix[: matrix.shape[0], : matrix.shape[1]] = matrix
+        full_matrix[:matrix.shape[0], :matrix.shape[1]] = matrix
         self.apply_points_function(
-            lambda points: np.dot(points, full_matrix.T), **kwargs
-        )
+            lambda points: np.dot(points, full_matrix.T), **kwargs)
         return self
 
-    def apply_complex_function(self, function: Callable[[complex], complex], **kwargs):
+    def apply_complex_function(self, function: Callable[[complex], complex],
+                               **kwargs):
+
         def R3_func(point):
             x, y, z = point
             xy_complex = function(complex(x, y))
@@ -913,13 +927,10 @@ class Mobject(object):
             alphas -= min(alphas)
             alphas /= max(alphas)
             alphas = alphas**wag_factor
-            mob.set_points(
-                mob.get_points()
-                + np.dot(
-                    alphas.reshape((len(alphas), 1)),
-                    np.array(direction).reshape((1, mob.dim)),
-                )
-            )
+            mob.set_points(mob.get_points() + np.dot(
+                alphas.reshape((len(alphas), 1)),
+                np.array(direction).reshape((1, mob.dim)),
+            ))
         return self
 
     # Positioning methods
@@ -928,9 +939,9 @@ class Mobject(object):
         self.shift(-self.get_center())
         return self
 
-    def align_on_border(
-        self, direction: np.ndarray, buff: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER
-    ):
+    def align_on_border(self,
+                        direction: np.ndarray,
+                        buff: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER):
         """
         Direction just needs to be a vector pointing towards side or
         corner in the 2d plane.
@@ -949,20 +960,20 @@ class Mobject(object):
     ):
         return self.align_on_border(corner, buff)
 
-    def to_edge(
-        self, edge: np.ndarray = LEFT, buff: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER
-    ):
+    def to_edge(self,
+                edge: np.ndarray = LEFT,
+                buff: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER):
         return self.align_on_border(edge, buff)
 
     def next_to(
-        self,
-        mobject_or_point: Mobject | np.ndarray,
-        direction: np.ndarray = RIGHT,
-        buff: float = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER,
-        aligned_edge: np.ndarray = ORIGIN,
-        submobject_to_align: Mobject | None = None,
-        index_of_submobject_to_align: int | slice | None = None,
-        coor_mask: np.ndarray = np.array([1, 1, 1]),
+            self,
+            mobject_or_point: Mobject | np.ndarray,
+            direction: np.ndarray = RIGHT,
+            buff: float = DEFAULT_MOBJECT_TO_MOBJECT_BUFFER,
+            aligned_edge: np.ndarray = ORIGIN,
+            submobject_to_align: Mobject | None = None,
+            index_of_submobject_to_align: int | slice | None = None,
+            coor_mask: np.ndarray = np.array([1, 1, 1]),
     ):
         if isinstance(mobject_or_point, Mobject):
             mob = mobject_or_point
@@ -970,9 +981,8 @@ class Mobject(object):
                 target_aligner = mob[index_of_submobject_to_align]
             else:
                 target_aligner = mob
-            target_point = target_aligner.get_bounding_box_point(
-                aligned_edge + direction
-            )
+            target_point = target_aligner.get_bounding_box_point(aligned_edge +
+                                                                 direction)
         else:
             target_point = mobject_or_point
         if submobject_to_align is not None:
@@ -981,8 +991,10 @@ class Mobject(object):
             aligner = self[index_of_submobject_to_align]
         else:
             aligner = self
-        point_to_align = aligner.get_bounding_box_point(aligned_edge - direction)
-        self.shift((target_point - point_to_align + buff * direction) * coor_mask)
+        point_to_align = aligner.get_bounding_box_point(aligned_edge -
+                                                        direction)
+        self.shift(
+            (target_point - point_to_align + buff * direction) * coor_mask)
         return self
 
     def shift_onto_screen(self, **kwargs):
@@ -1014,7 +1026,11 @@ class Mobject(object):
         # Now redundant with stretch
         return self.stretch(factor, dim)
 
-    def rescale_to_fit(self, length: float, dim: int, stretch: bool = False, **kwargs):
+    def rescale_to_fit(self,
+                       length: float,
+                       dim: int,
+                       stretch: bool = False,
+                       **kwargs):
         old_length = self.length_over_dim(dim)
         if old_length == 0:
             return self
@@ -1072,7 +1088,10 @@ class Mobject(object):
             self.set_depth(min_depth, **kwargs)
         return self
 
-    def set_coord(self, value: float, dim: int, direction: np.ndarray = ORIGIN):
+    def set_coord(self,
+                  value: float,
+                  dim: int,
+                  direction: np.ndarray = ORIGIN):
         curr = self.get_coord(dim, direction)
         shift_vect = np.zeros(self.dim)
         shift_vect[dim] = value - curr
@@ -1095,10 +1114,10 @@ class Mobject(object):
         return self
 
     def move_to(
-        self,
-        point_or_mobject: Mobject | np.ndarray,
-        aligned_edge: np.ndarray = ORIGIN,
-        coor_mask: np.ndarray = np.array([1, 1, 1]),
+            self,
+            point_or_mobject: Mobject | np.ndarray,
+            aligned_edge: np.ndarray = ORIGIN,
+            coor_mask: np.ndarray = np.array([1, 1, 1]),
     ):
         if isinstance(point_or_mobject, Mobject):
             target = point_or_mobject.get_bounding_box_point(aligned_edge)
@@ -1108,17 +1127,22 @@ class Mobject(object):
         self.shift((target - point_to_align) * coor_mask)
         return self
 
-    def replace(self, mobject: Mobject, dim_to_match: int = 0, stretch: bool = False):
+    def replace(self,
+                mobject: Mobject,
+                dim_to_match: int = 0,
+                stretch: bool = False):
         if not mobject.get_num_points() and not mobject.submobjects:
             self.scale(0)
             return self
         if stretch:
             for i in range(self.dim):
-                self.rescale_to_fit(mobject.length_over_dim(i), i, stretch=True)
+                self.rescale_to_fit(mobject.length_over_dim(i),
+                                    i,
+                                    stretch=True)
         else:
-            self.rescale_to_fit(
-                mobject.length_over_dim(dim_to_match), dim_to_match, stretch=False
-            )
+            self.rescale_to_fit(mobject.length_over_dim(dim_to_match),
+                                dim_to_match,
+                                stretch=False)
         self.shift(mobject.get_center() - self.get_center())
         return self
 
@@ -1145,11 +1169,10 @@ class Mobject(object):
             about_point=curr_start,
         )
         self.rotate(
-            angle_of_vector(target_vect) - angle_of_vector(curr_vect),
-        )
+            angle_of_vector(target_vect) - angle_of_vector(curr_vect), )
         self.rotate(
-            np.arctan2(curr_vect[2], get_norm(curr_vect[:2]))
-            - np.arctan2(target_vect[2], get_norm(target_vect[:2])),
+            np.arctan2(curr_vect[2], get_norm(curr_vect[:2])) -
+            np.arctan2(target_vect[2], get_norm(target_vect[:2])),
             axis=np.array([-target_vect[1], target_vect[0], 0]),
         )
         self.shift(start - self.get_start())
@@ -1157,16 +1180,17 @@ class Mobject(object):
 
     # Color functions
 
-    def set_rgba_array(
-        self, rgba_array: npt.ArrayLike, name: str = "rgbas", recurse: bool = False
-    ):
+    def set_rgba_array(self,
+                       rgba_array: npt.ArrayLike,
+                       name: str = "rgbas",
+                       recurse: bool = False):
         for mob in self.get_family(recurse):
             mob.data[name] = np.array(rgba_array)
         return self
 
-    def set_color_by_rgba_func(
-        self, func: Callable[[np.ndarray], Sequence[float]], recurse: bool = True
-    ):
+    def set_color_by_rgba_func(self,
+                               func: Callable[[np.ndarray], Sequence[float]],
+                               recurse: bool = True):
         """
         Func should take in a point in R3 and output an rgba value
         """
@@ -1185,7 +1209,8 @@ class Mobject(object):
         Func should take in a point in R3 and output an rgb value
         """
         for mob in self.get_family(recurse):
-            rgba_array = [[*func(point), opacity] for point in mob.get_points()]
+            rgba_array = [[*func(point), opacity]
+                          for point in mob.get_points()]
             mob.set_rgba_array(rgba_array)
         return self
 
@@ -1228,10 +1253,12 @@ class Mobject(object):
                 submob.set_color(color, recurse=True)
         return self
 
-    def set_opacity(
-        self, opacity: float | Iterable[float] | None, recurse: bool = True
-    ):
-        self.set_rgba_array_by_color(color=None, opacity=opacity, recurse=False)
+    def set_opacity(self,
+                    opacity: float | Iterable[float] | None,
+                    recurse: bool = True):
+        self.set_rgba_array_by_color(color=None,
+                                     opacity=opacity,
+                                     recurse=False)
         if recurse:
             for submob in self.submobjects:
                 submob.set_opacity(opacity, recurse=True)
@@ -1293,16 +1320,18 @@ class Mobject(object):
 
     # Background rectangle
 
-    def add_background_rectangle(
-        self, color: ManimColor | None = None, opacity: float = 0.75, **kwargs
-    ):
+    def add_background_rectangle(self,
+                                 color: ManimColor | None = None,
+                                 opacity: float = 0.75,
+                                 **kwargs):
         # TODO, this does not behave well when the mobject has points,
         # since it gets displayed on top
         from manimlib.mobject.shape_matchers import BackgroundRectangle
 
-        self.background_rectangle = BackgroundRectangle(
-            self, color=color, fill_opacity=opacity, **kwargs
-        )
+        self.background_rectangle = BackgroundRectangle(self,
+                                                        color=color,
+                                                        fill_opacity=opacity,
+                                                        **kwargs)
         self.add_to_back(self.background_rectangle)
         return self
 
@@ -1331,12 +1360,8 @@ class Mobject(object):
 
     def get_all_corners(self):
         bb = self.get_bounding_box()
-        return np.array(
-            [
-                [bb[indices[-i + 1]][i] for i in range(3)]
-                for indices in it.product([0, 2], repeat=3)
-            ]
-        )
+        return np.array([[bb[indices[-i + 1]][i] for i in range(3)]
+                         for indices in it.product([0, 2], repeat=3)])
 
     def get_center(self) -> np.ndarray:
         return self.get_bounding_box()[1]
@@ -1352,7 +1377,8 @@ class Mobject(object):
         index = np.argmax(np.dot(boundary_directions, np.array(direction).T))
         return all_points[index]
 
-    def get_continuous_bounding_box_point(self, direction: np.ndarray) -> np.ndarray:
+    def get_continuous_bounding_box_point(self,
+                                          direction: np.ndarray) -> np.ndarray:
         dl, center, ur = self.get_bounding_box()
         corner_vect = ur - center
         return center + direction / np.max(
@@ -1362,9 +1388,7 @@ class Mobject(object):
                     corner_vect,
                     out=np.zeros(len(direction)),
                     where=((corner_vect) != 0),
-                )
-            )
-        )
+                )))
 
     def get_top(self) -> np.ndarray:
         return self.get_edge_center(UP)
@@ -1438,12 +1462,10 @@ class Mobject(object):
         template = self.copy()
         template.set_submobjects([])
         alphas = np.linspace(0, 1, n_pieces + 1)
-        return Group(
-            *[
-                template.copy().pointwise_become_partial(self, a1, a2)
-                for a1, a2 in zip(alphas[:-1], alphas[1:])
-            ]
-        )
+        return Group(*[
+            template.copy().pointwise_become_partial(self, a1, a2)
+            for a1, a2 in zip(alphas[:-1], alphas[1:])
+        ])
 
     def get_z_index_reference_point(self):
         # TODO, better place to define default z_index_group?
@@ -1479,24 +1501,24 @@ class Mobject(object):
             coord = mobject_or_point[dim]
         return self.set_coord(coord, dim=dim, direction=direction)
 
-    def match_x(
-        self, mobject_or_point: Mobject | np.ndarray, direction: np.ndarray = ORIGIN
-    ):
+    def match_x(self,
+                mobject_or_point: Mobject | np.ndarray,
+                direction: np.ndarray = ORIGIN):
         return self.match_coord(mobject_or_point, 0, direction)
 
-    def match_y(
-        self, mobject_or_point: Mobject | np.ndarray, direction: np.ndarray = ORIGIN
-    ):
+    def match_y(self,
+                mobject_or_point: Mobject | np.ndarray,
+                direction: np.ndarray = ORIGIN):
         return self.match_coord(mobject_or_point, 1, direction)
 
-    def match_z(
-        self, mobject_or_point: Mobject | np.ndarray, direction: np.ndarray = ORIGIN
-    ):
+    def match_z(self,
+                mobject_or_point: Mobject | np.ndarray,
+                direction: np.ndarray = ORIGIN):
         return self.match_coord(mobject_or_point, 2, direction)
 
-    def align_to(
-        self, mobject_or_point: Mobject | np.ndarray, direction: np.ndarray = ORIGIN
-    ):
+    def align_to(self,
+                 mobject_or_point: Mobject | np.ndarray,
+                 direction: np.ndarray = ORIGIN):
         """
         Examples:
         mob1.align_to(mob2, UP) moves mob1 vertically so that its
@@ -1602,9 +1624,8 @@ class Mobject(object):
         mobject1: Mobject,
         mobject2: Mobject,
         alpha: float,
-        path_func: Callable[
-            [np.ndarray, np.ndarray, float], np.ndarray
-        ] = straight_path,
+        path_func: Callable[[np.ndarray, np.ndarray, float],
+                            np.ndarray] = straight_path,
     ):
         for key in self.data:
             if key in self.locked_data_keys:
@@ -1619,11 +1640,11 @@ class Mobject(object):
             else:
                 func = interpolate
 
-            self.data[key][:] = func(mobject1.data[key], mobject2.data[key], alpha)
+            self.data[key][:] = func(mobject1.data[key], mobject2.data[key],
+                                     alpha)
         for key in self.uniforms:
-            self.uniforms[key] = interpolate(
-                mobject1.uniforms[key], mobject2.uniforms[key], alpha
-            )
+            self.uniforms[key] = interpolate(mobject1.uniforms[key],
+                                             mobject2.uniforms[key], alpha)
         return self
 
     def pointwise_become_partial(self, mobject, a, b):
@@ -1652,18 +1673,15 @@ class Mobject(object):
         self.locked_data_keys = set(keys)
 
     def lock_matching_data(self, mobject1: Mobject, mobject2: Mobject):
-        for sm, sm1, sm2 in zip(
-            self.get_family(), mobject1.get_family(), mobject2.get_family()
-        ):
+        for sm, sm1, sm2 in zip(self.get_family(), mobject1.get_family(),
+                                mobject2.get_family()):
             keys = sm.data.keys() & sm1.data.keys() & sm2.data.keys()
             sm.lock_data(
                 list(
                     filter(
                         lambda key: np.all(sm1.data[key] == sm2.data[key]),
                         keys,
-                    )
-                )
-            )
+                    )))
         return self
 
     def unlock_data(self):
@@ -1673,6 +1691,7 @@ class Mobject(object):
     # Operations touching shader uniforms
 
     def affects_shader_info_id(func):
+
         @wraps(func)
         def wrapper(self):
             for mob in self.get_family():
@@ -1721,7 +1740,8 @@ class Mobject(object):
         vec4 color, vec3 point, vec3 unit_normal.
         The code should change the color variable
         """
-        self.replace_shader_code("///// INSERT COLOR FUNCTION HERE /////", glsl_code)
+        self.replace_shader_code("///// INSERT COLOR FUNCTION HERE /////",
+                                 glsl_code)
         return self
 
     def set_color_by_xyz_func(
@@ -1746,15 +1766,15 @@ class Mobject(object):
                 float(min_value),
                 float(max_value),
                 get_colormap_code(rgb_list),
-            )
-        )
+            ))
         return self
 
     # For shader data
 
     def init_shader_data(self):
         # TODO, only call this when needed?
-        self.shader_data = np.zeros(len(self.get_points()), dtype=self.shader_dtype)
+        self.shader_data = np.zeros(len(self.get_points()),
+                                    dtype=self.shader_dtype)
         self.shader_indices = None
         self.shader_wrapper = ShaderWrapper(
             vert_data=self.shader_data,
@@ -1799,8 +1819,7 @@ class Mobject(object):
         d_len = len(self.data[data_key])
         if d_len != 1 and d_len != len(array):
             self.data[data_key] = resize_with_interpolation(
-                self.data[data_key], len(array)
-            )
+                self.data[data_key], len(array))
         return self
 
     def get_resized_shader_data_array(self, length: int) -> np.ndarray:
@@ -1810,9 +1829,8 @@ class Mobject(object):
             self.shader_data = resize_array(self.shader_data, length)
         return self.shader_data
 
-    def read_data_to_shader(
-        self, shader_data: np.ndarray, shader_data_key: str, data_key: str
-    ):
+    def read_data_to_shader(self, shader_data: np.ndarray,
+                            shader_data_key: str, data_key: str):
         if data_key in self.locked_data_keys:
             return
         self.check_data_alignment(shader_data, data_key)
@@ -1846,17 +1864,15 @@ class Mobject(object):
     def init_event_listners(self):
         self.event_listners: list[EventListner] = []
 
-    def add_event_listner(
-        self, event_type: EventType, event_callback: Callable[[Mobject, dict[str]]]
-    ):
+    def add_event_listner(self, event_type: EventType,
+                          event_callback: Callable[[Mobject, dict[str]]]):
         event_listner = EventListner(self, event_type, event_callback)
         self.event_listners.append(event_listner)
         EVENT_DISPATCHER.add_listner(event_listner)
         return self
 
-    def remove_event_listner(
-        self, event_type: EventType, event_callback: Callable[[Mobject, dict[str]]]
-    ):
+    def remove_event_listner(self, event_type: EventType,
+                             event_callback: Callable[[Mobject, dict[str]]]):
         event_listner = EventListner(self, event_type, event_callback)
         while event_listner in self.event_listners:
             self.event_listners.remove(event_listner)
@@ -1874,7 +1890,8 @@ class Mobject(object):
         return self.event_listners
 
     def get_family_event_listners(self):
-        return list(it.chain(*[sm.get_event_listners() for sm in self.get_family()]))
+        return list(
+            it.chain(*[sm.get_event_listners() for sm in self.get_family()]))
 
     def get_has_event_listner(self):
         return any(mob.get_event_listners() for mob in self.get_family())
@@ -1931,6 +1948,7 @@ class Mobject(object):
 
 
 class Group(Mobject):
+
     def __init__(self, *mobjects: Mobject, **kwargs):
         if not all([isinstance(m, Mobject) for m in mobjects]):
             raise Exception("All submobjects must be of type Mobject")
@@ -1969,6 +1987,7 @@ class Point(Mobject):
 
 
 class _AnimationBuilder:
+
     def __init__(self, mobject: Mobject):
         self.mobject = mobject
         self.overridden_animation = None
@@ -1983,17 +2002,16 @@ class _AnimationBuilder:
         self.methods.append(method)
         has_overridden_animation = hasattr(method, "_override_animate")
 
-        if (self.is_chaining and has_overridden_animation) or self.overridden_animation:
+        if (self.is_chaining
+                and has_overridden_animation) or self.overridden_animation:
             raise NotImplementedError(
                 "Method chaining is currently not supported for "
-                "overridden animations"
-            )
+                "overridden animations")
 
         def update_target(*method_args, **method_kwargs):
             if has_overridden_animation:
                 self.overridden_animation = method._override_animate(
-                    self.mobject, *method_args, **method_kwargs
-                )
+                    self.mobject, *method_args, **method_kwargs)
             else:
                 method(*method_args, **method_kwargs)
             return self
@@ -2021,8 +2039,7 @@ class _AnimationBuilder:
         if not self.can_pass_args:
             raise ValueError(
                 "Animation arguments can only be passed by calling ``animate`` "
-                "or ``set_anim_args`` and can only be passed once",
-            )
+                "or ``set_anim_args`` and can only be passed once", )
 
         self.anim_args = kwargs
         self.can_pass_args = False
@@ -2038,6 +2055,7 @@ class _AnimationBuilder:
 
 
 def override_animate(method):
+
     def decorator(animation_method):
         method._override_animate = animation_method
         return animation_method

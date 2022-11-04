@@ -59,9 +59,9 @@ def running_start(t: float, pull_factor: float = -0.5) -> float:
     return bezier([0, 0, pull_factor, pull_factor, 1, 1, 1])(t)
 
 
-def not_quite_there(
-    func: Callable[[float], float] = smooth, proportion: float = 0.7
-) -> Callable[[float], float]:
+def not_quite_there(func: Callable[[float], float] = smooth,
+                    proportion: float = 0.7) -> Callable[[float], float]:
+
     def result(t):
         return proportion * func(t)
 
@@ -72,9 +72,10 @@ def wiggle(t: float, wiggles: float = 2) -> float:
     return there_and_back(t) * np.sin(wiggles * np.pi * t)
 
 
-def squish_rate_func(
-    func: Callable[[float], float], a: float = 0.4, b: float = 0.6
-) -> Callable[[float], float]:
+def squish_rate_func(func: Callable[[float], float],
+                     a: float = 0.4,
+                     b: float = 0.6) -> Callable[[float], float]:
+
     def result(t):
         if a == b:
             return a

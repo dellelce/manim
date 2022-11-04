@@ -32,25 +32,27 @@ class Homotopy(Animation):
         self.homotopy = homotopy
         super().__init__(mobject, **kwargs)
 
-    def function_at_time_t(self, t: float) -> Callable[[np.ndarray], Sequence[float]]:
+    def function_at_time_t(
+            self, t: float) -> Callable[[np.ndarray], Sequence[float]]:
         return lambda p: self.homotopy(*p, t)
 
-    def interpolate_submobject(
-        self, submob: Mobject, start: Mobject, alpha: float
-    ) -> None:
+    def interpolate_submobject(self, submob: Mobject, start: Mobject,
+                               alpha: float) -> None:
         submob.match_points(start)
-        submob.apply_function(
-            self.function_at_time_t(alpha), **self.apply_function_kwargs
-        )
+        submob.apply_function(self.function_at_time_t(alpha),
+                              **self.apply_function_kwargs)
 
 
 class SmoothedVectorizedHomotopy(Homotopy):
     CONFIG = {
-        "apply_function_kwargs": {"make_smooth": True},
+        "apply_function_kwargs": {
+            "make_smooth": True
+        },
     }
 
 
 class ComplexHomotopy(Homotopy):
+
     def __init__(
         self,
         complex_homotopy: Callable[[complex, float], Sequence[float]],
@@ -77,9 +79,8 @@ class PhaseFlow(Animation):
         "suspend_mobject_updating": False,
     }
 
-    def __init__(
-        self, function: Callable[[np.ndarray], np.ndarray], mobject: Mobject, **kwargs
-    ):
+    def __init__(self, function: Callable[[np.ndarray], np.ndarray],
+                 mobject: Mobject, **kwargs):
         self.function = function
         super().__init__(mobject, **kwargs)
 

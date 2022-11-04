@@ -23,7 +23,8 @@ class Region(Mobject):
         self.condition = condition
 
     def _combine(self, region, op):
-        self.condition = lambda x, y: op(self.condition(x, y), region.condition(x, y))
+        self.condition = lambda x, y: op(self.condition(x, y),
+                                         region.condition(x, y))
 
     def union(self, region):
         self._combine(region, lambda bg1, bg2: bg1 | bg2)
@@ -39,6 +40,7 @@ class Region(Mobject):
 
 
 class HalfPlane(Region):
+
     def __init__(self, point_pair, upper_left=True, *args, **kwargs):
         """
         point_pair of the form [(x_0, y_0,...), (x_1, y_1,...)]

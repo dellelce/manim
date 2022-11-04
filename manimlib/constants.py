@@ -1,6 +1,5 @@
 import numpy as np
 
-
 # Sizes relevant to default camera frame
 ASPECT_RATIO = 16.0 / 9.0
 FRAME_HEIGHT = 8.0
@@ -20,11 +19,9 @@ LARGE_BUFF = 1
 DEFAULT_MOBJECT_TO_EDGE_BUFFER = MED_LARGE_BUFF
 DEFAULT_MOBJECT_TO_MOBJECT_BUFFER = MED_SMALL_BUFF
 
-
 # All in seconds
 DEFAULT_POINTWISE_FUNCTION_RUN_TIME = 3.0
 DEFAULT_WAIT_TIME = 1.0
-
 
 ORIGIN = np.array((0.0, 0.0, 0.0))
 UP = np.array((0.0, 1.0, 0.0))

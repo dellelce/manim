@@ -32,10 +32,11 @@ def cross(v1: np.ndarray, v2: np.ndarray) -> list[np.ndarray]:
 
 
 def get_norm(vect: Iterable) -> float:
-    return sum((x**2 for x in vect)) ** 0.5
+    return sum((x**2 for x in vect))**0.5
 
 
-def normalize(vect: np.ndarray, fall_back: np.ndarray | None = None) -> np.ndarray:
+def normalize(vect: np.ndarray,
+              fall_back: np.ndarray | None = None) -> np.ndarray:
     norm = get_norm(vect)
     if norm > 0:
         return np.array(vect) / norm
@@ -72,7 +73,8 @@ def quaternion_from_angle_axis(
     return Rotation.from_rotvec(angle * normalize(axis)).as_quat()
 
 
-def angle_axis_from_quaternion(quat: Sequence[float]) -> tuple[float, np.ndarray]:
+def angle_axis_from_quaternion(
+        quat: Sequence[float]) -> tuple[float, np.ndarray]:
     rot_vec = Rotation.from_quat(quat).as_rotvec()
     norm = get_norm(rot_vec)
     return norm, rot_vec / norm
@@ -85,9 +87,9 @@ def quaternion_conjugate(quaternion: Iterable) -> list:
     return result
 
 
-def rotate_vector(
-    vector: Iterable, angle: float, axis: np.ndarray = OUT
-) -> np.ndarray | list[float]:
+def rotate_vector(vector: Iterable,
+                  angle: float,
+                  axis: np.ndarray = OUT) -> np.ndarray | list[float]:
     rot = Rotation.from_rotvec(angle * normalize(axis))
     return np.dot(vector, rot.as_matrix().T)
 
@@ -128,7 +130,8 @@ def rotation_about_z(angle: float) -> list[list[float]]:
 def rotation_between_vectors(v1, v2) -> np.ndarray:
     if np.all(np.isclose(v1, v2)):
         return np.identity(3)
-    return rotation_matrix(angle=angle_between_vectors(v1, v2), axis=np.cross(v1, v2))
+    return rotation_matrix(angle=angle_between_vectors(v1, v2),
+                           axis=np.cross(v1, v2))
 
 
 def z_to_vector(vector: np.ndarray) -> np.ndarray:
@@ -171,7 +174,9 @@ def normalize_along_axis(
     return array
 
 
-def get_unit_normal(v1: np.ndarray, v2: np.ndarray, tol: float = 1e-6) -> np.ndarray:
+def get_unit_normal(v1: np.ndarray,
+                    v2: np.ndarray,
+                    tol: float = 1e-6) -> np.ndarray:
     v1 = normalize(v1)
     v2 = normalize(v2)
     cp = cross(v1, v2)
@@ -195,7 +200,8 @@ def thick_diagonal(dim: int, thickness: int = 2) -> np.ndarray:
     return (np.abs(row_indices - col_indices) < thickness).astype("uint8")
 
 
-def compass_directions(n: int = 4, start_vect: np.ndarray = RIGHT) -> np.ndarray:
+def compass_directions(n: int = 4,
+                       start_vect: np.ndarray = RIGHT) -> np.ndarray:
     angle = TAU / n
     return np.array([rotate_vector(start_vect, k * angle) for k in range(n)])
 
@@ -223,9 +229,8 @@ def midpoint(point1: Sequence[float], point2: Sequence[float]) -> np.ndarray:
     return center_of_mass([point1, point2])
 
 
-def line_intersection(
-    line1: Sequence[Sequence[float]], line2: Sequence[Sequence[float]]
-) -> np.ndarray:
+def line_intersection(line1: Sequence[Sequence[float]],
+                      line2: Sequence[Sequence[float]]) -> np.ndarray:
     """
     return intersection point of two lines,
     each defined with a pair of vectors determining
@@ -284,9 +289,8 @@ def find_intersection(
     return result
 
 
-def get_closest_point_on_line(
-    a: np.ndarray, b: np.ndarray, p: np.ndarray
-) -> np.ndarray:
+def get_closest_point_on_line(a: np.ndarray, b: np.ndarray,
+                              p: np.ndarray) -> np.ndarray:
     """
     It returns point x such that
     x is on line ab and xp is perpendicular to ab.
@@ -320,23 +324,22 @@ def cross2d(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         return a[0] * b[1] - b[0] * a[1]
 
 
-def tri_area(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
-    return 0.5 * abs(a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]))
+def tri_area(a: Sequence[float], b: Sequence[float],
+             c: Sequence[float]) -> float:
+    return 0.5 * abs(a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] *
+                     (a[1] - b[1]))
 
 
-def is_inside_triangle(
-    p: np.ndarray, a: np.ndarray, b: np.ndarray, c: np.ndarray
-) -> bool:
+def is_inside_triangle(p: np.ndarray, a: np.ndarray, b: np.ndarray,
+                       c: np.ndarray) -> bool:
     """
     Test if point p is inside triangle abc
     """
-    crosses = np.array(
-        [
-            cross2d(p - a, b - p),
-            cross2d(p - b, c - p),
-            cross2d(p - c, a - p),
-        ]
-    )
+    crosses = np.array([
+        cross2d(p - a, b - p),
+        cross2d(p - b, c - p),
+        cross2d(p - c, a - p),
+    ])
     return np.all(crosses > 0) or np.all(crosses < 0)
 
 
@@ -359,10 +362,10 @@ def earclip_triangulation(verts: np.ndarray, ring_ends: list[int]) -> list:
     rings = [list(range(e0, e1)) for e0, e1 in zip([0, *ring_ends], ring_ends)]
 
     def is_in(point, ring_id):
-        return (
-            abs(abs(get_winding_number([i - point for i in verts[rings[ring_id]]])) - 1)
-            < 1e-5
-        )
+        return (abs(
+            abs(get_winding_number([i - point
+                                    for i in verts[rings[ring_id]]])) - 1) <
+                1e-5)
 
     def ring_area(ring_id):
         ring = rings[ring_id]

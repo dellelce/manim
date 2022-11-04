@@ -59,7 +59,8 @@ def merge_dicts_recursively(*dicts):
     result = dict()
     all_items = it.chain(*[d.items() for d in dicts])
     for key, value in all_items:
-        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+        if key in result and isinstance(result[key], dict) and isinstance(
+                value, dict):
             result[key] = merge_dicts_recursively(result[key], value)
         else:
             result[key] = value
@@ -89,5 +90,6 @@ def digest_locals(obj, keys=None):
 
 
 class DictAsObject(object):
+
     def __init__(self, dict):
         self.__dict__ = dict

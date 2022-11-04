@@ -25,9 +25,11 @@ class Rotating(Animation):
         "suspend_mobject_updating": False,
     }
 
-    def __init__(
-        self, mobject: Mobject, angle: float = TAU, axis: np.ndarray = OUT, **kwargs
-    ):
+    def __init__(self,
+                 mobject: Mobject,
+                 angle: float = TAU,
+                 axis: np.ndarray = OUT,
+                 **kwargs):
         self.angle = angle
         self.axis = axis
         super().__init__(mobject, **kwargs)
@@ -50,7 +52,9 @@ class Rotate(Rotating):
         "about_edge": ORIGIN,
     }
 
-    def __init__(
-        self, mobject: Mobject, angle: float = PI, axis: np.ndarray = OUT, **kwargs
-    ):
+    def __init__(self,
+                 mobject: Mobject,
+                 angle: float = PI,
+                 axis: np.ndarray = OUT,
+                 **kwargs):
         super().__init__(mobject, angle, axis, **kwargs)

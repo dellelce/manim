@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
     ManimColor = Union[str, Color]
 
-
 SCALE_FACTOR_PER_FONT_POINT = 0.001
 
 
@@ -73,9 +72,8 @@ class SingleStringTex(SVGMobject):
     def get_file_path(self) -> str:
         content = self.get_tex_file_body(self.tex_string)
         with display_during_execution(f'Writing "{self.tex_string}"'):
-            file_path = tex_content_to_svg_file(
-                content, self.template, self.additional_preamble
-            )
+            file_path = tex_content_to_svg_file(content, self.template,
+                                                self.additional_preamble)
         return file_path
 
     def get_tex_file_body(self, tex_string: str) -> str:
@@ -137,8 +135,9 @@ class SingleStringTex(SVGMobject):
 
         # Handle imbalanced \left and \right
         num_lefts, num_rights = [
-            len([s for s in tex.split(substr)[1:] if s and s[0] in "(){}[]|.\\"])
-            for substr in ("\\left", "\\right")
+            len([
+                s for s in tex.split(substr)[1:] if s and s[0] in "(){}[]|.\\"
+            ]) for substr in ("\\left", "\\right")
         ]
         if num_lefts != num_rights:
             tex = tex.replace("\\left", "\\big")
@@ -200,13 +199,15 @@ class Tex(SingleStringTex):
         if self.organize_left_to_right:
             self.organize_submobjects_left_to_right()
 
-    def break_up_tex_strings(self, tex_strings: Iterable[str]) -> Iterable[str]:
+    def break_up_tex_strings(self,
+                             tex_strings: Iterable[str]) -> Iterable[str]:
         # Separate out any strings specified in the isolate
         # or tex_to_color_map lists.
         substrings_to_isolate = [*self.isolate, *self.tex_to_color_map.keys()]
         if len(substrings_to_isolate) == 0:
             return tex_strings
-        patterns = ("({})".format(re.escape(ss)) for ss in substrings_to_isolate)
+        patterns = ("({})".format(re.escape(ss))
+                    for ss in substrings_to_isolate)
         pattern = "|".join(patterns)
         pieces = []
         for s in tex_strings:
@@ -245,9 +246,11 @@ class Tex(SingleStringTex):
         self.set_submobjects(new_submobjects)
         return self
 
-    def get_parts_by_tex(
-        self, tex: str, substring: bool = True, case_sensitive: bool = True
-    ) -> VGroup:
+    def get_parts_by_tex(self,
+                         tex: str,
+                         substring: bool = True,
+                         case_sensitive: bool = True) -> VGroup:
+
         def test(tex1, tex2):
             if not case_sensitive:
                 tex1 = tex1.lower()
@@ -257,12 +260,11 @@ class Tex(SingleStringTex):
             else:
                 return tex1 == tex2
 
-        return VGroup(
-            *filter(
-                lambda m: isinstance(m, SingleStringTex) and test(tex, m.get_tex()),
-                self.submobjects,
-            )
-        )
+        return VGroup(*filter(
+            lambda m: isinstance(m, SingleStringTex) and test(
+                tex, m.get_tex()),
+            self.submobjects,
+        ))
 
     def get_part_by_tex(self, tex: str, **kwargs) -> SingleStringTex | None:
         all_parts = self.get_parts_by_tex(tex, **kwargs)
@@ -272,9 +274,9 @@ class Tex(SingleStringTex):
         self.get_parts_by_tex(tex, **kwargs).set_color(color)
         return self
 
-    def set_color_by_tex_to_color_map(
-        self, tex_to_color_map: dict[str, ManimColor], **kwargs
-    ):
+    def set_color_by_tex_to_color_map(self, tex_to_color_map: dict[str,
+                                                                   ManimColor],
+                                      **kwargs):
         for tex, color in list(tex_to_color_map.items()):
             self.set_color_by_tex(tex, color, **kwargs)
         return self
@@ -286,9 +288,10 @@ class Tex(SingleStringTex):
         part = self.get_part_by_tex(tex, **kwargs)
         return self.index_of_part(part, start)
 
-    def slice_by_tex(
-        self, start_tex: str | None = None, stop_tex: str | None = None, **kwargs
-    ) -> VGroup:
+    def slice_by_tex(self,
+                     start_tex: str | None = None,
+                     stop_tex: str | None = None,
+                     **kwargs) -> VGroup:
         if start_tex is None:
             start_index = 0
         else:
@@ -297,9 +300,9 @@ class Tex(SingleStringTex):
         if stop_tex is None:
             return self[start_index:]
         else:
-            stop_index = self.index_of_part_by_tex(
-                stop_tex, start=start_index, **kwargs
-            )
+            stop_index = self.index_of_part_by_tex(stop_tex,
+                                                   start=start_index,
+                                                   **kwargs)
             return self[start_index:stop_index]
 
     def sort_alphabetically(self) -> None:
@@ -333,7 +336,9 @@ class BulletedList(TexText):
             part.add_to_back(dot)
         self.arrange(DOWN, aligned_edge=LEFT, buff=self.buff)
 
-    def fade_all_but(self, index_or_string: int | str, opacity: float = 0.5) -> None:
+    def fade_all_but(self,
+                     index_or_string: int | str,
+                     opacity: float = 0.5) -> None:
         arg = index_or_string
         if isinstance(arg, str):
             part = self.get_part_by_tex(arg)

@@ -80,11 +80,15 @@ class GraphScene(Scene):
         x_axis.shift(self.graph_origin - x_axis.number_to_point(0))
         if len(self.x_labeled_nums) > 0:
             if self.exclude_zero_label:
-                self.x_labeled_nums = [x for x in self.x_labeled_nums if x != 0]
+                self.x_labeled_nums = [
+                    x for x in self.x_labeled_nums if x != 0
+                ]
             x_axis.add_numbers(self.x_labeled_nums)
         if self.x_axis_label:
             x_label = TexText(self.x_axis_label)
-            x_label.next_to(x_axis.get_tick_marks(), UP + RIGHT, buff=SMALL_BUFF)
+            x_label.next_to(x_axis.get_tick_marks(),
+                            UP + RIGHT,
+                            buff=SMALL_BUFF)
             x_label.shift_onto_screen()
             x_axis.add(x_label)
             self.x_axis_label_mob = x_label
@@ -111,11 +115,15 @@ class GraphScene(Scene):
         y_axis.rotate(np.pi / 2, about_point=y_axis.number_to_point(0))
         if len(self.y_labeled_nums) > 0:
             if self.exclude_zero_label:
-                self.y_labeled_nums = [y for y in self.y_labeled_nums if y != 0]
+                self.y_labeled_nums = [
+                    y for y in self.y_labeled_nums if y != 0
+                ]
             y_axis.add_numbers(self.y_labeled_nums)
         if self.y_axis_label:
             y_label = TexText(self.y_axis_label)
-            y_label.next_to(y_axis.get_corner(UP + RIGHT), UP + RIGHT, buff=SMALL_BUFF)
+            y_label.next_to(y_axis.get_corner(UP + RIGHT),
+                            UP + RIGHT,
+                            buff=SMALL_BUFF)
             y_label.shift_onto_screen()
             y_axis.add(y_label)
             self.y_axis_label_mob = y_label
@@ -134,7 +142,8 @@ class GraphScene(Scene):
         return result
 
     def point_to_coords(self, point):
-        return (self.x_axis.point_to_number(point), self.y_axis.point_to_number(point))
+        return (self.x_axis.point_to_number(point),
+                self.y_axis.point_to_number(point))
 
     def get_graph(self, func, color=None, x_min=None, x_max=None, **kwargs):
         if color is None:
@@ -159,9 +168,8 @@ class GraphScene(Scene):
         return self.coords_to_point(x, graph.underlying_function(x))
 
     def angle_of_tangent(self, x, graph, dx=0.01):
-        vect = self.input_to_graph_point(x + dx, graph) - self.input_to_graph_point(
-            x, graph
-        )
+        vect = self.input_to_graph_point(
+            x + dx, graph) - self.input_to_graph_point(x, graph)
         return angle_of_vector(vect)
 
     def slope_of_tangent(self, *args, **kwargs):
@@ -195,7 +203,9 @@ class GraphScene(Scene):
                 if point[1] < FRAME_Y_RADIUS:
                     break
             x_val = x
-        label.next_to(self.input_to_graph_point(x_val, graph), direction, buff=buff)
+        label.next_to(self.input_to_graph_point(x_val, graph),
+                      direction,
+                      buff=buff)
         label.shift_onto_screen()
         return label
 
@@ -233,18 +243,15 @@ class GraphScene(Scene):
             else:
                 raise Exception("Invalid input sample type")
             graph_point = self.input_to_graph_point(sample_input, graph)
-            points = VGroup(
-                *list(
-                    map(
-                        VectorizedPoint,
-                        [
-                            self.coords_to_point(x, 0),
-                            self.coords_to_point(x + width_scale_factor * dx, 0),
-                            graph_point,
-                        ],
-                    )
-                )
-            )
+            points = VGroup(*list(
+                map(
+                    VectorizedPoint,
+                    [
+                        self.coords_to_point(x, 0),
+                        self.coords_to_point(x + width_scale_factor * dx, 0),
+                        graph_point,
+                    ],
+                )))
 
             rect = Rectangle()
             rect.replace(points, stretch=True)
@@ -257,17 +264,19 @@ class GraphScene(Scene):
             rectangles.add(rect)
         return rectangles
 
-    def get_riemann_rectangles_list(
-        self, graph, n_iterations, max_dx=0.5, power_base=2, stroke_width=1, **kwargs
-    ):
+    def get_riemann_rectangles_list(self,
+                                    graph,
+                                    n_iterations,
+                                    max_dx=0.5,
+                                    power_base=2,
+                                    stroke_width=1,
+                                    **kwargs):
         return [
-            self.get_riemann_rectangles(
-                graph=graph,
-                dx=float(max_dx) / (power_base**n),
-                stroke_width=float(stroke_width) / (power_base**n),
-                **kwargs
-            )
-            for n in range(n_iterations)
+            self.get_riemann_rectangles(graph=graph,
+                                        dx=float(max_dx) / (power_base**n),
+                                        stroke_width=float(stroke_width) /
+                                        (power_base**n),
+                                        **kwargs) for n in range(n_iterations)
         ]
 
     def get_area(self, graph, t_min, t_max):
@@ -293,28 +302,31 @@ class GraphScene(Scene):
                 rect.set_fill(opacity=0)
             else:
                 x_coords.add(x)
-        self.play(Transform(curr_rects, new_rects, **transform_kwargs), *added_anims)
+        self.play(Transform(curr_rects, new_rects, **transform_kwargs),
+                  *added_anims)
 
-    def get_vertical_line_to_graph(self, x, graph, line_class=Line, **line_kwargs):
+    def get_vertical_line_to_graph(self,
+                                   x,
+                                   graph,
+                                   line_class=Line,
+                                   **line_kwargs):
         if "color" not in line_kwargs:
             line_kwargs["color"] = graph.get_color()
-        return line_class(
-            self.coords_to_point(x, 0),
-            self.input_to_graph_point(x, graph),
-            **line_kwargs
-        )
+        return line_class(self.coords_to_point(x, 0),
+                          self.input_to_graph_point(x, graph), **line_kwargs)
 
-    def get_vertical_lines_to_graph(
-        self, graph, x_min=None, x_max=None, num_lines=20, **kwargs
-    ):
+    def get_vertical_lines_to_graph(self,
+                                    graph,
+                                    x_min=None,
+                                    x_max=None,
+                                    num_lines=20,
+                                    **kwargs):
         x_min = x_min or self.x_min
         x_max = x_max or self.x_max
-        return VGroup(
-            *[
-                self.get_vertical_line_to_graph(x, graph, **kwargs)
-                for x in np.linspace(x_min, x_max, num_lines)
-            ]
-        )
+        return VGroup(*[
+            self.get_vertical_line_to_graph(x, graph, **kwargs)
+            for x in np.linspace(x_min, x_max, num_lines)
+        ])
 
     def get_secant_slope_group(
         self,
@@ -375,28 +387,33 @@ class GraphScene(Scene):
                 labels.set_height(max_height)
 
         if dx_label is not None:
-            group.dx_label.next_to(
-                group.dx_line, np.sign(dx) * DOWN, buff=group.dx_label.get_height() / 2
-            )
+            group.dx_label.next_to(group.dx_line,
+                                   np.sign(dx) * DOWN,
+                                   buff=group.dx_label.get_height() / 2)
             group.dx_label.set_color(group.dx_line.get_color())
 
         if df_label is not None:
-            group.df_label.next_to(
-                group.df_line, np.sign(dx) * RIGHT, buff=group.df_label.get_height() / 2
-            )
+            group.df_label.next_to(group.df_line,
+                                   np.sign(dx) * RIGHT,
+                                   buff=group.df_label.get_height() / 2)
             group.df_label.set_color(group.df_line.get_color())
 
         if include_secant_line:
             secant_line_color = secant_line_color or self.default_derivative_color
             group.secant_line = Line(p1, p2, color=secant_line_color)
-            group.secant_line.scale(secant_line_length / group.secant_line.get_length())
+            group.secant_line.scale(secant_line_length /
+                                    group.secant_line.get_length())
             group.add(group.secant_line)
 
         return group
 
-    def add_T_label(
-        self, x_val, side=RIGHT, label=None, color=WHITE, animated=False, **kwargs
-    ):
+    def add_T_label(self,
+                    x_val,
+                    side=RIGHT,
+                    label=None,
+                    color=WHITE,
+                    animated=False,
+                    **kwargs):
         triangle = RegularPolygon(n=3, start_angle=np.pi / 2)
         triangle.set_height(MED_SMALL_BUFF)
         triangle.move_to(self.coords_to_point(x_val, 0), UP)
@@ -408,15 +425,13 @@ class GraphScene(Scene):
             T_label = Tex(label, fill_color=color)
 
         T_label.next_to(triangle, DOWN)
-        v_line = self.get_vertical_line_to_graph(x_val, self.v_graph, color=YELLOW)
+        v_line = self.get_vertical_line_to_graph(x_val,
+                                                 self.v_graph,
+                                                 color=YELLOW)
 
         if animated:
-            self.play(
-                DrawBorderThenFill(triangle),
-                ShowCreation(v_line),
-                Write(T_label, run_time=1),
-                **kwargs
-            )
+            self.play(DrawBorderThenFill(triangle), ShowCreation(v_line),
+                      Write(T_label, run_time=1), **kwargs)
 
         if np.all(side == LEFT):
             self.left_T_label_group = VGroup(T_label, triangle)
@@ -427,9 +442,12 @@ class GraphScene(Scene):
             self.right_v_line = v_line
             self.add(self.right_T_label_group, self.right_v_line)
 
-    def get_animation_integral_bounds_change(
-        self, graph, new_t_min, new_t_max, fade_close_to_origin=True, run_time=1.0
-    ):
+    def get_animation_integral_bounds_change(self,
+                                             graph,
+                                             new_t_min,
+                                             new_t_max,
+                                             fade_close_to_origin=True,
+                                             run_time=1.0):
         curr_t_min = self.x_axis.point_to_number(self.area.get_left())
         curr_t_max = self.x_axis.point_to_number(self.area.get_right())
         if new_t_min is None:
@@ -471,17 +489,16 @@ class GraphScene(Scene):
 
         return UpdateFromAlphaFunc(group, update_group, run_time=run_time)
 
-    def animate_secant_slope_group_change(
-        self,
-        secant_slope_group,
-        target_dx=None,
-        target_x=None,
-        run_time=3,
-        added_anims=None,
-        **anim_kwargs
-    ):
+    def animate_secant_slope_group_change(self,
+                                          secant_slope_group,
+                                          target_dx=None,
+                                          target_x=None,
+                                          run_time=3,
+                                          added_anims=None,
+                                          **anim_kwargs):
         if target_dx is None and target_x is None:
-            raise Exception("At least one of target_x and target_dx must not be None")
+            raise Exception(
+                "At least one of target_x and target_dx must not be None")
         if added_anims is None:
             added_anims = []
 
@@ -503,10 +520,9 @@ class GraphScene(Scene):
             return group
 
         self.play(
-            UpdateFromAlphaFunc(
-                secant_slope_group, update_func, run_time=run_time, **anim_kwargs
-            ),
-            *added_anims
-        )
+            UpdateFromAlphaFunc(secant_slope_group,
+                                update_func,
+                                run_time=run_time,
+                                **anim_kwargs), *added_anims)
         secant_slope_group.kwargs["x"] = target_x
         secant_slope_group.kwargs["dx"] = target_dx

@@ -31,7 +31,7 @@ class ParametricCurve(VMobject):
     ):
         digest_config(self, kwargs)
         if t_range is not None:
-            self.t_range[: len(t_range)] = t_range
+            self.t_range[:len(t_range)] = t_range
         # To be backward compatible with all the scenes specifying t_min, t_max, step_size
         self.t_range = [
             kwargs.get("t_min", self.t_range[0]),
@@ -97,7 +97,7 @@ class FunctionGraph(ParametricCurve):
         self.function = function
 
         if x_range is not None:
-            self.x_range[: len(x_range)] = x_range
+            self.x_range[:len(x_range)] = x_range
 
         def parametric_function(t):
             return [t, function(t), 0]

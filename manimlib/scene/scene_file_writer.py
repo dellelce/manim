@@ -69,8 +69,7 @@ class SceneFileWriter(object):
         if self.write_to_movie:
             movie_dir = guarantee_existence(os.path.join(out_dir, "videos"))
             movie_file = add_extension_if_not_present(
-                scene_name, self.movie_file_extension
-            )
+                scene_name, self.movie_file_extension)
             self.movie_file_path = os.path.join(movie_dir, movie_file)
             if self.break_into_partial_movies:
                 self.partial_movie_directory = guarantee_existence(
@@ -78,12 +77,10 @@ class SceneFileWriter(object):
                         movie_dir,
                         "partial_movie_files",
                         scene_name,
-                    )
-                )
+                    ))
         # A place to save mobjects
-        self.saved_mobject_directory = os.path.join(
-            out_dir, "mobjects", str(self.scene)
-        )
+        self.saved_mobject_directory = os.path.join(out_dir, "mobjects",
+                                                    str(self.scene))
 
     def get_default_module_directory(self) -> str:
         path, _ = os.path.splitext(self.input_file_path)
@@ -148,10 +145,12 @@ class SceneFileWriter(object):
             if not file_path:
                 return
         else:
-            user_name = input(f"Enter mobject file name (default is {default_name}): ")
+            user_name = input(
+                f"Enter mobject file name (default is {default_name}): ")
             file_path = os.path.join(directory, user_name or default_name)
             if os.path.exists(file_path) or os.path.exists(file_path + ".mob"):
-                if input(f"{file_path} already exists. Overwrite (y/n)? ") != "y":
+                if input(f"{file_path} already exists. Overwrite (y/n)? "
+                         ) != "y":
                     return
         if not file_path.endswith(".mob"):
             file_path = file_path + ".mob"
@@ -295,7 +294,7 @@ class SceneFileWriter(object):
         file = os.path.split(self.get_movie_file_path())[1]
         full_desc = f"Rendering {file} ({sub_desc})"
         if len(full_desc) > desc_len:
-            full_desc = full_desc[: desc_len - 4] + "...)"
+            full_desc = full_desc[:desc_len - 4] + "...)"
         else:
             full_desc += " " * (desc_len - len(full_desc))
         self.progress_display.set_description(full_desc)
@@ -331,17 +330,15 @@ class SceneFileWriter(object):
         else:
             kwargs["remove_indices_greater_than"] = self.scene.num_plays - 1
         partial_movie_files = get_sorted_integer_files(
-            self.partial_movie_directory, **kwargs
-        )
+            self.partial_movie_directory, **kwargs)
         if len(partial_movie_files) == 0:
             log.warning("No animations in this scene")
             return
 
         # Write a file partial_file_list.txt containing all
         # partial movie files
-        file_list = os.path.join(
-            self.partial_movie_directory, "partial_movie_file_list.txt"
-        )
+        file_list = os.path.join(self.partial_movie_directory,
+                                 "partial_movie_file_list.txt")
         with open(file_list, "w") as fp:
             for pf_path in partial_movie_files:
                 if os.name == "nt":
@@ -419,12 +416,10 @@ class SceneFileWriter(object):
             log.info(f"File ready at {file_path}")
 
     def should_open_file(self) -> bool:
-        return any(
-            [
-                self.show_file_location_upon_completion,
-                self.open_file_upon_completion,
-            ]
-        )
+        return any([
+            self.show_file_location_upon_completion,
+            self.open_file_upon_completion,
+        ])
 
     def open_file(self) -> None:
         if self.quiet:

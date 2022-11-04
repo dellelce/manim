@@ -28,7 +28,8 @@ class AnimatedBoundary(VGroup):
         super().__init__(**kwargs)
         self.vmobject: VMobject = vmobject
         self.boundary_copies: list[VMobject] = [
-            vmobject.copy().set_style(stroke_width=0, fill_opacity=0) for x in range(2)
+            vmobject.copy().set_style(stroke_width=0, fill_opacity=0)
+            for x in range(2)
         ]
         self.add(*self.boundary_copies)
         self.total_time: float = 0
@@ -58,13 +59,13 @@ class AnimatedBoundary(VGroup):
 
         if time >= 1:
             self.full_family_become_partial(fading, vmobject, 0, 1)
-            fading.set_stroke(color=colors[index - 1], width=(1 - fade_alpha) * msw)
+            fading.set_stroke(color=colors[index - 1],
+                              width=(1 - fade_alpha) * msw)
 
         self.total_time += dt
 
-    def full_family_become_partial(
-        self, mob1: VMobject, mob2: VMobject, a: float, b: float
-    ):
+    def full_family_become_partial(self, mob1: VMobject, mob2: VMobject,
+                                   a: float, b: float):
         family1 = mob1.family_members_with_points()
         family2 = mob2.family_members_with_points()
         for sm1, sm2 in zip(family1, family2):
@@ -99,9 +100,10 @@ class TracedPath(VMobject):
             # n_anchors = int(self.time_traced / self.time_per_anchor)
             n_tps = len(self.traced_points)
             if n_tps < n_relevant_points:
-                points = self.traced_points + [point] * (n_relevant_points - n_tps)
+                points = self.traced_points + [point
+                                               ] * (n_relevant_points - n_tps)
             else:
-                points = self.traced_points[n_tps - n_relevant_points :]
+                points = self.traced_points[n_tps - n_relevant_points:]
             # points = [
             #     self.traced_points[max(n_tps - int(alpha * n_relevant_points) - 1, 0)]
             #     for alpha in np.linspace(1, 0, n_anchors)
@@ -130,7 +132,8 @@ class TracingTail(TracedPath):
         "time_traced": 1.0,
     }
 
-    def __init__(self, mobject_or_func: Mobject | Callable[[], np.ndarray], **kwargs):
+    def __init__(self, mobject_or_func: Mobject | Callable[[], np.ndarray],
+                 **kwargs):
         if isinstance(mobject_or_func, Mobject):
             func = mobject_or_func.get_center
         else:

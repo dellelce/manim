@@ -20,7 +20,6 @@ from manimlib.utils.images import get_full_vector_image_path
 from manimlib.utils.iterables import hash_obj
 from manimlib.utils.simple_functions import hash_string
 
-
 SVG_HASH_TO_MOB_MAP: dict[int, VMobject] = {}
 
 
@@ -121,8 +120,10 @@ class SVGMobject(VMobject):
         # Ignore other attributes in case that svgelements cannot parse them
         SVG_XMLNS = "{http://www.w3.org/2000/svg}"
         new_root = ET.Element("svg")
-        config_style_node = ET.SubElement(new_root, f"{SVG_XMLNS}g", config_style_attrs)
-        root_style_node = ET.SubElement(config_style_node, f"{SVG_XMLNS}g", style_attrs)
+        config_style_node = ET.SubElement(new_root, f"{SVG_XMLNS}g",
+                                          config_style_attrs)
+        root_style_node = ET.SubElement(config_style_node, f"{SVG_XMLNS}g",
+                                        style_attrs)
         root_style_node.extend(root)
         return ET.ElementTree(new_root)
 
@@ -132,7 +133,7 @@ class SVGMobject(VMobject):
             "fill-opacity": ("opacity", "fill_opacity"),
             "stroke": ("color", "stroke_color"),
             "stroke-opacity": ("opacity", "stroke_opacity"),
-            "stroke-width": ("stroke_width",),
+            "stroke-width": ("stroke_width", ),
         }
         svg_default_dict = self.svg_default
         result = {}
@@ -185,7 +186,8 @@ class SVGMobject(VMobject):
         return mob
 
     @staticmethod
-    def apply_style_to_mobject(mob: VMobject, shape: se.GraphicObject) -> VMobject:
+    def apply_style_to_mobject(mob: VMobject,
+                               shape: se.GraphicObject) -> VMobject:
         mob.set_style(
             stroke_width=shape.stroke_width,
             stroke_color=shape.stroke.hexrgb,
@@ -218,8 +220,8 @@ class SVGMobject(VMobject):
             )
             mob.stretch_to_fit_height(rect.height)
         mob.shift(
-            _convert_point_to_3d(rect.x + rect.width / 2, rect.y + rect.height / 2)
-        )
+            _convert_point_to_3d(rect.x + rect.width / 2,
+                                 rect.y + rect.height / 2))
         return mob
 
     def ellipse_to_mobject(self, ellipse: se.Circle | se.Ellipse) -> Circle:
@@ -267,10 +269,10 @@ class VMobjectFromSVGPath(VMobject):
         # don't need to retrace the same computation.
         path_string = self.path_obj.d()
         path_hash = hash_string(path_string)
-        points_filepath = os.path.join(
-            get_mobject_data_dir(), f"{path_hash}_points.npy"
-        )
-        tris_filepath = os.path.join(get_mobject_data_dir(), f"{path_hash}_tris.npy")
+        points_filepath = os.path.join(get_mobject_data_dir(),
+                                       f"{path_hash}_points.npy")
+        tris_filepath = os.path.join(get_mobject_data_dir(),
+                                     f"{path_hash}_tris.npy")
 
         if os.path.exists(points_filepath) and os.path.exists(tris_filepath):
             self.set_points(np.load(points_filepath))
@@ -290,9 +292,9 @@ class VMobjectFromSVGPath(VMobject):
 
     def handle_commands(self) -> None:
         segment_class_to_func_map = {
-            se.Move: (self.start_new_path, ("end",)),
+            se.Move: (self.start_new_path, ("end", )),
             se.Close: (self.close_path, ()),
-            se.Line: (self.add_line_to, ("end",)),
+            se.Line: (self.add_line_to, ("end", )),
             se.QuadraticBezier: (
                 self.add_quadratic_bezier_curve_to,
                 ("control", "end"),

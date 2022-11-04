@@ -34,6 +34,7 @@ class PictureInPictureFrame(Rectangle):
 
     def __init__(self, **kwargs):
         digest_config(self, kwargs)
-        Rectangle.__init__(
-            self, width=self.aspect_ratio * self.height, height=self.height, **kwargs
-        )
+        Rectangle.__init__(self,
+                           width=self.aspect_ratio * self.height,
+                           height=self.height,
+                           **kwargs)

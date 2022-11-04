@@ -5,12 +5,12 @@ from manimlib.mobject.types.vectorized_mobject import VMobject, VGroup
 from manimlib.scene.scene import Scene
 from manimlib.utils.simple_functions import choose
 
-
 DEFAULT_COUNT_NUM_OFFSET = (FRAME_X_RADIUS - 1, FRAME_Y_RADIUS - 1, 0)
 DEFAULT_COUNT_RUN_TIME = 5.0
 
 
 class CountingScene(Scene):
+
     def count(self, items, item_type="mobject", *args, **kwargs):
         if item_type == "mobject":
             self.count_mobjects(items, *args, **kwargs)
@@ -36,10 +36,8 @@ class CountingScene(Scene):
         a warning is given and nothing is animating during the count
         """
         if len(mobjects) > 50:  # TODO
-            raise Exception(
-                "I don't know if you should be counting \
-                             too many mobjects..."
-            )
+            raise Exception("I don't know if you should be counting \
+                             too many mobjects...")
         if len(mobjects) == 0:
             raise Exception("Counting mobject list of length 0")
         if mode not in ["highlight", "show_creation", "show"]:
@@ -69,14 +67,12 @@ class CountingScene(Scene):
             self.number = num_mob
         return self
 
-    def count_regions(
-        self,
-        regions,
-        mode="one_at_a_time",
-        num_offset=DEFAULT_COUNT_NUM_OFFSET,
-        run_time=DEFAULT_COUNT_RUN_TIME,
-        **unused_kwargsn
-    ):
+    def count_regions(self,
+                      regions,
+                      mode="one_at_a_time",
+                      num_offset=DEFAULT_COUNT_NUM_OFFSET,
+                      run_time=DEFAULT_COUNT_RUN_TIME,
+                      **unused_kwargsn):
         if mode not in ["one_at_a_time", "show_all"]:
             raise Warning("Unknown mode")
         frame_time = run_time / (len(regions))
@@ -111,8 +107,7 @@ class GeneralizedPascalsTriangle(VMobject):
         self.cell_height = float(self.height) / self.nrows
         self.cell_width = float(self.width) / self.nrows
         self.bottom_left = (self.cell_width * self.nrows / 2.0) * LEFT + (
-            self.cell_height * self.nrows / 2.0
-        ) * DOWN
+            self.cell_height * self.nrows / 2.0) * DOWN
         self.coords_to_mobs = {}
         self.coords = [(n, k) for n in range(self.nrows) for k in range(n + 1)]
         for n, k in self.coords:

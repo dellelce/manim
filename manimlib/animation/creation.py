@@ -32,15 +32,15 @@ class ShowPartial(Animation, ABC):
     def begin(self) -> None:
         super().begin()
         if not self.should_match_start:
-            self.mobject.lock_matching_data(self.mobject, self.starting_mobject)
+            self.mobject.lock_matching_data(self.mobject,
+                                            self.starting_mobject)
 
     def finish(self) -> None:
         super().finish()
         self.mobject.unlock_data()
 
-    def interpolate_submobject(
-        self, submob: VMobject, start_submob: VMobject, alpha: float
-    ) -> None:
+    def interpolate_submobject(self, submob: VMobject, start_submob: VMobject,
+                               alpha: float) -> None:
         submob.pointwise_become_partial(start_submob, *self.get_bounds(alpha))
 
     @abstractmethod
@@ -77,7 +77,8 @@ class DrawBorderThenFill(Animation):
 
     def __init__(self, vmobject: VMobject, **kwargs):
         assert isinstance(vmobject, VMobject)
-        self.sm_to_index = dict([(hash(sm), 0) for sm in vmobject.get_family()])
+        self.sm_to_index = dict([(hash(sm), 0)
+                                 for sm in vmobject.get_family()])
         super().__init__(vmobject, **kwargs)
 
     def begin(self) -> None:
@@ -98,9 +99,8 @@ class DrawBorderThenFill(Animation):
         outline = self.mobject.copy()
         outline.set_fill(opacity=0)
         for sm in outline.get_family():
-            sm.set_stroke(
-                color=self.get_stroke_color(sm), width=float(self.stroke_width)
-            )
+            sm.set_stroke(color=self.get_stroke_color(sm),
+                          width=float(self.stroke_width))
         return outline
 
     def get_stroke_color(self, vmobject: VMobject) -> str:
@@ -113,9 +113,8 @@ class DrawBorderThenFill(Animation):
     def get_all_mobjects(self) -> list[VMobject]:
         return [*super().get_all_mobjects(), self.outline]
 
-    def interpolate_submobject(
-        self, submob: VMobject, start: VMobject, outline: VMobject, alpha: float
-    ) -> None:
+    def interpolate_submobject(self, submob: VMobject, start: VMobject,
+                               outline: VMobject, alpha: float) -> None:
         index, subalpha = integer_interpolate(0, 2, alpha)
 
         if index == 1 and self.sm_to_index[hash(submob)] == 0:

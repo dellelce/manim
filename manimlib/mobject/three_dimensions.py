@@ -47,7 +47,8 @@ class SurfaceMesh(VGroup):
         u_indices = np.linspace(0, full_nu - 1, part_nu)
         v_indices = np.linspace(0, full_nv - 1, part_nv)
 
-        points, du_points, dv_points = uv_surface.get_surface_points_and_nudged_points()
+        points, du_points, dv_points = uv_surface.get_surface_points_and_nudged_points(
+        )
         normals = uv_surface.get_unit_normals()
         nudge = self.normal_nudge
         nudged_points = points + nudge * normals
@@ -58,21 +59,19 @@ class SurfaceMesh(VGroup):
             high_ui = full_nv * int(math.ceil(ui))
             path.set_points_smoothly(
                 interpolate(
-                    nudged_points[low_ui : low_ui + full_nv],
-                    nudged_points[high_ui : high_ui + full_nv],
+                    nudged_points[low_ui:low_ui + full_nv],
+                    nudged_points[high_ui:high_ui + full_nv],
                     ui % 1,
-                )
-            )
+                ))
             self.add(path)
         for vi in v_indices:
             path = VMobject()
             path.set_points_smoothly(
                 interpolate(
-                    nudged_points[int(math.floor(vi)) :: full_nv],
-                    nudged_points[int(math.ceil(vi)) :: full_nv],
+                    nudged_points[int(math.floor(vi))::full_nv],
+                    nudged_points[int(math.ceil(vi))::full_nv],
                     vi % 1,
-                )
-            )
+                ))
             self.add(path)
 
 
@@ -89,8 +88,8 @@ class Sphere(Surface):
 
     def uv_func(self, u: float, v: float) -> np.ndarray:
         return self.radius * np.array(
-            [np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), -np.cos(v)]
-        )
+            [np.cos(u) * np.sin(v),
+             np.sin(u) * np.sin(v), -np.cos(v)])
 
 
 class Torus(Surface):
@@ -133,7 +132,9 @@ class Line3D(Cylinder):
     def __init__(self, start: np.ndarray, end: np.ndarray, **kwargs):
         digest_config(self, kwargs)
         axis = end - start
-        super().__init__(height=get_norm(axis), radius=self.width / 2, axis=axis)
+        super().__init__(height=get_norm(axis),
+                         radius=self.width / 2,
+                         axis=axis)
         self.shift((start + end) / 2)
 
 
@@ -191,12 +192,10 @@ class Cube(SGroup):
         radius = square.get_height() / 2
         square.move_to(radius * OUT)
         result = [square]
-        result.extend(
-            [
-                square.copy().rotate(PI / 2, axis=vect, about_point=ORIGIN)
-                for vect in compass_directions(4)
-            ]
-        )
+        result.extend([
+            square.copy().rotate(PI / 2, axis=vect, about_point=ORIGIN)
+            for vect in compass_directions(4)
+        ])
         result.append(square.copy().rotate(PI, RIGHT, about_point=ORIGIN))
         return result
 
@@ -205,9 +204,12 @@ class Cube(SGroup):
 
 
 class Prism(Cube):
-    def __init__(
-        self, width: float = 3.0, height: float = 2.0, depth: float = 1.0, **kwargs
-    ):
+
+    def __init__(self,
+                 width: float = 3.0,
+                 height: float = 2.0,
+                 depth: float = 1.0,
+                 **kwargs):
         super().__init__(**kwargs)
         for dim, value in enumerate([width, height, depth]):
             self.rescale_to_fit(value, dim, stretch=True)
@@ -233,9 +235,12 @@ class VCube(VGroup):
 
 
 class VPrism(VCube):
-    def __init__(
-        self, width: float = 3.0, height: float = 2.0, depth: float = 1.0, **kwargs
-    ):
+
+    def __init__(self,
+                 width: float = 3.0,
+                 height: float = 2.0,
+                 depth: float = 1.0,
+                 **kwargs):
         super().__init__(**kwargs)
         for dim, value in enumerate([width, height, depth]):
             self.rescale_to_fit(value, dim, stretch=True)
@@ -298,7 +303,7 @@ class Prismify(VGroup):
         super().__init__(**kwargs)
         vect = depth * direction
         self.add(vmobject.copy())
-        points = vmobject.get_points()[:: vmobject.n_points_per_curve]
+        points = vmobject.get_points()[::vmobject.n_points_per_curve]
         for p1, p2 in adjacent_pairs(points):
             wall = VMobject()
             wall.match_style(vmobject)

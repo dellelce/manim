@@ -9,11 +9,9 @@ if TYPE_CHECKING:
 
 
 def extract_mobject_family_members(
-    mobject_list: Iterable[Mobject], exclude_pointless: bool = False
-) -> list[Mobject]:
+        mobject_list: Iterable[Mobject],
+        exclude_pointless: bool = False) -> list[Mobject]:
     return [
-        sm
-        for mob in mobject_list
-        for sm in mob.get_family()
+        sm for mob in mobject_list for sm in mob.get_family()
         if (not exclude_pointless) or sm.has_points()
     ]

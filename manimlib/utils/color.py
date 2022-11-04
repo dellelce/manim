@@ -63,9 +63,8 @@ def color_to_int_rgba(color: ManimColor, opacity: float = 1.0) -> np.ndarray:
     return np.array([*color_to_int_rgb(color), alpha])
 
 
-def color_gradient(
-    reference_colors: Iterable[ManimColor], length_of_output: int
-) -> list[Color]:
+def color_gradient(reference_colors: Iterable[ManimColor],
+                   length_of_output: int) -> list[Color]:
     if length_of_output == 0:
         return []
     rgbs = list(map(color_to_rgb, reference_colors))
@@ -81,7 +80,8 @@ def color_gradient(
     ]
 
 
-def interpolate_color(color1: ManimColor, color2: ManimColor, alpha: float) -> Color:
+def interpolate_color(color1: ManimColor, color2: ManimColor,
+                      alpha: float) -> Color:
     rgb = interpolate(color_to_rgb(color1), color_to_rgb(color2), alpha)
     return rgb_to_color(rgb)
 
@@ -100,7 +100,8 @@ def random_bright_color() -> Color:
     return average_color(color, Color(WHITE))
 
 
-def get_colormap_list(map_name: str = "viridis", n_colors: int = 9) -> np.ndarray:
+def get_colormap_list(map_name: str = "viridis",
+                      n_colors: int = 9) -> np.ndarray:
     """
     Options for map_name:
     3b1b_colormap

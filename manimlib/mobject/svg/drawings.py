@@ -146,25 +146,22 @@ class Laptop(VGroup):
         body.sort(lambda p: p[2])
         body[-1].set_fill(self.body_color)
         screen_plate = body.copy()
-        keyboard = VGroup(
-            *[
-                VGroup(
-                    *[Square(**self.key_color_kwargs) for x in range(12 - y % 2)]
-                ).arrange(RIGHT, buff=SMALL_BUFF)
-                for y in range(4)
-            ]
-        ).arrange(DOWN, buff=MED_SMALL_BUFF)
+        keyboard = VGroup(*[
+            VGroup(
+                *[Square(**self.key_color_kwargs)
+                  for x in range(12 - y % 2)]).arrange(RIGHT, buff=SMALL_BUFF)
+            for y in range(4)
+        ]).arrange(DOWN, buff=MED_SMALL_BUFF)
         keyboard.stretch_to_fit_width(
-            self.keyboard_width_to_body_width * body.get_width(),
-        )
+            self.keyboard_width_to_body_width * body.get_width(), )
         keyboard.stretch_to_fit_height(
-            self.keyboard_height_to_body_height * body.get_height(),
-        )
+            self.keyboard_height_to_body_height * body.get_height(), )
         keyboard.next_to(body, OUT, buff=0.1 * SMALL_BUFF)
         keyboard.shift(MED_SMALL_BUFF * UP)
         body.add(keyboard)
 
-        screen_plate.stretch(self.screen_thickness / self.body_dimensions[2], dim=2)
+        screen_plate.stretch(self.screen_thickness / self.body_dimensions[2],
+                             dim=2)
         screen = Rectangle(
             stroke_width=0,
             fill_color=BLACK,
@@ -175,9 +172,9 @@ class Laptop(VGroup):
         screen.next_to(screen_plate, OUT, buff=0.1 * SMALL_BUFF)
         screen_plate.add(screen)
         screen_plate.next_to(body, UP, buff=0)
-        screen_plate.rotate(
-            self.open_angle, RIGHT, about_point=screen_plate.get_bottom()
-        )
+        screen_plate.rotate(self.open_angle,
+                            RIGHT,
+                            about_point=screen_plate.get_bottom())
         self.screen_plate = screen_plate
         self.screen = screen
 
@@ -254,11 +251,13 @@ class ClockPassesTime(Animation):
         assert isinstance(clock, Clock)
         rot_kwargs = {"axis": OUT, "about_point": clock.get_center()}
         hour_radians = -self.hours_passed * 2 * np.pi / 12
-        self.hour_rotation = Rotating(clock.hour_hand, angle=hour_radians, **rot_kwargs)
+        self.hour_rotation = Rotating(clock.hour_hand,
+                                      angle=hour_radians,
+                                      **rot_kwargs)
         self.hour_rotation.begin()
-        self.minute_rotation = Rotating(
-            clock.minute_hand, angle=12 * hour_radians, **rot_kwargs
-        )
+        self.minute_rotation = Rotating(clock.minute_hand,
+                                        angle=12 * hour_radians,
+                                        **rot_kwargs)
         self.minute_rotation.begin()
         Animation.__init__(self, clock, **kwargs)
 
@@ -342,7 +341,8 @@ class Bubble(SVGMobject):
 
     def position_mobject_inside(self, mobject):
         mobject.set_max_width(self.content_scale_factor * self.get_width())
-        mobject.set_max_height(self.content_scale_factor * self.get_height() / 1.5)
+        mobject.set_max_height(self.content_scale_factor * self.get_height() /
+                               1.5)
         mobject.shift(self.get_bubble_center() - mobject.get_center())
         return mobject
 
@@ -434,7 +434,9 @@ class Piano(VGroup):
         key = Rectangle(*self.white_key_dims)
         key.set_fill(self.white_key_color, 1)
         key.set_stroke(width=0)
-        self.white_keys = key.get_grid(1, self.n_white_keys, buff=self.key_buff)
+        self.white_keys = key.get_grid(1,
+                                       self.n_white_keys,
+                                       buff=self.key_buff)
         self.add(*self.white_keys)
 
     def add_black_keys(self):
@@ -451,8 +453,10 @@ class Piano(VGroup):
             bk = key.copy()
             bk.move_to(midpoint(wk1.get_top(), wk2.get_top()), UP)
             big_bk = bk.copy()
-            big_bk.stretch((bk.get_width() + self.key_buff) / bk.get_width(), 0)
-            big_bk.stretch((bk.get_height() + self.key_buff) / bk.get_height(), 1)
+            big_bk.stretch((bk.get_width() + self.key_buff) / bk.get_width(),
+                           0)
+            big_bk.stretch((bk.get_height() + self.key_buff) / bk.get_height(),
+                           1)
             big_bk.move_to(bk, UP)
             for wk in wk1, wk2:
                 wk.become(Difference(wk, big_bk).match_style(wk))

@@ -55,21 +55,23 @@ def always_redraw(func: Callable[..., Mobject], *args, **kwargs) -> Mobject:
     return mob
 
 
-def always_shift(
-    mobject: Mobject, direction: np.ndarray = RIGHT, rate: float = 0.1
-) -> Mobject:
+def always_shift(mobject: Mobject,
+                 direction: np.ndarray = RIGHT,
+                 rate: float = 0.1) -> Mobject:
     mobject.add_updater(lambda m, dt: m.shift(dt * rate * direction))
     return mobject
 
 
-def always_rotate(mobject: Mobject, rate: float = 20 * DEGREES, **kwargs) -> Mobject:
+def always_rotate(mobject: Mobject,
+                  rate: float = 20 * DEGREES,
+                  **kwargs) -> Mobject:
     mobject.add_updater(lambda m, dt: m.rotate(dt * rate, **kwargs))
     return mobject
 
 
-def turn_animation_into_updater(
-    animation: Animation, cycle: bool = False, **kwargs
-) -> Mobject:
+def turn_animation_into_updater(animation: Animation,
+                                cycle: bool = False,
+                                **kwargs) -> Mobject:
     """
     Add an updater to the animation's mobject which applies
     the interpolation and update functions of the animation

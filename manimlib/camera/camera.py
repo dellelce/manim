@@ -105,7 +105,10 @@ class CameraFrame(Mobject):
         Shortcut for set_euler_angles, defaulting to taking
         in angles in degrees
         """
-        self.set_euler_angles(theta_degrees, phi_degrees, gamma_degrees, units=DEGREES)
+        self.set_euler_angles(theta_degrees,
+                              phi_degrees,
+                              gamma_degrees,
+                              units=DEGREES)
         return self
 
     def set_theta(self, theta: float):
@@ -130,7 +133,8 @@ class CameraFrame(Mobject):
         return self
 
     def set_focal_distance(self, focal_distance: float):
-        self.uniforms["focal_dist_to_height"] = focal_distance / self.get_height()
+        self.uniforms[
+            "focal_dist_to_height"] = focal_distance / self.get_height()
         return self
 
     def set_field_of_view(self, field_of_view: float):
@@ -194,8 +198,7 @@ class Camera(object):
         digest_config(self, kwargs, locals())
         self.rgb_max_val: float = np.iinfo(self.pixel_array_dtype).max
         self.background_rgba: list[float] = list(
-            color_to_rgba(self.background_color, self.background_opacity)
-        )
+            color_to_rgba(self.background_color, self.background_opacity))
         self.init_frame()
         self.init_context(ctx)
         self.init_shaders()
@@ -241,7 +244,9 @@ class Camera(object):
         self.light_source = Point(self.light_source_position)
 
     # Methods associated with the frame buffer
-    def get_fbo(self, ctx: moderngl.Context, samples: int = 0) -> moderngl.Framebuffer:
+    def get_fbo(self,
+                ctx: moderngl.Context,
+                samples: int = 0) -> moderngl.Framebuffer:
         pw = self.pixel_width
         ph = self.pixel_height
         return ctx.framebuffer(
@@ -267,9 +272,8 @@ class Camera(object):
         pw, ph = (self.pixel_width, self.pixel_height)
         gl.glBindFramebuffer(gl.GL_READ_FRAMEBUFFER, self.fbo_msaa.glo)
         gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER, self.fbo.glo)
-        gl.glBlitFramebuffer(
-            0, 0, pw, ph, 0, 0, pw, ph, gl.GL_COLOR_BUFFER_BIT, gl.GL_LINEAR
-        )
+        gl.glBlitFramebuffer(0, 0, pw, ph, 0, 0, pw, ph,
+                             gl.GL_COLOR_BUFFER_BIT, gl.GL_LINEAR)
         return self.fbo.read(
             viewport=self.fbo.viewport,
             components=self.n_channels,
@@ -296,9 +300,10 @@ class Camera(object):
 
     # Needed?
     def get_texture(self) -> moderngl.Texture:
-        texture = self.ctx.texture(
-            size=self.fbo.size, components=4, data=self.get_raw_fbo_data(), dtype="f4"
-        )
+        texture = self.ctx.texture(size=self.fbo.size,
+                                   components=4,
+                                   data=self.get_raw_fbo_data(),
+                                   dtype="f4")
         return texture
 
     # Getting camera attributes
@@ -370,25 +375,24 @@ class Camera(object):
         key = id(mobject)
         if key not in self.mob_to_render_groups:
             self.mob_to_render_groups[key] = list(
-                self.generate_render_group_list(mobject)
-            )
+                self.generate_render_group_list(mobject))
         return self.mob_to_render_groups[key]
 
-    def generate_render_group_list(self, mobject: Mobject) -> Iterable[dict[str]]:
-        return (
-            self.get_render_group(sw, single_use=mobject.is_changing())
-            for sw in mobject.get_shader_wrapper_list()
-        )
+    def generate_render_group_list(self,
+                                   mobject: Mobject) -> Iterable[dict[str]]:
+        return (self.get_render_group(sw, single_use=mobject.is_changing())
+                for sw in mobject.get_shader_wrapper_list())
 
-    def get_render_group(
-        self, shader_wrapper: ShaderWrapper, single_use: bool = True
-    ) -> dict[str]:
+    def get_render_group(self,
+                         shader_wrapper: ShaderWrapper,
+                         single_use: bool = True) -> dict[str]:
         # Data buffers
         vbo = self.ctx.buffer(shader_wrapper.vert_data.tobytes())
         if shader_wrapper.vert_indices is None:
             ibo = None
         else:
-            vert_index_data = shader_wrapper.vert_indices.astype("i4").tobytes()
+            vert_index_data = shader_wrapper.vert_indices.astype(
+                "i4").tobytes()
             if vert_index_data:
                 ibo = self.ctx.buffer(vert_index_data)
             else:
@@ -423,33 +427,31 @@ class Camera(object):
     # Shaders
     def init_shaders(self) -> None:
         # Initialize with the null id going to None
-        self.id_to_shader_program: dict[
-            int | str, tuple[moderngl.Program, str] | None
-        ] = {"": None}
+        self.id_to_shader_program: dict[int | str, tuple[moderngl.Program, str]
+                                        | None] = {
+                                            "": None
+                                        }
 
     def get_shader_program(
-        self, shader_wrapper: ShaderWrapper
-    ) -> tuple[moderngl.Program, str]:
+            self,
+            shader_wrapper: ShaderWrapper) -> tuple[moderngl.Program, str]:
         sid = shader_wrapper.get_program_id()
         if sid not in self.id_to_shader_program:
             # Create shader program for the first time, then cache
             # in the id_to_shader_program dictionary
             program = self.ctx.program(**shader_wrapper.get_program_code())
             vert_format = moderngl.detect_format(
-                program, shader_wrapper.vert_attributes
-            )
+                program, shader_wrapper.vert_attributes)
             self.id_to_shader_program[sid] = (program, vert_format)
         return self.id_to_shader_program[sid]
 
-    def set_shader_uniforms(
-        self, shader: moderngl.Program, shader_wrapper: ShaderWrapper
-    ) -> None:
+    def set_shader_uniforms(self, shader: moderngl.Program,
+                            shader_wrapper: ShaderWrapper) -> None:
         for name, path in shader_wrapper.texture_paths.items():
             tid = self.get_texture_id(path)
             shader[name].value = tid
-        for name, value in it.chain(
-            self.perspective_uniforms.items(), shader_wrapper.uniforms.items()
-        ):
+        for name, value in it.chain(self.perspective_uniforms.items(),
+                                    shader_wrapper.uniforms.items()):
             try:
                 if isinstance(value, np.ndarray) and value.ndim > 0:
                     value = tuple(value)

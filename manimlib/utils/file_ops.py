@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def add_extension_if_not_present(file_name: str, extension: str) -> str:
     # This could conceivably be smarter about handling existing differing extensions
-    if file_name[-len(extension) :] != extension:
+    if file_name[-len(extension):] != extension:
         return file_name + extension
     else:
         return file_name
@@ -49,11 +49,8 @@ def find_file(
     # Otherwise look in local file system
     directories = directories or [""]
     extensions = extensions or [""]
-    possible_paths = (
-        os.path.join(directory, file_name + extension)
-        for directory in directories
-        for extension in extensions
-    )
+    possible_paths = (os.path.join(directory, file_name + extension)
+                      for directory in directories for extension in extensions)
     for path in possible_paths:
         if os.path.exists(path):
             return path
@@ -71,7 +68,7 @@ def get_sorted_integer_files(
     indexed_files = []
     for file in os.listdir(directory):
         if "." in file:
-            index_str = file[: file.index(".")]
+            index_str = file[:file.index(".")]
         else:
             index_str = file
 

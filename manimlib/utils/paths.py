@@ -14,13 +14,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Callable
 
-
 STRAIGHT_PATH_THRESHOLD = 0.01
 
 
-def straight_path(
-    start_points: np.ndarray, end_points: np.ndarray, alpha: float
-) -> np.ndarray:
+def straight_path(start_points: np.ndarray, end_points: np.ndarray,
+                  alpha: float) -> np.ndarray:
     """
     Same function as interpolate, but renamed to reflect
     intent of being used to determine how a set of points move
@@ -31,7 +29,8 @@ def straight_path(
 
 
 def path_along_arc(
-    arc_angle: float, axis: np.ndarray = OUT
+    arc_angle: float,
+    axis: np.ndarray = OUT
 ) -> Callable[[np.ndarray, np.ndarray, float], np.ndarray]:
     """
     If vect is vector from start to end, [vect[:,1], -vect[:,0]] is
@@ -47,7 +46,8 @@ def path_along_arc(
         vects = end_points - start_points
         centers = start_points + 0.5 * vects
         if arc_angle != np.pi:
-            centers += np.cross(unit_axis, vects / 2.0) / math.tan(arc_angle / 2)
+            centers += np.cross(unit_axis, vects / 2.0) / math.tan(
+                arc_angle / 2)
         rot_matrix_T = rotation_matrix_transpose(alpha * arc_angle, unit_axis)
         return centers + np.dot(start_points - centers, rot_matrix_T)
 
@@ -58,5 +58,6 @@ def clockwise_path() -> Callable[[np.ndarray, np.ndarray, float], np.ndarray]:
     return path_along_arc(-np.pi)
 
 
-def counterclockwise_path() -> Callable[[np.ndarray, np.ndarray, float], np.ndarray]:
+def counterclockwise_path(
+) -> Callable[[np.ndarray, np.ndarray, float], np.ndarray]:
     return path_along_arc(np.pi)

@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
     ManimColor = Union[str, Color]
 
-
 EPSILON = 0.0001
 
 
@@ -39,9 +38,9 @@ class SampleSpace(Rectangle):
         "default_label_scale_val": 1,
     }
 
-    def add_title(
-        self, title: str = "Sample space", buff: float = MED_SMALL_BUFF
-    ) -> None:
+    def add_title(self,
+                  title: str = "Sample space",
+                  buff: float = MED_SMALL_BUFF) -> None:
         # TODO, should this really exist in SampleSpaceScene
         title_mob = TexText(title)
         if title_mob.get_width() > self.get_width():
@@ -135,24 +134,26 @@ class SampleSpace(Rectangle):
         }
         return VGroup(parts.braces, parts.labels)
 
-    def get_side_braces_and_labels(
-        self, labels: str, direction: np.ndarray = LEFT, **kwargs
-    ) -> VGroup:
+    def get_side_braces_and_labels(self,
+                                   labels: str,
+                                   direction: np.ndarray = LEFT,
+                                   **kwargs) -> VGroup:
         assert hasattr(self, "horizontal_parts")
         parts = self.horizontal_parts
-        return self.get_subdivision_braces_and_labels(
-            parts, labels, direction, **kwargs
-        )
+        return self.get_subdivision_braces_and_labels(parts, labels, direction,
+                                                      **kwargs)
 
     def get_top_braces_and_labels(self, labels: str, **kwargs) -> VGroup:
         assert hasattr(self, "vertical_parts")
         parts = self.vertical_parts
-        return self.get_subdivision_braces_and_labels(parts, labels, UP, **kwargs)
+        return self.get_subdivision_braces_and_labels(parts, labels, UP,
+                                                      **kwargs)
 
     def get_bottom_braces_and_labels(self, labels: str, **kwargs) -> VGroup:
         assert hasattr(self, "vertical_parts")
         parts = self.vertical_parts
-        return self.get_subdivision_braces_and_labels(parts, labels, DOWN, **kwargs)
+        return self.get_subdivision_braces_and_labels(parts, labels, DOWN,
+                                                      **kwargs)
 
     def add_braces_and_labels(self) -> None:
         for attr in "horizontal_parts", "vertical_parts":
@@ -215,7 +216,8 @@ class BarChart(VGroup):
         if self.include_x_ticks == True:
             x_ticks = VGroup()
             widths = np.linspace(0, self.width, self.n_ticks_x + 1)
-            label_values = np.linspace(0, len(self.bar_names), self.n_ticks_x + 1)
+            label_values = np.linspace(0, len(self.bar_names),
+                                       self.n_ticks_x + 1)
             for x, value in zip(widths, label_values):
                 x_tick = Line(UP, DOWN)
                 x_tick.set_height(self.tick_height)

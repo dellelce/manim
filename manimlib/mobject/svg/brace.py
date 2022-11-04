@@ -32,7 +32,10 @@ if TYPE_CHECKING:
 class Brace(SingleStringTex):
     CONFIG = {"buff": 0.2, "tex_string": r"\underbrace{\qquad}"}
 
-    def __init__(self, mobject: Mobject, direction: np.ndarray = DOWN, **kwargs):
+    def __init__(self,
+                 mobject: Mobject,
+                 direction: np.ndarray = DOWN,
+                 **kwargs):
         digest_config(self, kwargs, locals())
         angle = -math.atan2(*direction[:2]) + PI
         mobject.rotate(-angle, about_point=ORIGIN)
@@ -54,9 +57,9 @@ class Brace(SingleStringTex):
                 (self[0], self[1], RIGHT),
                 (self[5], self[4], LEFT),
             ]:
-                rect.set_width(
-                    width_diff / 2 + rect.get_width(), about_edge=vect, stretch=True
-                )
+                rect.set_width(width_diff / 2 + rect.get_width(),
+                               about_edge=vect,
+                               stretch=True)
                 tip.shift(-width_diff / 2 * vect)
         else:
             self.set_width(width, stretch=True)
@@ -64,7 +67,8 @@ class Brace(SingleStringTex):
 
     def put_at_tip(self, mob: Mobject, use_next_to: bool = True, **kwargs):
         if use_next_to:
-            mob.next_to(self.get_tip(), np.round(self.get_direction()), **kwargs)
+            mob.next_to(self.get_tip(), np.round(self.get_direction()),
+                        **kwargs)
         else:
             mob.move_to(self.get_tip())
             buff = kwargs.get("buff", DEFAULT_MOBJECT_TO_MOBJECT_BUFFER)
@@ -121,8 +125,9 @@ class BraceLabel(VMobject):
         self.set_submobjects([self.brace, self.label])
 
     def creation_anim(
-        self, label_anim: Animation = FadeIn, brace_anim: Animation = GrowFromCenter
-    ) -> AnimationGroup:
+            self,
+            label_anim: Animation = FadeIn,
+            brace_anim: Animation = GrowFromCenter) -> AnimationGroup:
         return AnimationGroup(brace_anim(self.brace), label_anim(self.label))
 
     def shift_brace(self, obj: VMobject | list[VMobject], **kwargs):

@@ -107,8 +107,8 @@ def init_customization() -> None:
         console.print("[bold]Styles:[/bold]")
         style_config = configuration["style"]
         tex_template = Prompt.ask(
-            "  Select a TeX template to compile a LaTeX source file", default="default"
-        )
+            "  Select a TeX template to compile a LaTeX source file",
+            default="default")
         style_config["tex_template"] = tex_template
         style_config["background_color"] = Prompt.ask(
             "  Which [bold]background color[/bold] do you want [italic](hex code)",
@@ -133,14 +133,13 @@ def init_customization() -> None:
         )
 
         write_to_file = Confirm.ask(
-            "\n[bold]Are you sure to write these configs to file?[/bold]", default=True
-        )
+            "\n[bold]Are you sure to write these configs to file?[/bold]",
+            default=True)
         if not write_to_file:
             raise KeyboardInterrupt
 
-        global_file_name = os.path.join(
-            get_manim_dir(), "manimlib", "default_config.yml"
-        )
+        global_file_name = os.path.join(get_manim_dir(), "manimlib",
+                                        "default_config.yml")
         if scope == "global":
             file_name = global_file_name
         else:
@@ -153,7 +152,8 @@ def init_customization() -> None:
         console.print(
             f"\n:rocket: You have successfully set up a {scope} configuration file!"
         )
-        console.print(f"You can manually modify it in: [cyan]`{file_name}`[/cyan]")
+        console.print(
+            f"You can manually modify it in: [cyan]`{file_name}`[/cyan]")
 
     except KeyboardInterrupt:
         console.print("\n[green]Exit configuration guide[/green]")

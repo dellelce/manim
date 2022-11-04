@@ -159,7 +159,9 @@ class NumberLine(Line):
             number_config["unit"] = unit_tex
 
         num_mob = DecimalNumber(x / unit, **number_config)
-        num_mob.next_to(self.number_to_point(x), direction=direction, buff=buff)
+        num_mob.next_to(self.number_to_point(x),
+                        direction=direction,
+                        buff=buff)
         if x < 0 and direction[0] == 0:
             # Align without the minus sign
             num_mob.shift(num_mob[0].get_width() * LEFT / 2)

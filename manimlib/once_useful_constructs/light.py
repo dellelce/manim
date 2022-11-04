@@ -35,7 +35,7 @@ DEGREES = TAU / 360
 
 
 def inverse_power_law(maxint, scale, cutoff, exponent):
-    return lambda r: maxint * (cutoff / (r / scale + cutoff)) ** exponent
+    return lambda r: maxint * (cutoff / (r / scale + cutoff))**exponent
 
 
 def inverse_quadratic(maxint, scale, cutoff):
@@ -46,8 +46,10 @@ class SwitchOn(LaggedStartMap):
     CONFIG = {"lag_ratio": 0.2, "run_time": SWITCH_ON_RUN_TIME}
 
     def __init__(self, light, **kwargs):
-        if not isinstance(light, AmbientLight) and not isinstance(light, Spotlight):
-            raise Exception("Only AmbientLights and Spotlights can be switched on")
+        if not isinstance(light, AmbientLight) and not isinstance(
+                light, Spotlight):
+            raise Exception(
+                "Only AmbientLights and Spotlights can be switched on")
         LaggedStartMap.__init__(self, FadeIn, light, **kwargs)
 
 
@@ -55,8 +57,10 @@ class SwitchOff(LaggedStartMap):
     CONFIG = {"lag_ratio": 0.2, "run_time": SWITCH_ON_RUN_TIME}
 
     def __init__(self, light, **kwargs):
-        if not isinstance(light, AmbientLight) and not isinstance(light, Spotlight):
-            raise Exception("Only AmbientLights and Spotlights can be switched off")
+        if not isinstance(light, AmbientLight) and not isinstance(
+                light, Spotlight):
+            raise Exception(
+                "Only AmbientLights and Spotlights can be switched off")
         light.set_submobjects(light.submobjects[::-1])
         LaggedStartMap.__init__(self, FadeOut, light, **kwargs)
         light.set_submobjects(light.submobjects[::-1])
@@ -87,14 +91,18 @@ class AmbientLight(VMobject):
     # * the number of subdivisions (levels, annuli)
 
     CONFIG = {
-        "source_point": VectorizedPoint(
-            location=ORIGIN, stroke_width=0, fill_opacity=0
-        ),
-        "opacity_function": lambda r: 1.0 / (r + 1.0) ** 2,
-        "color": LIGHT_COLOR,
-        "max_opacity": 1.0,
-        "num_levels": NUM_LEVELS,
-        "radius": 5.0,
+        "source_point":
+        VectorizedPoint(location=ORIGIN, stroke_width=0, fill_opacity=0),
+        "opacity_function":
+        lambda r: 1.0 / (r + 1.0)**2,
+        "color":
+        LIGHT_COLOR,
+        "max_opacity":
+        1.0,
+        "num_levels":
+        NUM_LEVELS,
+        "radius":
+        5.0,
     }
 
     def init_points(self):
@@ -144,16 +152,22 @@ class AmbientLight(VMobject):
 
 class Spotlight(VMobject):
     CONFIG = {
-        "source_point": VectorizedPoint(
-            location=ORIGIN, stroke_width=0, fill_opacity=0
-        ),
-        "opacity_function": lambda r: 1.0 / (r / 2 + 1.0) ** 2,
-        "color": GREEN,  # LIGHT_COLOR,
-        "max_opacity": 1.0,
-        "num_levels": 10,
-        "radius": 10.0,
-        "screen": None,
-        "camera_mob": None,
+        "source_point":
+        VectorizedPoint(location=ORIGIN, stroke_width=0, fill_opacity=0),
+        "opacity_function":
+        lambda r: 1.0 / (r / 2 + 1.0)**2,
+        "color":
+        GREEN,  # LIGHT_COLOR,
+        "max_opacity":
+        1.0,
+        "num_levels":
+        10,
+        "radius":
+        10.0,
+        "screen":
+        None,
+        "camera_mob":
+        None,
     }
 
     def projection_direction(self):
@@ -165,9 +179,11 @@ class Spotlight(VMobject):
             return OUT
         else:
             [phi, theta, r] = self.camera_mob.get_center()
-            v = np.array(
-                [np.sin(phi) * np.cos(theta), np.sin(phi) * np.sin(theta), np.cos(phi)]
-            )
+            v = np.array([
+                np.sin(phi) * np.cos(theta),
+                np.sin(phi) * np.sin(theta),
+                np.cos(phi)
+            ])
             return v  # /get_norm(v)
 
     def project(self, point):
@@ -236,8 +252,7 @@ class Spotlight(VMobject):
         projected_screen_points = list(map(self.project, screen_points))
 
         viewing_angles = np.array(
-            list(map(self.viewing_angle_of_point, projected_screen_points))
-        )
+            list(map(self.viewing_angle_of_point, projected_screen_points)))
 
         lower_angle = upper_angle = 0
         if len(viewing_angles) != 0:
@@ -252,12 +267,12 @@ class Spotlight(VMobject):
 
         lower_angle, upper_angle = self.viewing_angles(screen)
         projected_RIGHT = self.project(RIGHT) / get_norm(self.project(RIGHT))
-        lower_ray = rotate_vector(
-            projected_RIGHT, lower_angle, axis=self.projection_direction()
-        )
-        upper_ray = rotate_vector(
-            projected_RIGHT, upper_angle, axis=self.projection_direction()
-        )
+        lower_ray = rotate_vector(projected_RIGHT,
+                                  lower_angle,
+                                  axis=self.projection_direction())
+        upper_ray = rotate_vector(projected_RIGHT,
+                                  upper_angle,
+                                  axis=self.projection_direction())
 
         return lower_ray, upper_ray
 
@@ -288,9 +303,8 @@ class Spotlight(VMobject):
                 lower_angle, upper_angle = self.viewing_angles(self.screen)
                 # dr = submob.outer_radius - submob.inner_radius
                 dr = self.radius / self.num_levels
-                new_submob = self.new_sector(
-                    submob.inner_radius, dr, lower_angle, upper_angle
-                )
+                new_submob = self.new_sector(submob.inner_radius, dr,
+                                             lower_angle, upper_angle)
                 # submob.points = new_submob.points
                 # submob.set_fill(opacity = 10 * self.opacity_function(submob.outer_radius))
                 Transform(submob, new_submob).update(1)
@@ -335,17 +349,24 @@ class LightSource(VMobject):
     # a spotlight
     # and a shadow
     CONFIG = {
-        "source_point": VectorizedPoint(
-            location=ORIGIN, stroke_width=0, fill_opacity=0
-        ),
-        "color": LIGHT_COLOR,
-        "num_levels": 10,
-        "radius": 10.0,
-        "screen": None,
-        "opacity_function": inverse_quadratic(1, 2, 1),
-        "max_opacity_ambient": AMBIENT_FULL,
-        "max_opacity_spotlight": SPOTLIGHT_FULL,
-        "camera_mob": None,
+        "source_point":
+        VectorizedPoint(location=ORIGIN, stroke_width=0, fill_opacity=0),
+        "color":
+        LIGHT_COLOR,
+        "num_levels":
+        10,
+        "radius":
+        10.0,
+        "screen":
+        None,
+        "opacity_function":
+        inverse_quadratic(1, 2, 1),
+        "max_opacity_ambient":
+        AMBIENT_FULL,
+        "max_opacity_spotlight":
+        SPOTLIGHT_FULL,
+        "camera_mob":
+        None,
     }
 
     def init_points(self):
@@ -375,9 +396,9 @@ class LightSource(VMobject):
         else:
             self.spotlight = Spotlight()
 
-        self.shadow = VMobject(
-            fill_color=SHADOW_COLOR, fill_opacity=1.0, stroke_color=BLACK
-        )
+        self.shadow = VMobject(fill_color=SHADOW_COLOR,
+                               fill_opacity=1.0,
+                               stroke_color=BLACK)
         self.lighthouse.next_to(self.get_source_point(), DOWN, buff=0)
         self.ambient_light.move_source_to(self.get_source_point())
 
@@ -385,7 +406,8 @@ class LightSource(VMobject):
             self.spotlight.move_source_to(self.get_source_point())
             self.update_shadow()
 
-        self.add(self.ambient_light, self.spotlight, self.lighthouse, self.shadow)
+        self.add(self.ambient_light, self.spotlight, self.lighthouse,
+                 self.shadow)
 
     def has_screen(self):
         if self.screen is None:
@@ -508,17 +530,15 @@ class LightSource(VMobject):
         phi = self.camera_mob.get_center()[0]
         theta = self.camera_mob.get_center()[1]
 
-        R1 = np.array(
-            [[1, 0, 0], [0, np.cos(phi), -np.sin(phi)], [0, np.sin(phi), np.cos(phi)]]
-        )
+        R1 = np.array([[1, 0, 0], [0, np.cos(phi), -np.sin(phi)],
+                       [0, np.sin(phi), np.cos(phi)]])
 
-        R2 = np.array(
-            [
-                [np.cos(theta + TAU / 4), -np.sin(theta + TAU / 4), 0],
-                [np.sin(theta + TAU / 4), np.cos(theta + TAU / 4), 0],
-                [0, 0, 1],
-            ]
-        )
+        R2 = np.array([
+            [np.cos(theta + TAU / 4), -np.sin(theta + TAU / 4), 0],
+            [np.sin(theta + TAU / 4),
+             np.cos(theta + TAU / 4), 0],
+            [0, 0, 1],
+        ])
 
         R = np.dot(R2, R1)
         return R
@@ -532,19 +552,18 @@ class LightSource(VMobject):
             projected_screen_points.append(self.spotlight.project(point))
 
         projected_source = project_along_vector(
-            self.get_source_point(), self.spotlight.projection_direction()
-        )
+            self.get_source_point(), self.spotlight.projection_direction())
 
-        projected_point_cloud_3d = np.append(
-            projected_screen_points, np.reshape(projected_source, (1, 3)), axis=0
-        )
+        projected_point_cloud_3d = np.append(projected_screen_points,
+                                             np.reshape(
+                                                 projected_source, (1, 3)),
+                                             axis=0)
         # z_to_vector(self.spotlight.projection_direction())
         rotation_matrix = self.rotation_matrix()
         back_rotation_matrix = rotation_matrix.T  # i. e. its inverse
 
-        rotated_point_cloud_3d = np.dot(
-            projected_point_cloud_3d, back_rotation_matrix.T
-        )
+        rotated_point_cloud_3d = np.dot(projected_point_cloud_3d,
+                                        back_rotation_matrix.T)
         # these points now should all have z = 0
 
         point_cloud_2d = rotated_point_cloud_3d[:, :2]
@@ -554,8 +573,8 @@ class LightSource(VMobject):
 
         # we also need the projected source point
         source_point_2d = np.dot(
-            self.spotlight.project(self.get_source_point()), back_rotation_matrix.T
-        )[:2]
+            self.spotlight.project(self.get_source_point()),
+            back_rotation_matrix.T)[:2]
 
         index = 0
         for point in point_cloud_2d[hull_2d.vertices]:
@@ -587,7 +606,9 @@ class LightSource(VMobject):
         outpoint2 = anchors[source_index] + ray2
 
         new_anchors = anchors[:source_index]
-        new_anchors = np.append(new_anchors, np.array([outpoint1, outpoint2]), axis=0)
+        new_anchors = np.append(new_anchors,
+                                np.array([outpoint1, outpoint2]),
+                                axis=0)
         new_anchors = np.append(new_anchors, anchors[source_index:], axis=0)
         self.shadow.set_points_as_corners(new_anchors)
 

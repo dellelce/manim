@@ -41,7 +41,6 @@ if TYPE_CHECKING:
 
     from manimlib.animation.animation import Animation
 
-
 PAN_3D_KEY = "d"
 FRAME_SHIFT_KEY = "f"
 ZOOM_KEY = "z"
@@ -89,7 +88,8 @@ class Scene(object):
         self.time: float = 0
         self.skip_time: float = 0
         self.original_skipping_status: bool = self.skip_animations
-        self.checkpoint_states: dict[str, list[tuple[Mobject, Mobject]]] = dict()
+        self.checkpoint_states: dict[str, list[tuple[Mobject,
+                                                     Mobject]]] = dict()
 
         if self.start_at_animation_number is not None:
             self.skip_animations = True
@@ -157,8 +157,7 @@ class Scene(object):
         log.info(
             "Tips: You are now in the interactive mode. Now you can use the keyboard"
             " and the mouse to interact with the scene. Just press `command + q` or `esc`"
-            " if you want to quit."
-        )
+            " if you want to quit.")
         self.skip_animations = False
         self.refresh_static_mobjects()
         while not self.is_window_closing():
@@ -180,23 +179,21 @@ class Scene(object):
         # Use the locals namespace of the caller
         local_ns = inspect.currentframe().f_back.f_locals
         # Add a few custom shortcuts
-        local_ns.update(
-            {
-                name: getattr(self, name)
-                for name in [
-                    "play",
-                    "wait",
-                    "add",
-                    "remove",
-                    "clear",
-                    "save_state",
-                    "undo",
-                    "redo",
-                    "i2g",
-                    "i2m",
-                ]
-            }
-        )
+        local_ns.update({
+            name: getattr(self, name)
+            for name in [
+                "play",
+                "wait",
+                "add",
+                "remove",
+                "clear",
+                "save_state",
+                "undo",
+                "redo",
+                "i2g",
+                "i2m",
+            ]
+        })
 
         # This is useful if one wants to re-run a block of scene
         # code, while developing, tweaking it each time.
@@ -244,8 +241,7 @@ class Scene(object):
         # we (admittedly sketchily) update the global namespace to match the local
         # namespace, since this is just a shell session anyway.
         shell.events.register(
-            "pre_run_cell", lambda: shell.user_global_ns.update(shell.user_ns)
-        )
+            "pre_run_cell", lambda: shell.user_global_ns.update(shell.user_ns))
 
         # Operation to run after each ipython command
         def post_cell_func():
@@ -271,7 +267,9 @@ class Scene(object):
         self.update_frame(ignore_skipping=True)
         self.get_image().show()
 
-    def update_frame(self, dt: float = 0, ignore_skipping: bool = False) -> None:
+    def update_frame(self,
+                     dt: float = 0,
+                     ignore_skipping: bool = False) -> None:
         self.increment_time(dt)
         self.update_mobjects(dt)
         if self.skip_animations and not ignore_skipping:
@@ -304,17 +302,13 @@ class Scene(object):
 
     def should_update_mobjects(self) -> bool:
         return self.always_update_mobjects or any(
-            [len(mob.get_family_updaters()) > 0 for mob in self.mobjects]
-        )
+            [len(mob.get_family_updaters()) > 0 for mob in self.mobjects])
 
     def has_time_based_updaters(self) -> bool:
-        return any(
-            [
-                sm.has_time_based_updater()
-                for mob in self.mobjects()
-                for sm in mob.get_family()
-            ]
-        )
+        return any([
+            sm.has_time_based_updater() for mob in self.mobjects()
+            for sm in mob.get_family()
+        ])
 
     # Related to time
 
@@ -349,8 +343,8 @@ class Scene(object):
         self.remove(*new_mobjects)
         self.mobjects += new_mobjects
         self.id_to_mobject_map.update(
-            {id(sm): sm for m in new_mobjects for sm in m.get_family()}
-        )
+            {id(sm): sm
+             for m in new_mobjects for sm in m.get_family()})
         return self
 
     def add_mobjects_among(self, values: Iterable):
@@ -368,7 +362,7 @@ class Scene(object):
             self.mobjects = [
                 *self.mobjects[:index],
                 *replacements,
-                *self.mobjects[index + 1 :],
+                *self.mobjects[index + 1:],
             ]
         return self
 
@@ -386,7 +380,8 @@ class Scene(object):
             # with their children, likewise for all ancestors in the extended family.
             for ancestor in mob.get_ancestors(extended=True):
                 self.replace(ancestor, *ancestor.submobjects)
-            self.mobjects = list_difference_update(self.mobjects, mob.get_family())
+            self.mobjects = list_difference_update(self.mobjects,
+                                                   mob.get_family())
         return self
 
     def bring_to_front(self, *mobjects: Mobject):
@@ -435,9 +430,8 @@ class Scene(object):
         return self.id_to_mobject_map[id_value]
 
     def ids_to_group(self, *id_values):
-        return self.get_group(
-            *filter(lambda x: x is not None, map(self.id_to_mobject, id_values))
-        )
+        return self.get_group(*filter(lambda x: x is not None,
+                                      map(self.id_to_mobject, id_values)))
 
     def i2g(self, *id_values):
         return self.ids_to_group(*id_values)
@@ -499,11 +493,14 @@ class Scene(object):
         description = f"{self.num_plays} {animations[0]}"
         if len(animations) > 1:
             description += ", etc."
-        time_progression = self.get_time_progression(run_time, desc=description)
+        time_progression = self.get_time_progression(run_time,
+                                                     desc=description)
         return time_progression
 
     def get_wait_time_progression(
-        self, duration: float, stop_condition: Callable[[], bool] | None = None
+        self,
+        duration: float,
+        stop_condition: Callable[[], bool] | None = None
     ) -> list[float] | np.ndarray | ProgressDisplay:
         kw = {"desc": f"{self.num_plays} Waiting"}
         if stop_condition is not None:
@@ -524,6 +521,7 @@ class Scene(object):
         return animations
 
     def handle_play_like_call(func):
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             if self.inside_embed:
@@ -571,7 +569,8 @@ class Scene(object):
             if animation.mobject not in self.mobjects:
                 self.add(animation.mobject)
 
-    def progress_through_animations(self, animations: Iterable[Animation]) -> None:
+    def progress_through_animations(self,
+                                    animations: Iterable[Animation]) -> None:
         last_t = 0
         for t in self.get_animation_time_progression(animations):
             dt = t - last_t
@@ -597,7 +596,8 @@ class Scene(object):
         if len(proto_animations) == 0:
             log.warning("Called Scene.play with no animations")
             return
-        animations = self.prepare_animations(proto_animations, animation_config)
+        animations = self.prepare_animations(proto_animations,
+                                             animation_config)
         self.begin_animations(animations)
         self.progress_through_animations(animations)
         self.finish_animations(animations)
@@ -611,16 +611,14 @@ class Scene(object):
         ignore_presenter_mode: bool = False,
     ):
         self.update_mobjects(dt=0)  # Any problems with this?
-        if (
-            self.presenter_mode
-            and not self.skip_animations
-            and not ignore_presenter_mode
-        ):
+        if (self.presenter_mode and not self.skip_animations
+                and not ignore_presenter_mode):
             if note:
                 log.info(note)
             self.hold_loop()
         else:
-            time_progression = self.get_wait_time_progression(duration, stop_condition)
+            time_progression = self.get_wait_time_progression(
+                duration, stop_condition)
             last_t = 0
             for t in time_progression:
                 dt = t - last_t
@@ -637,7 +635,9 @@ class Scene(object):
             self.update_frame(dt=1 / self.camera.fps)
         self.hold_on_wait = True
 
-    def wait_until(self, stop_condition: Callable[[], bool], max_time: float = 60):
+    def wait_until(self,
+                   stop_condition: Callable[[], bool],
+                   max_time: float = 60):
         self.wait(max_time, stop_condition=stop_condition)
 
     def force_skipping(self):
@@ -702,7 +702,7 @@ class Scene(object):
             return
         all_keys = list(self.checkpoint_states.keys())
         index = all_keys.index(key)
-        for later_key in all_keys[index + 1 :]:
+        for later_key in all_keys[index + 1:]:
             self.checkpoint_states.pop(later_key)
 
         self.restore_state(self.checkpoint_states[key])
@@ -710,9 +710,9 @@ class Scene(object):
     def clear_checkpoints(self):
         self.checkpoint_states = dict()
 
-    def save_mobject_to_file(
-        self, mobject: Mobject, file_path: str | None = None
-    ) -> None:
+    def save_mobject_to_file(self,
+                             mobject: Mobject,
+                             file_path: str | None = None) -> None:
         if file_path is None:
             file_path = self.file_writer.get_saved_mobject_path(mobject)
             if file_path is None:
@@ -728,7 +728,8 @@ class Scene(object):
         return Mobject.load(path)
 
     def is_window_closing(self):
-        return self.window and (self.window.is_closing or self.quit_interaction)
+        return self.window and (self.window.is_closing
+                                or self.quit_interaction)
 
     # Event handling
 
@@ -736,9 +737,8 @@ class Scene(object):
         self.mouse_point.move_to(point)
 
         event_data = {"point": point, "d_point": d_point}
-        propagate_event = EVENT_DISPATCHER.dispatch(
-            EventType.MouseMotionEvent, **event_data
-        )
+        propagate_event = EVENT_DISPATCHER.dispatch(EventType.MouseMotionEvent,
+                                                    **event_data)
         if propagate_event is not None and propagate_event is False:
             return
 
@@ -756,9 +756,8 @@ class Scene(object):
             shift = np.dot(np.transpose(transform), shift)
             frame.shift(shift)
 
-    def on_mouse_drag(
-        self, point: np.ndarray, d_point: np.ndarray, buttons: int, modifiers: int
-    ) -> None:
+    def on_mouse_drag(self, point: np.ndarray, d_point: np.ndarray,
+                      buttons: int, modifiers: int) -> None:
         self.mouse_drag_point.move_to(point)
 
         event_data = {
@@ -767,34 +766,32 @@ class Scene(object):
             "buttons": buttons,
             "modifiers": modifiers,
         }
-        propagate_event = EVENT_DISPATCHER.dispatch(
-            EventType.MouseDragEvent, **event_data
-        )
+        propagate_event = EVENT_DISPATCHER.dispatch(EventType.MouseDragEvent,
+                                                    **event_data)
         if propagate_event is not None and propagate_event is False:
             return
 
-    def on_mouse_press(self, point: np.ndarray, button: int, mods: int) -> None:
+    def on_mouse_press(self, point: np.ndarray, button: int,
+                       mods: int) -> None:
         self.mouse_drag_point.move_to(point)
         event_data = {"point": point, "button": button, "mods": mods}
-        propagate_event = EVENT_DISPATCHER.dispatch(
-            EventType.MousePressEvent, **event_data
-        )
+        propagate_event = EVENT_DISPATCHER.dispatch(EventType.MousePressEvent,
+                                                    **event_data)
         if propagate_event is not None and propagate_event is False:
             return
 
-    def on_mouse_release(self, point: np.ndarray, button: int, mods: int) -> None:
+    def on_mouse_release(self, point: np.ndarray, button: int,
+                         mods: int) -> None:
         event_data = {"point": point, "button": button, "mods": mods}
         propagate_event = EVENT_DISPATCHER.dispatch(
-            EventType.MouseReleaseEvent, **event_data
-        )
+            EventType.MouseReleaseEvent, **event_data)
         if propagate_event is not None and propagate_event is False:
             return
 
     def on_mouse_scroll(self, point: np.ndarray, offset: np.ndarray) -> None:
         event_data = {"point": point, "offset": offset}
-        propagate_event = EVENT_DISPATCHER.dispatch(
-            EventType.MouseScrollEvent, **event_data
-        )
+        propagate_event = EVENT_DISPATCHER.dispatch(EventType.MouseScrollEvent,
+                                                    **event_data)
         if propagate_event is not None and propagate_event is False:
             return
 
@@ -809,9 +806,8 @@ class Scene(object):
 
     def on_key_release(self, symbol: int, modifiers: int) -> None:
         event_data = {"symbol": symbol, "modifiers": modifiers}
-        propagate_event = EVENT_DISPATCHER.dispatch(
-            EventType.KeyReleaseEvent, **event_data
-        )
+        propagate_event = EVENT_DISPATCHER.dispatch(EventType.KeyReleaseEvent,
+                                                    **event_data)
         if propagate_event is not None and propagate_event is False:
             return
 
@@ -823,9 +819,8 @@ class Scene(object):
             return
 
         event_data = {"symbol": symbol, "modifiers": modifiers}
-        propagate_event = EVENT_DISPATCHER.dispatch(
-            EventType.KeyPressEvent, **event_data
-        )
+        propagate_event = EVENT_DISPATCHER.dispatch(EventType.KeyPressEvent,
+                                                    **event_data)
         if propagate_event is not None and propagate_event is False:
             return
 
@@ -856,6 +851,7 @@ class Scene(object):
 
 
 class SceneState:
+
     def __init__(self, scene: Scene, ignore: list[Mobject] | None = None):
         self.time = scene.time
         self.num_plays = scene.num_plays
@@ -864,9 +860,8 @@ class SceneState:
             for mob in ignore:
                 self.mobjects_to_copies.pop(mob, None)
 
-        last_m2c = (
-            scene.undo_stack[-1].mobjects_to_copies if scene.undo_stack else dict()
-        )
+        last_m2c = (scene.undo_stack[-1].mobjects_to_copies
+                    if scene.undo_stack else dict())
         for mob in self.mobjects_to_copies:
             # If it hasn't changed since the last state, just point to the
             # same copy as before
@@ -876,29 +871,26 @@ class SceneState:
                 self.mobjects_to_copies[mob] = mob.copy()
 
     def __eq__(self, state: SceneState):
-        return all(
-            (
-                self.time == state.time,
-                self.num_plays == state.num_plays,
-                self.mobjects_to_copies == state.mobjects_to_copies,
-            )
-        )
+        return all((
+            self.time == state.time,
+            self.num_plays == state.num_plays,
+            self.mobjects_to_copies == state.mobjects_to_copies,
+        ))
 
     def mobjects_match(self, state: SceneState):
         return self.mobjects_to_copies == state.mobjects_to_copies
 
     def n_changes(self, state: SceneState):
         m2c = state.mobjects_to_copies
-        return sum(
-            1 - int(mob in m2c and mob.looks_identical(m2c[mob]))
-            for mob in self.mobjects_to_copies
-        )
+        return sum(1 - int(mob in m2c and mob.looks_identical(m2c[mob]))
+                   for mob in self.mobjects_to_copies)
 
     def restore_scene(self, scene: Scene):
         scene.time = self.time
         scene.num_plays = self.num_plays
         scene.mobjects = [
-            mob.become(mob_copy) for mob, mob_copy in self.mobjects_to_copies.items()
+            mob.become(mob_copy)
+            for mob, mob_copy in self.mobjects_to_copies.items()
         ]
 
 

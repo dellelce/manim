@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
     ManimColor = Union[str, Color]
 
-
 VECTOR_LABEL_SCALE_FACTOR = 0.8
 
 
@@ -62,9 +61,11 @@ def vector_coordinate_label(
 
     shift_dir = np.array(vector_mob.get_end())
     if shift_dir[0] >= 0:  # Pointing right
-        shift_dir -= label.get_left() + DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * LEFT
+        shift_dir -= label.get_left(
+        ) + DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * LEFT
     else:  # Pointing left
-        shift_dir -= label.get_right() + DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * RIGHT
+        shift_dir -= label.get_right(
+        ) + DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * RIGHT
     label.shift(shift_dir)
     label.set_color(color)
     label.rect = BackgroundRectangle(label)
@@ -103,14 +104,12 @@ class Matrix(VMobject):
         if self.include_background_rectangle:
             self.add_background_rectangle()
 
-    def matrix_to_mob_matrix(self, matrix: npt.ArrayLike) -> list[list[Mobject]]:
-        return [
-            [
-                self.element_to_mobject(item, **self.element_to_mobject_config)
-                for item in row
-            ]
-            for row in matrix
-        ]
+    def matrix_to_mob_matrix(self,
+                             matrix: npt.ArrayLike) -> list[list[Mobject]]:
+        return [[
+            self.element_to_mobject(item, **self.element_to_mobject_config)
+            for item in row
+        ] for row in matrix]
 
     def organize_mob_matrix(self, matrix: npt.ArrayLike):
         for i, row in enumerate(matrix):
@@ -124,20 +123,16 @@ class Matrix(VMobject):
 
     def add_brackets(self):
         height = len(self.mob_matrix)
-        bracket_pair = Tex(
-            "".join(
-                [
-                    "\\left[",
-                    "\\begin{array}{c}",
-                    *height * ["\\quad \\\\"],
-                    "\\end{array}",
-                    "\\right]",
-                ]
-            )
-        )[0]
+        bracket_pair = Tex("".join([
+            "\\left[",
+            "\\begin{array}{c}",
+            *height * ["\\quad \\\\"],
+            "\\end{array}",
+            "\\right]",
+        ]))[0]
         bracket_pair.set_height(self.get_height() + 1 * self.bracket_v_buff)
-        l_bracket = bracket_pair[: len(bracket_pair) // 2]
-        r_bracket = bracket_pair[len(bracket_pair) // 2 :]
+        l_bracket = bracket_pair[:len(bracket_pair) // 2]
+        r_bracket = bracket_pair[len(bracket_pair) // 2:]
         l_bracket.next_to(self, LEFT, self.bracket_h_buff)
         r_bracket.next_to(self, RIGHT, self.bracket_h_buff)
         self.add(l_bracket, r_bracket)
@@ -145,12 +140,10 @@ class Matrix(VMobject):
         return self
 
     def get_columns(self) -> VGroup:
-        return VGroup(
-            *[
-                VGroup(*[row[i] for row in self.mob_matrix])
-                for i in range(len(self.mob_matrix[0]))
-            ]
-        )
+        return VGroup(*[
+            VGroup(*[row[i] for row in self.mob_matrix])
+            for i in range(len(self.mob_matrix[0]))
+        ])
 
     def get_rows(self) -> VGroup:
         return VGroup(*[VGroup(*row) for row in self.mob_matrix])
@@ -179,7 +172,9 @@ class Matrix(VMobject):
 class DecimalMatrix(Matrix):
     CONFIG = {
         "element_to_mobject": DecimalNumber,
-        "element_to_mobject_config": {"num_decimal_places": 1},
+        "element_to_mobject_config": {
+            "num_decimal_places": 1
+        },
     }
 
 

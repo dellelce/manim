@@ -30,20 +30,22 @@ class ChangingDecimal(Animation):
 
 
 class ChangeDecimalToValue(ChangingDecimal):
-    def __init__(
-        self, decimal_mob: DecimalNumber, target_number: float | complex, **kwargs
-    ):
+
+    def __init__(self, decimal_mob: DecimalNumber,
+                 target_number: float | complex, **kwargs):
         start_number = decimal_mob.number
-        super().__init__(
-            decimal_mob, lambda a: interpolate(start_number, target_number, a), **kwargs
-        )
+        super().__init__(decimal_mob,
+                         lambda a: interpolate(start_number, target_number, a),
+                         **kwargs)
 
 
 class CountInFrom(ChangingDecimal):
-    def __init__(
-        self, decimal_mob: DecimalNumber, source_number: float | complex = 0, **kwargs
-    ):
+
+    def __init__(self,
+                 decimal_mob: DecimalNumber,
+                 source_number: float | complex = 0,
+                 **kwargs):
         start_number = decimal_mob.number
-        super().__init__(
-            decimal_mob, lambda a: interpolate(source_number, start_number, a), **kwargs
-        )
+        super().__init__(decimal_mob,
+                         lambda a: interpolate(source_number, start_number, a),
+                         **kwargs)

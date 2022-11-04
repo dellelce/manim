@@ -35,7 +35,6 @@ if TYPE_CHECKING:
 
     ManimColor = Union[str, Color]
 
-
 DEFAULT_DOT_RADIUS = 0.08
 DEFAULT_SMALL_DOT_RADIUS = 0.04
 DEFAULT_DASH_LENGTH = 0.05
@@ -215,7 +214,10 @@ class Arc(TipableVMobject):
         "arc_center": ORIGIN,
     }
 
-    def __init__(self, start_angle: float = 0, angle: float = TAU / 4, **kwargs):
+    def __init__(self,
+                 start_angle: float = 0,
+                 angle: float = TAU / 4,
+                 **kwargs):
         self.start_angle = start_angle
         self.angle = angle
         VMobject.__init__(self, **kwargs)
@@ -226,25 +228,19 @@ class Arc(TipableVMobject):
                 angle=self.angle,
                 start_angle=self.start_angle,
                 n_components=self.n_components,
-            )
-        )
+            ))
         self.scale(self.radius, about_point=ORIGIN)
         self.shift(self.arc_center)
 
     @staticmethod
-    def create_quadratic_bezier_points(
-        angle: float, start_angle: float = 0, n_components: int = 8
-    ) -> np.ndarray:
-        samples = np.array(
-            [
-                [np.cos(a), np.sin(a), 0]
-                for a in np.linspace(
-                    start_angle,
-                    start_angle + angle,
-                    2 * n_components + 1,
-                )
-            ]
-        )
+    def create_quadratic_bezier_points(angle: float,
+                                       start_angle: float = 0,
+                                       n_components: int = 8) -> np.ndarray:
+        samples = np.array([[np.cos(a), np.sin(a), 0] for a in np.linspace(
+            start_angle,
+            start_angle + angle,
+            2 * n_components + 1,
+        )])
         theta = angle / n_components
         samples[1::2] /= np.cos(theta / 2)
 
@@ -283,9 +279,12 @@ class Arc(TipableVMobject):
 
 
 class ArcBetweenPoints(Arc):
-    def __init__(
-        self, start: np.ndarray, end: np.ndarray, angle: float = TAU / 4, **kwargs
-    ):
+
+    def __init__(self,
+                 start: np.ndarray,
+                 end: np.ndarray,
+                 angle: float = TAU / 4,
+                 **kwargs):
         super().__init__(angle=angle, **kwargs)
         if angle == 0:
             self.set_points_as_corners([LEFT, RIGHT])
@@ -293,19 +292,27 @@ class ArcBetweenPoints(Arc):
 
 
 class CurvedArrow(ArcBetweenPoints):
-    def __init__(self, start_point: np.ndarray, end_point: np.ndarray, **kwargs):
+
+    def __init__(self, start_point: np.ndarray, end_point: np.ndarray,
+                 **kwargs):
         ArcBetweenPoints.__init__(self, start_point, end_point, **kwargs)
         self.add_tip()
 
 
 class CurvedDoubleArrow(CurvedArrow):
-    def __init__(self, start_point: np.ndarray, end_point: np.ndarray, **kwargs):
+
+    def __init__(self, start_point: np.ndarray, end_point: np.ndarray,
+                 **kwargs):
         CurvedArrow.__init__(self, start_point, end_point, **kwargs)
         self.add_tip(at_start=True)
 
 
 class Circle(Arc):
-    CONFIG = {"color": RED, "close_new_points": True, "anchors_span_full_range": False}
+    CONFIG = {
+        "color": RED,
+        "close_new_points": True,
+        "anchors_span_full_range": False
+    }
 
     def __init__(self, start_angle: float = 0, **kwargs):
         Arc.__init__(self, start_angle, TAU, **kwargs)
@@ -377,8 +384,7 @@ class AnnularSector(Arc):
                 angle=self.angle,
                 radius=radius,
                 arc_center=self.arc_center,
-            )
-            for radius in (self.inner_radius, self.outer_radius)
+            ) for radius in (self.inner_radius, self.outer_radius)
         ]
         outer_arc.reverse_points()
         self.append_points(inner_arc.get_points())
@@ -418,7 +424,10 @@ class Line(TipableVMobject):
         "path_arc": 0,
     }
 
-    def __init__(self, start: np.ndarray = LEFT, end: np.ndarray = RIGHT, **kwargs):
+    def __init__(self,
+                 start: np.ndarray = LEFT,
+                 end: np.ndarray = RIGHT,
+                 **kwargs):
         digest_config(self, kwargs)
         self.set_start_and_end_attrs(start, end)
         super().__init__(**kwargs)
@@ -426,9 +435,11 @@ class Line(TipableVMobject):
     def init_points(self) -> None:
         self.set_points_by_ends(self.start, self.end, self.buff, self.path_arc)
 
-    def set_points_by_ends(
-        self, start: np.ndarray, end: np.ndarray, buff: float = 0, path_arc: float = 0
-    ):
+    def set_points_by_ends(self,
+                           start: np.ndarray,
+                           end: np.ndarray,
+                           buff: float = 0,
+                           path_arc: float = 0):
         vect = end - start
         dist = get_norm(vect)
         if np.isclose(dist, 0):
@@ -441,7 +452,8 @@ class Line(TipableVMobject):
                 start, end = end, start
             radius = (dist / 2) / math.sin(path_arc / 2)
             alpha = (PI - path_arc) / 2
-            center = start + radius * normalize(rotate_vector(end - start, alpha))
+            center = start + radius * normalize(
+                rotate_vector(end - start, alpha))
 
             raw_arc_points = Arc.create_quadratic_bezier_points(
                 angle=path_arc - 2 * buff / radius,
@@ -473,9 +485,9 @@ class Line(TipableVMobject):
         self.start = self.pointify(start, vect)
         self.end = self.pointify(end, -vect)
 
-    def pointify(
-        self, mob_or_point: Mobject | np.ndarray, direction: np.ndarray | None = None
-    ) -> np.ndarray:
+    def pointify(self,
+                 mob_or_point: Mobject | np.ndarray,
+                 direction: np.ndarray | None = None) -> np.ndarray:
         """
         Take an argument passed into Line (or subclass) and turn
         it into a 3d point.
@@ -489,7 +501,7 @@ class Line(TipableVMobject):
         else:
             point = mob_or_point
             result = np.zeros(self.dim)
-            result[: len(point)] = point
+            result[:len(point)] = point
             return result
 
     def put_start_and_end_on(self, start: np.ndarray, end: np.ndarray):
@@ -545,9 +557,9 @@ class DashedLine(Line):
         super().__init__(*args, **kwargs)
         ps_ratio = self.positive_space_ratio
         num_dashes = self.calculate_num_dashes(ps_ratio)
-        dashes = DashedVMobject(
-            self, num_dashes=num_dashes, positive_space_ratio=ps_ratio
-        )
+        dashes = DashedVMobject(self,
+                                num_dashes=num_dashes,
+                                positive_space_ratio=ps_ratio)
         self.clear_points()
         self.add(*dashes)
 
@@ -619,9 +631,11 @@ class Arrow(Line):
         "buff": 0.25,
     }
 
-    def set_points_by_ends(
-        self, start: np.ndarray, end: np.ndarray, buff: float = 0, path_arc: float = 0
-    ):
+    def set_points_by_ends(self,
+                           start: np.ndarray,
+                           end: np.ndarray,
+                           buff: float = 0,
+                           path_arc: float = 0):
         super().set_points_by_ends(start, end, buff, path_arc)
         self.insert_tip_anchor()
         return self
@@ -640,7 +654,8 @@ class Arrow(Line):
     def insert_tip_anchor(self):
         prev_end = self.get_end()
         arc_len = self.get_arc_length()
-        tip_len = self.get_stroke_width() * self.width_to_tip_len * self.tip_width_ratio
+        tip_len = self.get_stroke_width(
+        ) * self.width_to_tip_len * self.tip_width_ratio
         if tip_len >= self.max_tip_length_to_length_ratio * arc_len:
             alpha = self.max_tip_length_to_length_ratio
         else:
@@ -658,7 +673,8 @@ class Arrow(Line):
         nppc = self.n_points_per_curve
         if len(widths_array) > nppc:
             widths_array[-nppc:] = [
-                a * self.tip_width_ratio * width for a in np.linspace(1, 0, nppc)
+                a * self.tip_width_ratio * width
+                for a in np.linspace(1, 0, nppc)
             ]
             self.set_stroke(width=widths_array)
         return self
@@ -702,9 +718,11 @@ class FillArrow(Line):
         "max_width_to_length_ratio": 0.1,
     }
 
-    def set_points_by_ends(
-        self, start: np.ndarray, end: np.ndarray, buff: float = 0, path_arc: float = 0
-    ) -> None:
+    def set_points_by_ends(self,
+                           start: np.ndarray,
+                           end: np.ndarray,
+                           buff: float = 0,
+                           path_arc: float = 0) -> None:
         # Find the right tip length and thickness
         vect = end - start
         length = max(get_norm(vect), 1e-8)
@@ -715,14 +733,16 @@ class FillArrow(Line):
 
         tip_width = self.tip_width_ratio * thickness
         tip_length = tip_width / (2 * np.tan(self.tip_angle / 2))
-        t_ratio = fdiv(self.max_tip_length_to_length_ratio, fdiv(tip_length, length))
+        t_ratio = fdiv(self.max_tip_length_to_length_ratio,
+                       fdiv(tip_length, length))
         if t_ratio < 1:
             tip_length *= t_ratio
             tip_width *= t_ratio
 
         # Find points for the stem
         if path_arc == 0:
-            points1 = (length - tip_length) * np.array([RIGHT, 0.5 * RIGHT, ORIGIN])
+            points1 = (length - tip_length) * np.array(
+                [RIGHT, 0.5 * RIGHT, ORIGIN])
             points1 += thickness * UP / 2
             points2 = points1[::-1] + thickness * DOWN
         else:
@@ -768,9 +788,9 @@ class FillArrow(Line):
         self.refresh_triangulation()
 
     def reset_points_around_ends(self):
-        self.set_points_by_ends(
-            self.get_start().copy(), self.get_end().copy(), path_arc=self.path_arc
-        )
+        self.set_points_by_ends(self.get_start().copy(),
+                                self.get_end().copy(),
+                                path_arc=self.path_arc)
         return self
 
     def get_start(self) -> np.ndarray:
@@ -813,20 +833,22 @@ class Vector(Arrow):
 
 
 class DoubleArrow(Arrow):
+
     def __init__(self, *args, **kwargs):
         Arrow.__init__(self, *args, **kwargs)
         self.add_tip(at_start=True)
 
 
 class CubicBezier(VMobject):
-    def __init__(
-        self, a0: np.ndarray, h0: np.ndarray, h1: np.ndarray, a1: np.ndarray, **kwargs
-    ):
+
+    def __init__(self, a0: np.ndarray, h0: np.ndarray, h1: np.ndarray,
+                 a1: np.ndarray, **kwargs):
         VMobject.__init__(self, **kwargs)
         self.add_cubic_bezier_curve(a0, h0, h1, a1)
 
 
 class Polygon(VMobject):
+
     def __init__(self, *vertices: np.ndarray, **kwargs):
         self.vertices = vertices
         super().__init__(**kwargs)
@@ -842,10 +864,8 @@ class Polygon(VMobject):
         if radius is None:
             verts = self.get_vertices()
             min_edge_length = min(
-                get_norm(v1 - v2)
-                for v1, v2 in zip(verts, verts[1:])
-                if not np.isclose(v1, v2).all()
-            )
+                get_norm(v1 - v2) for v1, v2 in zip(verts, verts[1:])
+                if not np.isclose(v1, v2).all())
             radius = 0.25 * min_edge_length
         vertices = self.get_vertices()
         arcs = []
@@ -883,6 +903,7 @@ class Polygon(VMobject):
 
 
 class Polyline(Polygon):
+
     def init_points(self) -> None:
         self.set_points_as_corners(self.vertices)
 
@@ -903,6 +924,7 @@ class RegularPolygon(Polygon):
 
 
 class Triangle(RegularPolygon):
+
     def __init__(self, **kwargs):
         super().__init__(n=3, **kwargs)
 
@@ -956,9 +978,10 @@ class Rectangle(Polygon):
         "close_new_points": True,
     }
 
-    def __init__(
-        self, width: float | None = None, height: float | None = None, **kwargs
-    ):
+    def __init__(self,
+                 width: float | None = None,
+                 height: float | None = None,
+                 **kwargs):
         Polygon.__init__(self, UR, UL, DL, DR, **kwargs)
 
         if width is None:
@@ -971,6 +994,7 @@ class Rectangle(Polygon):
 
 
 class Square(Rectangle):
+
     def __init__(self, side_length: float = 2.0, **kwargs):
         self.side_length = side_length
         super().__init__(side_length, side_length, **kwargs)

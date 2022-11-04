@@ -94,7 +94,10 @@ class Flash(AnimationGroup):
         "run_time": 1,
     }
 
-    def __init__(self, point: np.ndarray, color: ManimColor = YELLOW, **kwargs):
+    def __init__(self,
+                 point: np.ndarray,
+                 color: ManimColor = YELLOW,
+                 **kwargs):
         self.point = point
         self.color = color
         digest_config(self, kwargs)
@@ -179,7 +182,8 @@ class VShowPassingFlash(Animation):
         self.submob_to_anchor_widths = dict()
         for sm in self.mobject.get_family():
             original_widths = sm.get_stroke_widths()
-            anchor_widths = np.array([*original_widths[0::3], original_widths[-1]])
+            anchor_widths = np.array(
+                [*original_widths[0::3], original_widths[-1]])
 
             def taper_kernel(x):
                 if x < self.taper_width:
@@ -188,13 +192,14 @@ class VShowPassingFlash(Animation):
                     return 1.0 - x
                 return 1.0
 
-            taper_array = list(map(taper_kernel, np.linspace(0, 1, len(anchor_widths))))
-            self.submob_to_anchor_widths[hash(sm)] = anchor_widths * taper_array
+            taper_array = list(
+                map(taper_kernel, np.linspace(0, 1, len(anchor_widths))))
+            self.submob_to_anchor_widths[hash(
+                sm)] = anchor_widths * taper_array
         super().begin()
 
-    def interpolate_submobject(
-        self, submobject: VMobject, starting_sumobject: None, alpha: float
-    ) -> None:
+    def interpolate_submobject(self, submobject: VMobject,
+                               starting_sumobject: None, alpha: float) -> None:
         anchor_widths = self.submob_to_anchor_widths[hash(submobject)]
         # Create a gaussian such that 3 sigmas out on either side
         # will equals time_width
@@ -208,7 +213,8 @@ class VShowPassingFlash(Animation):
             z = (x - mu) / sigma
             return math.exp(-0.5 * z * z)
 
-        kernel_array = list(map(gauss_kernel, np.linspace(0, 1, len(anchor_widths))))
+        kernel_array = list(
+            map(gauss_kernel, np.linspace(0, 1, len(anchor_widths))))
         scaled_widths = anchor_widths * kernel_array
         new_widths = np.zeros(submobject.get_num_points())
         new_widths[0::3] = scaled_widths[:-1]
@@ -246,6 +252,7 @@ class FlashAround(VShowPassingFlash):
 
 
 class FlashUnder(FlashAround):
+
     def get_path(self, mobject: Mobject) -> Underline:
         return Underline(mobject, buff=self.buff)
 
@@ -284,14 +291,11 @@ class AnimationOnSurroundingRectangle(AnimationGroup):
         rect = self.get_rect()
         rect.add_updater(lambda r: r.move_to(mobject))
 
-        super().__init__(
-            self.rect_animation(rect, **kwargs),
-        )
+        super().__init__(self.rect_animation(rect, **kwargs), )
 
     def get_rect(self) -> SurroundingRectangle:
-        return SurroundingRectangle(
-            self.mobject_to_surround, **self.surrounding_rectangle_config
-        )
+        return SurroundingRectangle(self.mobject_to_surround,
+                                    **self.surrounding_rectangle_config)
 
 
 class ShowPassingFlashAround(AnimationOnSurroundingRectangle):
@@ -346,9 +350,9 @@ class WiggleOutThenIn(Animation):
         if self.rotate_about_point is None:
             return self.mobject.get_center()
 
-    def interpolate_submobject(
-        self, submobject: Mobject, starting_sumobject: Mobject, alpha: float
-    ) -> None:
+    def interpolate_submobject(self, submobject: Mobject,
+                               starting_sumobject: Mobject,
+                               alpha: float) -> None:
         submobject.match_points(starting_sumobject)
         submobject.scale(
             interpolate(1, self.scale_value, there_and_back(alpha)),
@@ -382,7 +386,8 @@ class FlashyFadeIn(AnimationGroup):
 
         rate_func = kwargs.get("rate_func", smooth)
         super().__init__(
-            FadeIn(vmobject, rate_func=squish_rate_func(rate_func, self.fade_lag, 1)),
+            FadeIn(vmobject,
+                   rate_func=squish_rate_func(rate_func, self.fade_lag, 1)),
             VShowPassingFlash(outline, time_width=1),
             **kwargs,
         )

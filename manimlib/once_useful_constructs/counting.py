@@ -16,13 +16,18 @@ import itertools as it
 class CountingScene(Scene):
     CONFIG = {
         "digit_place_colors": [YELLOW, MAROON_B, RED, GREEN, BLUE, PURPLE_D],
-        "counting_dot_starting_position": (FRAME_X_RADIUS - 1) * RIGHT
-        + (FRAME_Y_RADIUS - 1) * UP,
-        "count_dot_starting_radius": 0.5,
-        "dot_configuration_height": 2,
-        "ones_configuration_location": UP + 2 * RIGHT,
-        "num_scale_factor": 2,
-        "num_start_location": 2 * DOWN,
+        "counting_dot_starting_position":
+        (FRAME_X_RADIUS - 1) * RIGHT + (FRAME_Y_RADIUS - 1) * UP,
+        "count_dot_starting_radius":
+        0.5,
+        "dot_configuration_height":
+        2,
+        "ones_configuration_location":
+        UP + 2 * RIGHT,
+        "num_scale_factor":
+        2,
+        "num_start_location":
+        2 * DOWN,
     }
 
     def setup(self):
@@ -47,23 +52,21 @@ class CountingScene(Scene):
         result = []
         for down_right_steps in range(5):
             for left_steps in range(down_right_steps):
-                result.append(down_right_steps * down_right + left_steps * LEFT)
-        return reversed(result[: self.get_place_max(place)])
+                result.append(down_right_steps * down_right +
+                              left_steps * LEFT)
+        return reversed(result[:self.get_place_max(place)])
 
     def get_dot_template(self, place):
         # This should be replaced for non-base-10 counting scenes
-        dots = VGroup(
-            *[
-                Dot(
-                    point,
-                    radius=0.25,
-                    fill_opacity=0,
-                    stroke_width=2,
-                    stroke_color=WHITE,
-                )
-                for point in self.get_template_configuration(place)
-            ]
-        )
+        dots = VGroup(*[
+            Dot(
+                point,
+                radius=0.25,
+                fill_opacity=0,
+                stroke_width=2,
+                stroke_color=WHITE,
+            ) for point in self.get_template_configuration(place)
+        ])
         dots.set_height(self.dot_configuration_height)
         return dots
 
@@ -102,9 +105,8 @@ class CountingScene(Scene):
             self.play(MoveToTarget(moving_dot), *added_anims, **kwargs)
             self.curr_configurations[place].add(moving_dot)
 
-            if len(self.curr_configurations[place].split()) == self.get_place_max(
-                place
-            ):
+            if len(self.curr_configurations[place].split()
+                   ) == self.get_place_max(place):
                 full_configuration = self.curr_configurations[place]
                 self.curr_configurations[place] = VGroup()
                 place += 1
@@ -145,7 +147,8 @@ class CountingScene(Scene):
             )
             self.arrows.add(arrow)
             result.append(ShowCreation(arrow))
-        result.append(Transform(self.number_mob, new_number_mob, lag_ratio=0.5))
+        result.append(Transform(self.number_mob, new_number_mob,
+                                lag_ratio=0.5))
         return result
 
     def get_number_mob(self, num):
@@ -174,6 +177,7 @@ class CountingScene(Scene):
 
 
 class PowerCounter(CountingScene):
+
     def is_next_digit(self):
         number = self.number
         while number > 1:
